@@ -1172,7 +1172,7 @@ function handleFileSelect(e) {
   if (file) processFile(file);
 }
 
-function processFile(file) {
+async function processFile(file) {
   const reader = new FileReader();
   reader.onload = function(e) {
     try {
