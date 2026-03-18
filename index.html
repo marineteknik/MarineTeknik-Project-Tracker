@@ -482,6 +482,7 @@
     <div class="login-error" id="loginError"></div>
     <div class="login-success" id="loginSuccess"></div>
     <div class="login-info">
+      
       Only authorized team members can access this tracker.
     </div>
   </div>
@@ -879,11 +880,9 @@ async function handleLogin() {
   const email = document.getElementById('loginEmail').value.trim().toLowerCase();
   const password = document.getElementById('loginPassword').value;
   const errorEl = document.getElementById('loginError');
-  const successEl = document.getElementById('loginSuccess');
   const btn = document.getElementById('loginBtn');
   
   errorEl.classList.remove('show');
-  successEl.classList.remove('show');
   
   if (!email || !email.includes('@')) {
     errorEl.textContent = 'Please enter a valid email address.';
@@ -907,8 +906,6 @@ async function handleLogin() {
     });
     
     if (error) throw error;
-    
-    // Auth state change listener will handle the rest
   } catch (err) {
     errorEl.textContent = err.message || 'Login failed. Check your email and password.';
     errorEl.classList.add('show');
