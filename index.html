@@ -40,7 +40,6 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); font-size: 13px; min-height: 100vh; }
 
-  /* ── TOP BAR ── */
   .topbar {
     background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%);
     color: var(--white);
@@ -57,7 +56,6 @@
   .topbar-right { display: flex; align-items: center; gap: 10px; }
   .last-import { font-size: 11px; color: rgba(255,255,255,0.5); font-family: 'DM Mono', monospace; }
 
-  /* ── BUTTONS ── */
   .btn {
     display: inline-flex; align-items: center; gap: 6px;
     padding: 7px 16px; border-radius: 6px; border: none; cursor: pointer;
@@ -72,7 +70,6 @@
   .btn-sm { padding: 5px 11px; font-size: 11px; }
   .btn-red { background: var(--red); color: var(--white); }
 
-  /* ── TABS ── */
   .tabs { background: var(--navy2); display: flex; align-items: center; gap: 2px; padding: 0 28px; }
   .tab {
     padding: 10px 18px; font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.55);
@@ -82,12 +79,10 @@
   .tab:hover { color: rgba(255,255,255,0.85); }
   .tab.active { color: var(--gold); border-bottom-color: var(--gold); font-weight: 700; }
 
-  /* ── MAIN CONTENT ── */
   .content { padding: 20px 28px; }
   .page { display: none; }
   .page.active { display: block; }
 
-  /* ── KPI CARDS ── */
   .kpi-row { display: flex; gap: 14px; margin-bottom: 20px; flex-wrap: wrap; }
   .kpi-card {
     background: var(--white); border-radius: 10px; padding: 16px 20px;
@@ -113,7 +108,6 @@
   .kpi-value { font-size: 28px; font-weight: 700; color: var(--text); line-height: 1; }
   .kpi-sub { font-size: 10px; color: var(--text2); margin-top: 4px; font-family: 'DM Mono', monospace; }
 
-  /* ── TOOLBAR ── */
   .toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
   .search-box {
     display: flex; align-items: center; gap: 8px;
@@ -136,10 +130,7 @@
   .filter-chip.gold.active  { background: var(--gold); border-color: var(--gold); color: var(--navy); }
   .spacer { flex: 1; }
 
-  /* PM Filter Dropdown */
-  .pm-filter-wrap {
-    position: relative; display: inline-block;
-  }
+  .pm-filter-wrap { position: relative; display: inline-block; }
   .pm-filter-btn {
     display: flex; align-items: center; gap: 6px;
     padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border);
@@ -165,7 +156,6 @@
   .pm-dropdown-item.selected .check { opacity: 1; }
   .pm-count { font-size: 10px; color: var(--text2); margin-left: auto; font-family: 'DM Mono', monospace; }
 
-  /* ── TABLE ── */
   .table-wrap { background: var(--white); border-radius: 10px; box-shadow: var(--shadow); overflow: hidden; }
   .table-scroll { overflow-x: auto; }
   table { width: 100%; border-collapse: collapse; font-size: 12px; }
@@ -188,7 +178,6 @@
   .row-no-date   { background: var(--white); }
   .row-flagged   { background: #FFFBF0; }
 
-  /* Status badge */
   .badge {
     display: inline-flex; align-items: center;
     padding: 3px 8px; border-radius: 20px;
@@ -199,7 +188,6 @@
   .badge-upcoming { background: var(--green);   color: var(--white); }
   .badge-nodate   { background: #95a5a6;        color: var(--white); }
 
-  /* Cells */
   .cell-code { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 600; color: var(--navy); }
   .cell-num  { font-family: 'DM Mono', monospace; font-size: 11px; text-align: right; }
   .cell-date { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text2); white-space: nowrap; }
@@ -208,7 +196,6 @@
   .progress-bar { height: 5px; border-radius: 3px; background: var(--green); }
   .flag-dot { display:inline-block; width:8px; height:8px; border-radius:50%; background: var(--gold); margin-right:3px; }
 
-  /* Comment cells */
   .comment-cell { position: relative; }
   .comment-text { max-width: 160px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text2); font-size: 11px; }
   .comment-text.has-comment { color: var(--text); cursor: pointer; }
@@ -217,23 +204,18 @@
     border: 1px dashed var(--border); border-radius: 4px; background: none; white-space: nowrap; }
   .add-comment-btn:hover { border-color: var(--navy); color: var(--navy); background: var(--grey-lite); }
 
-  /* Flag toggle */
   .flag-toggle { cursor: pointer; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 600;
     border: 1px solid var(--border); background: none; transition: all 0.12s; white-space: nowrap; }
   .flag-toggle.flagged { background: #FFF8E7; border-color: var(--gold); color: var(--gold); }
   .flag-toggle:not(.flagged) { color: #ccc; }
   .flag-toggle:hover { border-color: var(--gold); color: var(--gold); }
 
-  /* Table footer */
   .table-footer { display: flex; align-items: center; padding: 12px 16px;
     background: var(--navy); color: rgba(255,255,255,0.7); font-size: 11px; gap: 24px; }
   .tf-item { display: flex; flex-direction: column; gap: 2px; }
   .tf-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.07em; opacity: 0.6; }
   .tf-value { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 600; color: var(--white); }
 
-  /* ══════════════════════════════════════════════════════
-     DASHBOARD STYLES
-     ══════════════════════════════════════════════════════ */
   .dashboard-header {
     display: flex; align-items: flex-end; justify-content: space-between;
     margin-bottom: 24px; flex-wrap: wrap; gap: 16px;
@@ -264,7 +246,6 @@
   .chart-container { position: relative; height: 260px; }
   .chart-container.tall { height: 320px; }
 
-  /* Big Number Cards */
   .big-numbers {
     display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px;
   }
@@ -292,7 +273,6 @@
   .big-num-value { font-size: 32px; font-weight: 700; line-height: 1; }
   .big-num-sub { font-size: 11px; margin-top: 6px; opacity: 0.7; font-family: 'DM Mono', monospace; }
 
-  /* PM Leaderboard */
   .pm-list { }
   .pm-row {
     display: flex; align-items: center; padding: 12px 0;
@@ -309,7 +289,6 @@
   .pm-progress-wrap { width: 100px; height: 6px; background: var(--bg2); border-radius: 3px; margin-left: 12px; }
   .pm-progress { height: 6px; border-radius: 3px; background: var(--blue); }
 
-  /* Status Breakdown */
   .status-breakdown { display: flex; gap: 12px; flex-wrap: wrap; }
   .status-item {
     flex: 1; min-width: 100px; padding: 14px; border-radius: 8px; text-align: center;
@@ -326,7 +305,6 @@
   .status-item.nodate .status-count { color: var(--text2); }
   .status-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text2); margin-top: 4px; }
 
-  /* ── MODAL ── */
   .modal-overlay {
     position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000;
     display: flex; align-items: center; justify-content: center;
@@ -357,7 +335,6 @@
   textarea:focus { border-color: var(--navy); background: var(--white); }
   .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
 
-  /* ── IMPORT MODAL ── */
   .import-zone {
     border: 2px dashed var(--border); border-radius: 8px; padding: 36px 20px;
     text-align: center; cursor: pointer; transition: all 0.15s; background: var(--grey-lite);
@@ -371,7 +348,6 @@
     padding: 12px 14px; font-size: 11px; color: var(--text); }
   .import-rules ul { padding-left: 16px; line-height: 1.8; }
 
-  /* ── REPORT MODAL ── */
   .report-options { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
   .report-card {
     flex: 1; min-width: 140px; border: 2px solid var(--border); border-radius: 10px; padding: 18px 16px;
@@ -383,13 +359,11 @@
   .report-card-title { font-size: 12px; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
   .report-card-desc { font-size: 10px; color: var(--text2); line-height: 1.5; }
 
-  /* ── EMPTY STATE ── */
   .empty-state { text-align: center; padding: 60px 20px; color: var(--text2); }
   .empty-icon { font-size: 48px; margin-bottom: 16px; }
   .empty-title { font-size: 16px; font-weight: 600; color: var(--navy); margin-bottom: 8px; }
   .empty-sub { font-size: 12px; max-width: 320px; margin: 0 auto 20px; line-height: 1.6; }
 
-  /* ── TOAST ── */
   .toast {
     position: fixed; bottom: 24px; right: 24px; z-index: 9999;
     background: var(--navy); color: var(--white); padding: 12px 20px;
@@ -399,7 +373,6 @@
   }
   .toast.show { transform: translateY(0); }
 
-  /* ── LOGIN SCREEN ── */
   .login-overlay {
     position: fixed; inset: 0; background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%);
     z-index: 10000; display: flex; align-items: center; justify-content: center;
@@ -447,13 +420,11 @@
   .sync-dot.syncing { background: var(--gold); animation: pulse 1s infinite; }
   @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
-  /* Scrollbar */
   ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: var(--bg); }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
   ::-webkit-scrollbar-thumb:hover { background: var(--navy3); }
 
-  /* Report only flags */
   .col-finance { border-left: 3px solid #3498db; }
   .col-contracts { border-left: 3px solid #9b59b6; }
   .col-estimation { border-left: 3px solid #27ae60; }
@@ -471,7 +442,6 @@
 </head>
 <body>
 
-<!-- LOGIN OVERLAY -->
 <div class="login-overlay" id="loginOverlay">
   <div class="login-box">
     <div class="login-logo">MARINE<span>TEKNIK</span></div>
@@ -481,14 +451,10 @@
     <button class="login-btn" id="loginBtn" onclick="handleLogin()">Sign In</button>
     <div class="login-error" id="loginError"></div>
     <div class="login-success" id="loginSuccess"></div>
-    <div class="login-info">
-      
-      Only authorized team members can access this tracker.
-    </div>
+    <div class="login-info">Only authorized team members can access this tracker.</div>
   </div>
 </div>
 
-<!-- TOP BAR -->
 <div class="topbar">
   <div class="topbar-left">
     <div class="logo">MARINE<span>TEKNIK</span></div>
@@ -509,7 +475,6 @@
   </div>
 </div>
 
-<!-- TABS -->
 <div class="tabs">
   <div class="tab active" onclick="switchTab('all', this)">All Projects</div>
   <div class="tab" onclick="switchTab('contracts', this)">🚩 Contracts</div>
@@ -517,11 +482,8 @@
   <div class="tab" onclick="switchTab('dashboard', this)">📊 Dashboard</div>
 </div>
 
-<!-- MAIN CONTENT -->
 <div class="content">
-  <!-- ═══════════ ALL PROJECTS PAGE ═══════════ -->
   <div class="page active" id="page-tracker">
-    <!-- KPI Row -->
     <div class="kpi-row" id="kpiRow">
       <div class="kpi-card navy">
         <div class="kpi-label">Total Projects</div>
@@ -555,7 +517,6 @@
       </div>
     </div>
 
-    <!-- Toolbar -->
     <div class="toolbar">
       <div class="search-box">
         <span class="search-icon">🔍</span>
@@ -567,7 +528,6 @@
         <div class="filter-chip green" data-filter="Upcoming" onclick="toggleFilter(this)">Upcoming</div>
         <div class="filter-chip" data-filter="No Date" onclick="toggleFilter(this)">No Date</div>
       </div>
-      <!-- PM Filter -->
       <div class="pm-filter-wrap">
         <button class="pm-filter-btn" id="pmFilterBtn" onclick="togglePMDropdown()">
           <span>👤</span>
@@ -580,7 +540,6 @@
       <span style="font-size:11px; color:var(--text2)" id="rowCountLabel"></span>
     </div>
 
-    <!-- Table -->
     <div class="table-wrap">
       <div class="table-scroll">
         <table id="mainTable">
@@ -620,7 +579,6 @@
     </div>
   </div>
 
-  <!-- ═══════════ DASHBOARD PAGE ═══════════ -->
   <div class="page" id="page-dashboard">
     <div class="dashboard-header">
       <div>
@@ -630,7 +588,6 @@
       <div class="dashboard-date" id="dashDate"></div>
     </div>
 
-    <!-- Big Numbers -->
     <div class="big-numbers">
       <div class="big-num-card">
         <div class="big-num-label">Total Portfolio Value</div>
@@ -654,9 +611,7 @@
       </div>
     </div>
 
-    <!-- Dashboard Grid -->
     <div class="dashboard-grid">
-      <!-- Status Breakdown -->
       <div class="dash-card">
         <div class="dash-card-header">
           <div class="dash-card-title">Invoice Status Breakdown</div>
@@ -685,7 +640,6 @@
         </div>
       </div>
 
-      <!-- PM Performance -->
       <div class="dash-card">
         <div class="dash-card-header">
           <div class="dash-card-title">Project Manager Workload</div>
@@ -694,7 +648,6 @@
         <div class="pm-list" id="pmLeaderboard"></div>
       </div>
 
-      <!-- Value by Status Chart -->
       <div class="dash-card">
         <div class="dash-card-header">
           <div class="dash-card-title">Value by Invoice Status</div>
@@ -705,7 +658,6 @@
         </div>
       </div>
 
-      <!-- Invoiced vs Remaining -->
       <div class="dash-card">
         <div class="dash-card-header">
           <div class="dash-card-title">Collection Progress</div>
@@ -716,7 +668,6 @@
         </div>
       </div>
 
-      <!-- PM Bar Chart -->
       <div class="dash-card full-width">
         <div class="dash-card-header">
           <div class="dash-card-title">Project Value by PM</div>
@@ -730,7 +681,6 @@
   </div>
 </div>
 
-<!-- ── IMPORT MODAL ── -->
 <div class="modal-overlay" id="importModal">
   <div class="modal" style="width:480px">
     <div class="modal-title">⬆ Import Business Central Export</div>
@@ -760,7 +710,6 @@
   </div>
 </div>
 
-<!-- ── COMMENT MODAL ── -->
 <div class="modal-overlay" id="commentModal">
   <div class="modal">
     <div class="modal-title">💬 Edit Comments</div>
@@ -797,7 +746,6 @@
   </div>
 </div>
 
-<!-- ── REPORT MODAL ── -->
 <div class="modal-overlay" id="reportModal">
   <div class="modal" style="width:560px">
     <div class="modal-title">📤 Export Report</div>
@@ -826,23 +774,14 @@
   </div>
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <script>
-// ══════════════════════════════════════════════════════
-//  SUPABASE CONFIGURATION
-//  ⚠️ REPLACE THESE WITH YOUR ACTUAL VALUES FROM SUPABASE
-// ══════════════════════════════════════════════════════
-const SUPABASE_URL = 'https://mpvsentuomxnyijhrwli.supabaseClient.co';
+const SUPABASE_URL = 'https://mpvsentuomxnyijhrwli.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wdnNlbnR1b214bnlpamhyd2xpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3Njg5MTUsImV4cCI6MjA4OTM0NDkxNX0.yL2YDH-fx12oR03-JFDxj651mWZRQoPywv8ilebzox0';
 
-// Initialize Supabase client
-const supabaseClient = window.supabaseClient.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// ══════════════════════════════════════════════════════
-//  STATE
-// ══════════════════════════════════════════════════════
 let projects = [];
 let comments = {};
 let flags = {};
@@ -854,16 +793,11 @@ let sortDir = 'asc';
 let editingCode = null;
 let selectedReport = null;
 let currentUser = null;
-
-// Chart instances
 let statusChart = null;
 let valueByStatusChart = null;
 let collectionChart = null;
 let pmBarChart = null;
 
-// ══════════════════════════════════════════════════════
-//  AUTHENTICATION
-// ══════════════════════════════════════════════════════
 async function checkAuth() {
   const { data: { session } } = await supabaseClient.auth.getSession();
   if (session) {
@@ -935,7 +869,6 @@ function showApp() {
   document.getElementById('syncIndicator').style.display = 'inline-flex';
 }
 
-// Listen for auth state changes (handles magic link callback)
 supabaseClient.auth.onAuthStateChange(async (event, session) => {
   if (event === 'SIGNED_IN' && session) {
     currentUser = session.user;
@@ -947,9 +880,6 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
   }
 });
 
-// ══════════════════════════════════════════════════════
-//  SUPABASE DATA OPERATIONS
-// ══════════════════════════════════════════════════════
 function setSyncing(syncing) {
   const dot = document.getElementById('syncDot');
   const label = document.getElementById('syncLabel');
@@ -980,25 +910,27 @@ async function loadProjects() {
   const { data, error } = await supabaseClient.from('projects').select('*');
   if (error) throw error;
   
-  projects = (data || []).map(p => ({
-    'Customer No': p.customer_no || '',
-    'Project Code': p.project_code || '',
-    'Customer Name': p.customer_name || '',
-    'Ship Name': p.ship_name || '',
-    'Project Name': p.project_name || '',
-    'Person Responsible': p.person_responsible || '',
-    'Your Reference': p.your_reference || '',
-    'PO Number': p.po_number || '',
-    'Project Start': p.project_start || '',
-    'Project End': p.project_end || '',
-    'Next Invoice Date': p.next_invoice_date || '',
-    'Project Value': parseFloat(p.project_value) || 0,
-    'Invoiced Value': parseFloat(p.invoiced_value) || 0,
-    '% invoiced': parseFloat(p.percent_invoiced) || 0,
-    'Remaining Inv': parseFloat(p.remaining_inv) || 0,
-    'Status': p.status || 'Open',
-    'invoiceStatus': p.invoice_status || calcInvoiceStatus(p.next_invoice_date),
-  }));
+  projects = (data || []).map(function(p) {
+    return {
+      'Customer No': p.customer_no || '',
+      'Project Code': p.project_code || '',
+      'Customer Name': p.customer_name || '',
+      'Ship Name': p.ship_name || '',
+      'Project Name': p.project_name || '',
+      'Person Responsible': p.person_responsible || '',
+      'Your Reference': p.your_reference || '',
+      'PO Number': p.po_number || '',
+      'Project Start': p.project_start || '',
+      'Project End': p.project_end || '',
+      'Next Invoice Date': p.next_invoice_date || '',
+      'Project Value': parseFloat(p.project_value) || 0,
+      'Invoiced Value': parseFloat(p.invoiced_value) || 0,
+      '% invoiced': parseFloat(p.percent_invoiced) || 0,
+      'Remaining Inv': parseFloat(p.remaining_inv) || 0,
+      'Status': p.status || 'Open',
+      'invoiceStatus': p.invoice_status || calcInvoiceStatus(p.next_invoice_date)
+    };
+  });
 }
 
 async function loadComments() {
@@ -1006,7 +938,7 @@ async function loadComments() {
   if (error) throw error;
   
   comments = {};
-  (data || []).forEach(c => {
+  (data || []).forEach(function(c) {
     comments[c.project_code] = {
       finance: c.finance || '',
       contracts: c.contracts || '',
@@ -1020,7 +952,7 @@ async function loadFlags() {
   if (error) throw error;
   
   flags = {};
-  (data || []).forEach(f => {
+  (data || []).forEach(function(f) {
     flags[f.project_code] = {
       contracts: f.contracts || false,
       estimation: f.estimation || false
@@ -1040,28 +972,29 @@ async function loadMetadata() {
 async function saveProjects() {
   setSyncing(true);
   try {
-    // Delete existing and insert new (simple replace strategy)
     await supabaseClient.from('projects').delete().neq('project_code', '');
     
-    const rows = projects.map(p => ({
-      project_code: p['Project Code'],
-      customer_no: p['Customer No'],
-      customer_name: p['Customer Name'],
-      ship_name: p['Ship Name'],
-      project_name: p['Project Name'],
-      person_responsible: p['Person Responsible'],
-      your_reference: p['Your Reference'],
-      po_number: p['PO Number'],
-      project_start: p['Project Start'] || null,
-      project_end: p['Project End'] || null,
-      next_invoice_date: p['Next Invoice Date'] || null,
-      project_value: p['Project Value'],
-      invoiced_value: p['Invoiced Value'],
-      percent_invoiced: p['% invoiced'],
-      remaining_inv: p['Remaining Inv'],
-      status: p['Status'],
-      invoice_status: p['invoiceStatus'],
-    }));
+    var rows = projects.map(function(p) {
+      return {
+        project_code: p['Project Code'],
+        customer_no: p['Customer No'],
+        customer_name: p['Customer Name'],
+        ship_name: p['Ship Name'],
+        project_name: p['Project Name'],
+        person_responsible: p['Person Responsible'],
+        your_reference: p['Your Reference'],
+        po_number: p['PO Number'],
+        project_start: p['Project Start'] || null,
+        project_end: p['Project End'] || null,
+        next_invoice_date: p['Next Invoice Date'] || null,
+        project_value: p['Project Value'],
+        invoiced_value: p['Invoiced Value'],
+        percent_invoiced: p['% invoiced'],
+        remaining_inv: p['Remaining Inv'],
+        status: p['Status'],
+        invoice_status: p['invoiceStatus']
+      };
+    });
     
     if (rows.length > 0) {
       const { error } = await supabaseClient.from('projects').insert(rows);
@@ -1076,7 +1009,7 @@ async function saveProjects() {
 
 async function saveComment(code) {
   setSyncing(true);
-  const cm = comments[code] || { finance: '', contracts: '', estimation: '' };
+  var cm = comments[code] || { finance: '', contracts: '', estimation: '' };
   try {
     const { error } = await supabaseClient.from('comments').upsert({
       project_code: code,
@@ -1084,7 +1017,7 @@ async function saveComment(code) {
       contracts: cm.contracts,
       estimation: cm.estimation,
       updated_at: new Date().toISOString(),
-      updated_by: currentUser?.email || 'unknown'
+      updated_by: currentUser ? currentUser.email : 'unknown'
     }, { onConflict: 'project_code' });
     if (error) throw error;
   } catch (err) {
@@ -1096,7 +1029,7 @@ async function saveComment(code) {
 
 async function saveFlag(code) {
   setSyncing(true);
-  const fl = flags[code] || { contracts: false, estimation: false };
+  var fl = flags[code] || { contracts: false, estimation: false };
   try {
     const { error } = await supabaseClient.from('flags').upsert({
       project_code: code,
@@ -1124,94 +1057,85 @@ async function saveMetadata(key, value) {
   }
 }
 
-// ══════════════════════════════════════════════════════
-//  REALTIME SUBSCRIPTIONS
-// ══════════════════════════════════════════════════════
 function setupRealtimeSubscriptions() {
-  // Subscribe to projects changes
   supabaseClient.channel('projects-changes')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'projects' }, () => {
-      loadProjects().then(() => { renderKPIs(); renderTable(); buildPMDropdown(); });
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'projects' }, function() {
+      loadProjects().then(function() { renderKPIs(); renderTable(); buildPMDropdown(); });
     })
     .subscribe();
   
-  // Subscribe to comments changes
   supabaseClient.channel('comments-changes')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'comments' }, () => {
-      loadComments().then(() => { renderTable(); });
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'comments' }, function() {
+      loadComments().then(function() { renderTable(); });
     })
     .subscribe();
   
-  // Subscribe to flags changes
   supabaseClient.channel('flags-changes')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'flags' }, () => {
-      loadFlags().then(() => { renderKPIs(); renderTable(); });
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'flags' }, function() {
+      loadFlags().then(function() { renderKPIs(); renderTable(); });
     })
     .subscribe();
   
-  // Subscribe to metadata changes
   supabaseClient.channel('metadata-changes')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'app_metadata' }, () => {
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'app_metadata' }, function() {
       loadMetadata();
     })
     .subscribe();
 }
 
-// ══════════════════════════════════════════════════════
-//  IMPORT
-// ══════════════════════════════════════════════════════
 function openImportModal()  { document.getElementById('importModal').classList.add('open'); }
 function closeImportModal() { document.getElementById('importModal').classList.remove('open'); }
 
 function handleDrop(e) {
   e.preventDefault();
   document.getElementById('importZone').classList.remove('dragover');
-  const file = e.dataTransfer.files[0];
+  var file = e.dataTransfer.files[0];
   if (file) processFile(file);
 }
 function handleFileSelect(e) {
-  const file = e.target.files[0];
+  var file = e.target.files[0];
   if (file) processFile(file);
 }
 
 async function processFile(file) {
-  const reader = new FileReader();
+  var reader = new FileReader();
   reader.onload = async function(e) {
     try {
-      const wb = XLSX.read(e.target.result, { type: 'array', cellDates: true });
-      const ws = wb.Sheets[wb.SheetNames[0]];
-      const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
+      var wb = XLSX.read(e.target.result, { type: 'array', cellDates: true });
+      var ws = wb.Sheets[wb.SheetNames[0]];
+      var rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
 
       if (!rows.length) { showToast('⚠ No data found in file'); return; }
 
-      const first = rows[0];
-      const hasProjectCode = 'Project Code' in first;
+      var first = rows[0];
+      var hasProjectCode = 'Project Code' in first;
       if (!hasProjectCode) { showToast('⚠ Invalid file — missing "Project Code" column'); return; }
 
-      projects = rows.map(r => ({
-        'Customer No':        String(r['Customer No'] || ''),
-        'Project Code':       String(r['Project Code'] || '').trim(),
-        'Customer Name':      String(r['Customer Name'] || ''),
-        'Ship Name':          String(r['Ship Name'] || ''),
-        'Project Name':       String(r['Project Name'] || ''),
-        'Person Responsible': String(r['Person Responsible'] || ''),
-        'Your Reference':     String(r['Your Reference'] || ''),
-        'PO Number':          String(r['PO Number'] || ''),
-        'Project Start':      formatDateVal(r['Project Start']),
-        'Project End':        formatDateVal(r['Project End']),
-        'Next Invoice Date':  formatDateVal(r['Next Invoice Date']),
-        'Project Value':      parseFloat(r['Project Value']) || 0,
-        'Invoiced Value':     parseFloat(r['Invoiced Value']) || 0,
-        '% invoiced':         parseFloat(r['% invoiced'] || r['% Invoiced']) || 0,
-        'Remaining Inv':      parseFloat(r['Remaining Inv']) || 0,
-        'Status':             String(r['Status'] || 'Open'),
-        'invoiceStatus':      calcInvoiceStatus(r['Next Invoice Date']),
-      }));
+      projects = rows.map(function(r) {
+        return {
+          'Customer No':        String(r['Customer No'] || ''),
+          'Project Code':       String(r['Project Code'] || '').trim(),
+          'Customer Name':      String(r['Customer Name'] || ''),
+          'Ship Name':          String(r['Ship Name'] || ''),
+          'Project Name':       String(r['Project Name'] || ''),
+          'Person Responsible': String(r['Person Responsible'] || ''),
+          'Your Reference':     String(r['Your Reference'] || ''),
+          'PO Number':          String(r['PO Number'] || ''),
+          'Project Start':      formatDateVal(r['Project Start']),
+          'Project End':        formatDateVal(r['Project End']),
+          'Next Invoice Date':  formatDateVal(r['Next Invoice Date']),
+          'Project Value':      parseFloat(r['Project Value']) || 0,
+          'Invoiced Value':     parseFloat(r['Invoiced Value']) || 0,
+          '% invoiced':         parseFloat(r['% invoiced'] || r['% Invoiced']) || 0,
+          'Remaining Inv':      parseFloat(r['Remaining Inv']) || 0,
+          'Status':             String(r['Status'] || 'Open'),
+          'invoiceStatus':      calcInvoiceStatus(r['Next Invoice Date'])
+        };
+      });
 
-      const now = new Date().toLocaleString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit' });
+      var now = new Date().toLocaleString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit' });
       document.getElementById('lastImportLabel').textContent = 'Last import: ' + now;
       
-      // Save to Supabase
       await saveProjects();
       await saveMetadata('last_import', now);
       
@@ -1234,11 +1158,11 @@ function formatDateVal(val) {
     return val.toISOString().split('T')[0];
   }
   if (typeof val === 'string') {
-    if (val.includes('NaT') || val.trim() === '') return '';
+    if (val.indexOf('NaT') >= 0 || val.trim() === '') return '';
     return val.split('T')[0];
   }
   if (typeof val === 'number') {
-    const d = new Date((val - 25569) * 86400 * 1000);
+    var d = new Date((val - 25569) * 86400 * 1000);
     return d.toISOString().split('T')[0];
   }
   return String(val);
@@ -1246,82 +1170,80 @@ function formatDateVal(val) {
 
 function calcInvoiceStatus(raw) {
   if (!raw || raw === '' || raw === 'NaT') return 'No Date';
-  let d;
+  var d;
   if (raw instanceof Date) d = raw;
   else { d = new Date(raw); }
   if (isNaN(d.getTime())) return 'No Date';
-  const today = new Date(); today.setHours(0,0,0,0);
-  const diff = Math.floor((d - today) / 86400000);
+  var today = new Date(); today.setHours(0,0,0,0);
+  var diff = Math.floor((d - today) / 86400000);
   if (diff < 0) return 'OVERDUE';
   if (diff <= 30) return 'DUE SOON';
   return 'Upcoming';
 }
 
-// ══════════════════════════════════════════════════════
-//  KPIs
-// ══════════════════════════════════════════════════════
 function renderKPIs() {
-  const total = projects.length;
-  const overdue  = projects.filter(p => p.invoiceStatus === 'OVERDUE').length;
-  const duesoon  = projects.filter(p => p.invoiceStatus === 'DUE SOON').length;
-  const rem      = projects.reduce((s,p) => s + p['Remaining Inv'], 0);
-  const flagC    = projects.filter(p => flags[p['Project Code']]?.contracts).length;
-  const flagE    = projects.filter(p => flags[p['Project Code']]?.estimation).length;
-  const totVal   = projects.reduce((s,p) => s + p['Project Value'], 0);
-  const totInv   = projects.reduce((s,p) => s + p['Invoiced Value'], 0);
-  const pct      = totVal ? (totInv / totVal * 100) : 0;
+  var total = projects.length;
+  var overdue = 0, duesoon = 0, rem = 0, flagC = 0, flagE = 0, totVal = 0, totInv = 0;
+  
+  for (var i = 0; i < projects.length; i++) {
+    var p = projects[i];
+    if (p.invoiceStatus === 'OVERDUE') overdue++;
+    if (p.invoiceStatus === 'DUE SOON') duesoon++;
+    rem += p['Remaining Inv'];
+    totVal += p['Project Value'];
+    totInv += p['Invoiced Value'];
+    if (flags[p['Project Code']] && flags[p['Project Code']].contracts) flagC++;
+    if (flags[p['Project Code']] && flags[p['Project Code']].estimation) flagE++;
+  }
+  
+  var pct = totVal ? (totInv / totVal * 100) : 0;
 
-  document.getElementById('kpiTotal').textContent    = total;
-  document.getElementById('kpiOverdue').textContent  = overdue;
-  document.getElementById('kpiDueSoon').textContent  = duesoon;
-  document.getElementById('kpiRemaining').textContent= fmt$(rem);
-  document.getElementById('kpiContracts').textContent= flagC;
-  document.getElementById('kpiEstimation').textContent= flagE;
+  document.getElementById('kpiTotal').textContent = total;
+  document.getElementById('kpiOverdue').textContent = overdue;
+  document.getElementById('kpiDueSoon').textContent = duesoon;
+  document.getElementById('kpiRemaining').textContent = fmt$(rem);
+  document.getElementById('kpiContracts').textContent = flagC;
+  document.getElementById('kpiEstimation').textContent = flagE;
 
   document.getElementById('tableFooter').style.display = 'flex';
-  document.getElementById('tfValue').textContent    = fmt$(totVal);
+  document.getElementById('tfValue').textContent = fmt$(totVal);
   document.getElementById('tfInvoiced').textContent = fmt$(totInv);
-  document.getElementById('tfRemaining').textContent= fmt$(rem);
-  document.getElementById('tfPct').textContent      = pct.toFixed(1) + '%';
+  document.getElementById('tfRemaining').textContent = fmt$(rem);
+  document.getElementById('tfPct').textContent = pct.toFixed(1) + '%';
 }
 
 function fmt$(v) {
   if (!v && v !== 0) return '—';
   return '$' + v.toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
 }
+
 function fmtDate(s) {
   if (!s) return '—';
-  const d = new Date(s + 'T12:00:00');
+  var d = new Date(s + 'T12:00:00');
   if (isNaN(d.getTime())) return s;
   return (d.getMonth()+1).toString().padStart(2,'0') + '/' + d.getDate().toString().padStart(2,'0') + '/' + String(d.getFullYear()).slice(2);
 }
 
-// ══════════════════════════════════════════════════════
-//  PM FILTER DROPDOWN
-// ══════════════════════════════════════════════════════
 function buildPMDropdown() {
-  const pmMap = {};
-  projects.forEach(p => {
-    const pm = p['Person Responsible'] || '(No PM)';
+  var pmMap = {};
+  for (var i = 0; i < projects.length; i++) {
+    var pm = projects[i]['Person Responsible'] || '(No PM)';
     if (!pmMap[pm]) pmMap[pm] = 0;
     pmMap[pm]++;
-  });
-  const sorted = Object.entries(pmMap).sort((a,b) => b[1] - a[1]);
+  }
   
-  let html = `<div class="pm-dropdown-item ${!activePM ? 'selected' : ''}" onclick="selectPM(null)">
-    <span class="check">✓</span>
-    <span>All PMs</span>
-    <span class="pm-count">${projects.length}</span>
-  </div>`;
+  var sorted = [];
+  for (var key in pmMap) { sorted.push([key, pmMap[key]]); }
+  sorted.sort(function(a,b) { return b[1] - a[1]; });
   
-  sorted.forEach(([pm, count]) => {
-    const sel = activePM === pm ? 'selected' : '';
-    html += `<div class="pm-dropdown-item ${sel}" onclick="selectPM('${escHtml(pm)}')">
-      <span class="check">✓</span>
-      <span>${escHtml(pm)}</span>
-      <span class="pm-count">${count}</span>
-    </div>`;
-  });
+  var html = '<div class="pm-dropdown-item ' + (!activePM ? 'selected' : '') + '" onclick="selectPM(null)"><span class="check">✓</span><span>All PMs</span><span class="pm-count">' + projects.length + '</span></div>';
+  
+  for (var j = 0; j < sorted.length; j++) {
+    var pm = sorted[j][0];
+    var count = sorted[j][1];
+    var sel = activePM === pm ? 'selected' : '';
+    html += '<div class="pm-dropdown-item ' + sel + '" onclick="selectPM(\'' + escHtml(pm) + '\')"><span class="check">✓</span><span>' + escHtml(pm) + '</span><span class="pm-count">' + count + '</span></div>';
+  }
   
   document.getElementById('pmDropdown').innerHTML = html;
 }
@@ -1339,167 +1261,167 @@ function selectPM(pm) {
   renderTable();
 }
 
-// Close dropdown when clicking outside
 document.addEventListener('click', function(e) {
   if (!e.target.closest('.pm-filter-wrap')) {
     document.getElementById('pmDropdown').classList.remove('open');
   }
 });
 
-// ══════════════════════════════════════════════════════
-//  TABLE RENDER
-// ══════════════════════════════════════════════════════
-const STATUS_ORDER = { 'OVERDUE': 0, 'DUE SOON': 1, 'Upcoming': 2, 'No Date': 3 };
-const STATUS_BADGE_CLASS = { 'OVERDUE':'badge-overdue','DUE SOON':'badge-duesoon','Upcoming':'badge-upcoming','No Date':'badge-nodate' };
-const ROW_CLASS = { 'OVERDUE':'row-overdue','DUE SOON':'row-due-soon','Upcoming':'row-upcoming','No Date':'row-no-date' };
+var STATUS_ORDER = { 'OVERDUE': 0, 'DUE SOON': 1, 'Upcoming': 2, 'No Date': 3 };
+var STATUS_BADGE_CLASS = { 'OVERDUE':'badge-overdue','DUE SOON':'badge-duesoon','Upcoming':'badge-upcoming','No Date':'badge-nodate' };
+var ROW_CLASS = { 'OVERDUE':'row-overdue','DUE SOON':'row-due-soon','Upcoming':'row-upcoming','No Date':'row-no-date' };
 
 function getFilteredProjects() {
-  let list = [...projects];
-
-  // Tab filter
-  if (activeTab === 'contracts')  list = list.filter(p => flags[p['Project Code']]?.contracts);
-  if (activeTab === 'estimation') list = list.filter(p => flags[p['Project Code']]?.estimation);
-
-  // Chip filters
-  if (activeFilters.size > 0) list = list.filter(p => activeFilters.has(p.invoiceStatus));
-
-  // PM filter
+  var list = projects.slice();
+  
+  if (activeTab === 'contracts') {
+    list = list.filter(function(p) { return flags[p['Project Code']] && flags[p['Project Code']].contracts; });
+  }
+  if (activeTab === 'estimation') {
+    list = list.filter(function(p) { return flags[p['Project Code']] && flags[p['Project Code']].estimation; });
+  }
+  if (activeFilters.size > 0) {
+    list = list.filter(function(p) { return activeFilters.has(p.invoiceStatus); });
+  }
   if (activePM) {
-    list = list.filter(p => (p['Person Responsible'] || '(No PM)') === activePM);
+    list = list.filter(function(p) { return (p['Person Responsible'] || '(No PM)') === activePM; });
   }
-
-  // Search
-  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  
+  var q = document.getElementById('searchInput').value.toLowerCase().trim();
   if (q) {
-    list = list.filter(p =>
-      p['Project Code'].toLowerCase().includes(q) ||
-      p['Customer Name'].toLowerCase().includes(q) ||
-      p['Customer No'].toLowerCase().includes(q) ||
-      p['Ship Name'].toLowerCase().includes(q) ||
-      p['Project Name'].toLowerCase().includes(q) ||
-      p['Person Responsible'].toLowerCase().includes(q) ||
-      p['Your Reference'].toLowerCase().includes(q) ||
-      p['PO Number'].toLowerCase().includes(q)
-    );
+    list = list.filter(function(p) {
+      return p['Project Code'].toLowerCase().indexOf(q) >= 0 ||
+        p['Customer Name'].toLowerCase().indexOf(q) >= 0 ||
+        p['Customer No'].toLowerCase().indexOf(q) >= 0 ||
+        p['Ship Name'].toLowerCase().indexOf(q) >= 0 ||
+        p['Project Name'].toLowerCase().indexOf(q) >= 0 ||
+        p['Person Responsible'].toLowerCase().indexOf(q) >= 0 ||
+        p['Your Reference'].toLowerCase().indexOf(q) >= 0 ||
+        p['PO Number'].toLowerCase().indexOf(q) >= 0;
+    });
   }
-
-  // Sort
-  list.sort((a, b) => {
-    let av = a[sortCol], bv = b[sortCol];
-    if (sortCol === 'invoiceStatus') { av = STATUS_ORDER[av] ?? 9; bv = STATUS_ORDER[bv] ?? 9; }
+  
+  list.sort(function(a, b) {
+    var av = a[sortCol], bv = b[sortCol];
+    if (sortCol === 'invoiceStatus') {
+      av = STATUS_ORDER[av] !== undefined ? STATUS_ORDER[av] : 9;
+      bv = STATUS_ORDER[bv] !== undefined ? STATUS_ORDER[bv] : 9;
+    }
     if (typeof av === 'string') av = av.toLowerCase();
     if (typeof bv === 'string') bv = bv.toLowerCase();
     if (av < bv) return sortDir === 'asc' ? -1 : 1;
     if (av > bv) return sortDir === 'asc' ? 1 : -1;
     return 0;
   });
-
+  
   return list;
 }
 
 function renderTable() {
-  const tbody = document.getElementById('tableBody');
-  const list = getFilteredProjects();
+  var tbody = document.getElementById('tableBody');
+  var list = getFilteredProjects();
   document.getElementById('rowCountLabel').textContent = list.length + ' projects';
 
   if (!projects.length) {
-    tbody.innerHTML = `<tr><td colspan="20">
-      <div class="empty-state">
-        <div class="empty-icon">📋</div>
-        <div class="empty-title">No data yet</div>
-        <div class="empty-sub">Click "Import BC Export" in the top right to load your Business Central project log.</div>
-        <button class="btn btn-primary" onclick="openImportModal()">⬆ Import Now</button>
-      </div>
-    </td></tr>`;
+    tbody.innerHTML = '<tr><td colspan="20"><div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">No data yet</div><div class="empty-sub">Click "Import BC Export" in the top right to load your Business Central project log.</div><button class="btn btn-primary" onclick="openImportModal()">⬆ Import Now</button></div></td></tr>';
     return;
   }
 
   if (!list.length) {
-    tbody.innerHTML = `<tr><td colspan="20" style="text-align:center;padding:40px;color:var(--text2)">No projects match your filters.</td></tr>`;
+    tbody.innerHTML = '<tr><td colspan="20" style="text-align:center;padding:40px;color:var(--text2)">No projects match your filters.</td></tr>';
     return;
   }
 
-  tbody.innerHTML = list.map(p => {
-    const code = p['Project Code'];
-    const cm = comments[code] || {};
-    const fl = flags[code] || {};
-    const st = p.invoiceStatus;
-    const rowCls = (fl.contracts || fl.estimation) ? 'row-flagged' : (ROW_CLASS[st] || '');
+  var html = '';
+  for (var i = 0; i < list.length; i++) {
+    var p = list[i];
+    var code = p['Project Code'];
+    var cm = comments[code] || {};
+    var fl = flags[code] || {};
+    var st = p.invoiceStatus;
+    var rowCls = (fl.contracts || fl.estimation) ? 'row-flagged' : (ROW_CLASS[st] || '');
+    var fn = cm.finance || '';
+    var cn = cm.contracts || '';
+    var en = cm.estimation || '';
+    var pct = p['% invoiced'] || 0;
 
-    const fn = cm.finance   || '';
-    const cn = cm.contracts || '';
-    const en = cm.estimation|| '';
-
-    const pct = p['% invoiced'] || 0;
-
-    return `<tr class="${rowCls}" data-code="${escHtml(code)}">
-      <td><span class="cell-code" style="font-size:10px">${escHtml(p['Customer No'])}</span></td>
-      <td><span class="cell-code">${escHtml(code)}</span></td>
-      <td><span class="cell-name" title="${escHtml(p['Customer Name'])}">${escHtml(p['Customer Name'])}</span></td>
-      <td><span class="cell-name" title="${escHtml(p['Ship Name'])}">${escHtml(p['Ship Name'])}</span></td>
-      <td><span class="cell-name" style="max-width:180px" title="${escHtml(p['Project Name'])}">${escHtml(p['Project Name'])}</span></td>
-      <td style="white-space:nowrap;font-size:11px">${escHtml(p['Person Responsible'])}</td>
-      <td><span class="cell-name" style="max-width:100px;font-size:10px" title="${escHtml(p['Your Reference'])}">${escHtml(p['Your Reference'])}</span></td>
-      <td><span class="cell-name" style="max-width:100px;font-size:10px" title="${escHtml(p['PO Number'])}">${escHtml(p['PO Number'])}</span></td>
-      <td class="cell-date">${fmtDate(p['Project Start'])}</td>
-      <td class="cell-date">${fmtDate(p['Project End'])}</td>
-      <td class="cell-date">${fmtDate(p['Next Invoice Date'])}</td>
-      <td><span class="badge ${STATUS_BADGE_CLASS[st] || 'badge-nodate'}">${st}</span></td>
-      <td class="cell-num">${fmt$(p['Project Value'])}</td>
-      <td class="cell-num">${fmt$(p['Invoiced Value'])}</td>
-      <td class="cell-num">${fmt$(p['Remaining Inv'])}</td>
-      <td>
-        <div style="display:flex;align-items:center;gap:4px">
-          <div class="progress-bar-wrap"><div class="progress-bar" style="width:${Math.min(100,pct)}%"></div></div>
-          <span class="cell-num" style="font-size:10px;min-width:28px">${pct}%</span>
-        </div>
-      </td>
-      <td class="comment-cell col-finance">
-        ${fn ? `<span class="comment-text has-comment" onclick="openCommentModal('${escHtml(code)}')" title="${escHtml(fn)}">${escHtml(fn)}</span>`
-             : `<button class="add-comment-btn" onclick="openCommentModal('${escHtml(code)}')">+ add</button>`}
-      </td>
-      <td class="comment-cell col-contracts">
-        ${cn ? `<span class="comment-text has-comment" onclick="openCommentModal('${escHtml(code)}')" title="${escHtml(cn)}">${escHtml(cn)}</span>`
-             : `<button class="add-comment-btn" onclick="openCommentModal('${escHtml(code)}')">+ add</button>`}
-      </td>
-      <td class="comment-cell col-estimation">
-        ${en ? `<span class="comment-text has-comment" onclick="openCommentModal('${escHtml(code)}')" title="${escHtml(en)}">${escHtml(en)}</span>`
-             : `<button class="add-comment-btn" onclick="openCommentModal('${escHtml(code)}')">+ add</button>`}
-      </td>
-      <td style="white-space:nowrap">
-        <button class="flag-toggle ${fl.contracts?'flagged':''}" onclick="toggleFlag('${escHtml(code)}','contracts')" title="Flag for Contracts">C</button>
-        <button class="flag-toggle ${fl.estimation?'flagged':''}" onclick="toggleFlag('${escHtml(code)}','estimation')" title="Flag for Estimation">E</button>
-      </td>
-    </tr>`;
-  }).join('');
+    html += '<tr class="' + rowCls + '" data-code="' + escHtml(code) + '">';
+    html += '<td><span class="cell-code" style="font-size:10px">' + escHtml(p['Customer No']) + '</span></td>';
+    html += '<td><span class="cell-code">' + escHtml(code) + '</span></td>';
+    html += '<td><span class="cell-name" title="' + escHtml(p['Customer Name']) + '">' + escHtml(p['Customer Name']) + '</span></td>';
+    html += '<td><span class="cell-name" title="' + escHtml(p['Ship Name']) + '">' + escHtml(p['Ship Name']) + '</span></td>';
+    html += '<td><span class="cell-name" style="max-width:180px" title="' + escHtml(p['Project Name']) + '">' + escHtml(p['Project Name']) + '</span></td>';
+    html += '<td style="white-space:nowrap;font-size:11px">' + escHtml(p['Person Responsible']) + '</td>';
+    html += '<td><span class="cell-name" style="max-width:100px;font-size:10px" title="' + escHtml(p['Your Reference']) + '">' + escHtml(p['Your Reference']) + '</span></td>';
+    html += '<td><span class="cell-name" style="max-width:100px;font-size:10px" title="' + escHtml(p['PO Number']) + '">' + escHtml(p['PO Number']) + '</span></td>';
+    html += '<td class="cell-date">' + fmtDate(p['Project Start']) + '</td>';
+    html += '<td class="cell-date">' + fmtDate(p['Project End']) + '</td>';
+    html += '<td class="cell-date">' + fmtDate(p['Next Invoice Date']) + '</td>';
+    html += '<td><span class="badge ' + (STATUS_BADGE_CLASS[st] || 'badge-nodate') + '">' + st + '</span></td>';
+    html += '<td class="cell-num">' + fmt$(p['Project Value']) + '</td>';
+    html += '<td class="cell-num">' + fmt$(p['Invoiced Value']) + '</td>';
+    html += '<td class="cell-num">' + fmt$(p['Remaining Inv']) + '</td>';
+    html += '<td><div style="display:flex;align-items:center;gap:4px"><div class="progress-bar-wrap"><div class="progress-bar" style="width:' + Math.min(100,pct) + '%"></div></div><span class="cell-num" style="font-size:10px;min-width:28px">' + pct + '%</span></div></td>';
+    
+    html += '<td class="comment-cell col-finance">';
+    if (fn) {
+      html += '<span class="comment-text has-comment" onclick="openCommentModal(\'' + escHtml(code) + '\')" title="' + escHtml(fn) + '">' + escHtml(fn) + '</span>';
+    } else {
+      html += '<button class="add-comment-btn" onclick="openCommentModal(\'' + escHtml(code) + '\')">+ add</button>';
+    }
+    html += '</td>';
+    
+    html += '<td class="comment-cell col-contracts">';
+    if (cn) {
+      html += '<span class="comment-text has-comment" onclick="openCommentModal(\'' + escHtml(code) + '\')" title="' + escHtml(cn) + '">' + escHtml(cn) + '</span>';
+    } else {
+      html += '<button class="add-comment-btn" onclick="openCommentModal(\'' + escHtml(code) + '\')">+ add</button>';
+    }
+    html += '</td>';
+    
+    html += '<td class="comment-cell col-estimation">';
+    if (en) {
+      html += '<span class="comment-text has-comment" onclick="openCommentModal(\'' + escHtml(code) + '\')" title="' + escHtml(en) + '">' + escHtml(en) + '</span>';
+    } else {
+      html += '<button class="add-comment-btn" onclick="openCommentModal(\'' + escHtml(code) + '\')">+ add</button>';
+    }
+    html += '</td>';
+    
+    html += '<td style="white-space:nowrap">';
+    html += '<button class="flag-toggle ' + (fl.contracts ? 'flagged' : '') + '" onclick="toggleFlag(\'' + escHtml(code) + '\',\'contracts\')" title="Flag for Contracts">C</button>';
+    html += '<button class="flag-toggle ' + (fl.estimation ? 'flagged' : '') + '" onclick="toggleFlag(\'' + escHtml(code) + '\',\'estimation\')" title="Flag for Estimation">E</button>';
+    html += '</td>';
+    html += '</tr>';
+  }
+  tbody.innerHTML = html;
 }
 
 function escHtml(s) {
   return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
-// ══════════════════════════════════════════════════════
-//  SORT / FILTER / TAB
-// ══════════════════════════════════════════════════════
 function sortBy(col) {
   if (sortCol === col) sortDir = sortDir === 'asc' ? 'desc' : 'asc';
   else { sortCol = col; sortDir = 'asc'; }
-  document.querySelectorAll('thead th').forEach(th => th.classList.remove('sort-asc','sort-desc'));
   renderTable();
 }
+
 function toggleFilter(el) {
-  const f = el.dataset.filter;
+  var f = el.getAttribute('data-filter');
   if (activeFilters.has(f)) { activeFilters.delete(f); el.classList.remove('active'); }
   else { activeFilters.add(f); el.classList.add('active'); }
   renderTable();
 }
+
 function switchTab(tab, el) {
   activeTab = tab;
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  var tabs = document.querySelectorAll('.tab');
+  for (var i = 0; i < tabs.length; i++) { tabs[i].classList.remove('active'); }
   el.classList.add('active');
   
-  // Show/hide pages
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  var pages = document.querySelectorAll('.page');
+  for (var j = 0; j < pages.length; j++) { pages[j].classList.remove('active'); }
+  
   if (tab === 'dashboard') {
     document.getElementById('page-dashboard').classList.add('active');
     renderDashboard();
@@ -1509,9 +1431,6 @@ function switchTab(tab, el) {
   }
 }
 
-// ══════════════════════════════════════════════════════
-//  FLAGS
-// ══════════════════════════════════════════════════════
 async function toggleFlag(code, type) {
   if (!flags[code]) flags[code] = { contracts: false, estimation: false };
   flags[code][type] = !flags[code][type];
@@ -1520,30 +1439,33 @@ async function toggleFlag(code, type) {
   renderTable();
 }
 
-// ══════════════════════════════════════════════════════
-//  COMMENTS
-// ══════════════════════════════════════════════════════
 function openCommentModal(code) {
   editingCode = code;
-  const p = projects.find(x => x['Project Code'] === code) || {};
-  const cm = comments[code] || {};
+  var p = null;
+  for (var i = 0; i < projects.length; i++) {
+    if (projects[i]['Project Code'] === code) { p = projects[i]; break; }
+  }
+  p = p || {};
+  var cm = comments[code] || {};
   document.getElementById('cmProjectCode').textContent = code;
   document.getElementById('cmProjectName').textContent = p['Project Name'] || '';
-  document.getElementById('cmFinance').value    = cm.finance    || '';
-  document.getElementById('cmContracts').value  = cm.contracts  || '';
+  document.getElementById('cmFinance').value = cm.finance || '';
+  document.getElementById('cmContracts').value = cm.contracts || '';
   document.getElementById('cmEstimation').value = cm.estimation || '';
   document.getElementById('commentModal').classList.add('open');
 }
+
 function closeCommentModal() {
   document.getElementById('commentModal').classList.remove('open');
   editingCode = null;
 }
+
 async function saveCommentAndClose() {
   if (!editingCode) return;
   comments[editingCode] = {
-    finance:    document.getElementById('cmFinance').value.trim(),
-    contracts:  document.getElementById('cmContracts').value.trim(),
-    estimation: document.getElementById('cmEstimation').value.trim(),
+    finance: document.getElementById('cmFinance').value.trim(),
+    contracts: document.getElementById('cmContracts').value.trim(),
+    estimation: document.getElementById('cmEstimation').value.trim()
   };
   await saveComment(editingCode);
   renderTable();
@@ -1551,26 +1473,28 @@ async function saveCommentAndClose() {
   showToast('✓ Comments saved for ' + editingCode);
 }
 
-// ══════════════════════════════════════════════════════
-//  DASHBOARD
-// ══════════════════════════════════════════════════════
 function renderDashboard() {
   if (!projects.length) return;
 
-  // Update date
   document.getElementById('dashDate').textContent = new Date().toLocaleDateString('en-US', {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
   });
 
-  // Big numbers
-  const totVal = projects.reduce((s,p) => s + p['Project Value'], 0);
-  const totInv = projects.reduce((s,p) => s + p['Invoiced Value'], 0);
-  const totRem = projects.reduce((s,p) => s + p['Remaining Inv'], 0);
-  const pct = totVal ? (totInv / totVal * 100) : 0;
-  const overdue = projects.filter(p => p.invoiceStatus === 'OVERDUE').length;
-  const duesoon = projects.filter(p => p.invoiceStatus === 'DUE SOON').length;
-  const upcoming = projects.filter(p => p.invoiceStatus === 'Upcoming').length;
-  const nodate = projects.filter(p => p.invoiceStatus === 'No Date').length;
+  var totVal = 0, totInv = 0, totRem = 0;
+  var overdue = 0, duesoon = 0, upcoming = 0, nodate = 0;
+  
+  for (var i = 0; i < projects.length; i++) {
+    var p = projects[i];
+    totVal += p['Project Value'];
+    totInv += p['Invoiced Value'];
+    totRem += p['Remaining Inv'];
+    if (p.invoiceStatus === 'OVERDUE') overdue++;
+    else if (p.invoiceStatus === 'DUE SOON') duesoon++;
+    else if (p.invoiceStatus === 'Upcoming') upcoming++;
+    else nodate++;
+  }
+  
+  var pct = totVal ? (totInv / totVal * 100) : 0;
 
   document.getElementById('dashTotalValue').textContent = fmt$(totVal);
   document.getElementById('dashProjectCount').textContent = projects.length + ' projects';
@@ -1579,13 +1503,11 @@ function renderDashboard() {
   document.getElementById('dashRemaining').textContent = fmt$(totRem);
   document.getElementById('dashAtRisk').textContent = overdue + duesoon;
 
-  // Status counts
   document.getElementById('statOverdue').textContent = overdue;
   document.getElementById('statDueSoon').textContent = duesoon;
   document.getElementById('statUpcoming').textContent = upcoming;
   document.getElementById('statNoDate').textContent = nodate;
 
-  // Charts
   renderStatusChart(overdue, duesoon, upcoming, nodate);
   renderValueByStatusChart();
   renderCollectionChart(totInv, totRem);
@@ -1594,7 +1516,7 @@ function renderDashboard() {
 }
 
 function renderStatusChart(overdue, duesoon, upcoming, nodate) {
-  const ctx = document.getElementById('statusChart').getContext('2d');
+  var ctx = document.getElementById('statusChart').getContext('2d');
   if (statusChart) statusChart.destroy();
   
   statusChart = new Chart(ctx, {
@@ -1623,13 +1545,17 @@ function renderStatusChart(overdue, duesoon, upcoming, nodate) {
 }
 
 function renderValueByStatusChart() {
-  const ctx = document.getElementById('valueByStatusChart').getContext('2d');
+  var ctx = document.getElementById('valueByStatusChart').getContext('2d');
   if (valueByStatusChart) valueByStatusChart.destroy();
 
-  const overdueVal = projects.filter(p => p.invoiceStatus === 'OVERDUE').reduce((s,p) => s + p['Remaining Inv'], 0);
-  const duesoonVal = projects.filter(p => p.invoiceStatus === 'DUE SOON').reduce((s,p) => s + p['Remaining Inv'], 0);
-  const upcomingVal = projects.filter(p => p.invoiceStatus === 'Upcoming').reduce((s,p) => s + p['Remaining Inv'], 0);
-  const nodateVal = projects.filter(p => p.invoiceStatus === 'No Date').reduce((s,p) => s + p['Remaining Inv'], 0);
+  var overdueVal = 0, duesoonVal = 0, upcomingVal = 0, nodateVal = 0;
+  for (var i = 0; i < projects.length; i++) {
+    var p = projects[i];
+    if (p.invoiceStatus === 'OVERDUE') overdueVal += p['Remaining Inv'];
+    else if (p.invoiceStatus === 'DUE SOON') duesoonVal += p['Remaining Inv'];
+    else if (p.invoiceStatus === 'Upcoming') upcomingVal += p['Remaining Inv'];
+    else nodateVal += p['Remaining Inv'];
+  }
 
   valueByStatusChart = new Chart(ctx, {
     type: 'bar',
@@ -1648,32 +1574,22 @@ function renderValueByStatusChart() {
       maintainAspectRatio: false,
       plugins: {
         legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: function(ctx) { return '$' + ctx.raw.toLocaleString(); }
-          }
-        }
+        tooltip: { callbacks: { label: function(ctx) { return '$' + ctx.raw.toLocaleString(); } } }
       },
       scales: {
         y: {
           beginAtZero: true,
-          ticks: {
-            callback: function(val) { return '$' + (val / 1000).toFixed(0) + 'K'; },
-            font: { family: "'DM Mono', monospace", size: 10 }
-          },
+          ticks: { callback: function(val) { return '$' + (val / 1000).toFixed(0) + 'K'; }, font: { family: "'DM Mono', monospace", size: 10 } },
           grid: { color: 'rgba(0,0,0,0.05)' }
         },
-        x: {
-          ticks: { font: { family: "'DM Sans', sans-serif", size: 11 } },
-          grid: { display: false }
-        }
+        x: { ticks: { font: { family: "'DM Sans', sans-serif", size: 11 } }, grid: { display: false } }
       }
     }
   });
 }
 
 function renderCollectionChart(invoiced, remaining) {
-  const ctx = document.getElementById('collectionChart').getContext('2d');
+  var ctx = document.getElementById('collectionChart').getContext('2d');
   if (collectionChart) collectionChart.destroy();
 
   collectionChart = new Chart(ctx, {
@@ -1692,114 +1608,85 @@ function renderCollectionChart(invoiced, remaining) {
       maintainAspectRatio: false,
       cutout: '70%',
       plugins: {
-        legend: {
-          position: 'bottom',
-          labels: { font: { family: "'DM Sans', sans-serif", size: 11 }, padding: 16, usePointStyle: true }
-        },
-        tooltip: {
-          callbacks: {
-            label: function(ctx) { return ctx.label + ': $' + ctx.raw.toLocaleString(); }
-          }
-        }
+        legend: { position: 'bottom', labels: { font: { family: "'DM Sans', sans-serif", size: 11 }, padding: 16, usePointStyle: true } },
+        tooltip: { callbacks: { label: function(ctx) { return ctx.label + ': $' + ctx.raw.toLocaleString(); } } }
       }
     }
   });
 }
 
 function renderPMLeaderboard() {
-  const pmData = {};
-  projects.forEach(p => {
-    const pm = p['Person Responsible'] || '(No PM)';
+  var pmData = {};
+  for (var i = 0; i < projects.length; i++) {
+    var p = projects[i];
+    var pm = p['Person Responsible'] || '(No PM)';
     if (!pmData[pm]) pmData[pm] = { count: 0, value: 0, remaining: 0 };
     pmData[pm].count++;
     pmData[pm].value += p['Project Value'];
     pmData[pm].remaining += p['Remaining Inv'];
-  });
+  }
 
-  const sorted = Object.entries(pmData).sort((a,b) => b[1].value - a[1].value);
-  const maxVal = sorted.length ? sorted[0][1].value : 1;
+  var sorted = [];
+  for (var key in pmData) { sorted.push([key, pmData[key]]); }
+  sorted.sort(function(a, b) { return b[1].value - a[1].value; });
+  var maxVal = sorted.length ? sorted[0][1].value : 1;
 
-  let html = '';
-  sorted.slice(0, 8).forEach(([pm, data], i) => {
-    const pctWidth = (data.value / maxVal) * 100;
-    html += `<div class="pm-row">
-      <div class="pm-rank ${i === 0 ? 'gold' : ''}">${i + 1}</div>
-      <div class="pm-name">${escHtml(pm)}</div>
-      <div class="pm-stat"><strong>${data.count}</strong> projects</div>
-      <div class="pm-stat"><strong>${fmt$(data.value)}</strong></div>
-      <div class="pm-progress-wrap"><div class="pm-progress" style="width:${pctWidth}%"></div></div>
-    </div>`;
-  });
+  var html = '';
+  for (var j = 0; j < Math.min(8, sorted.length); j++) {
+    var pm = sorted[j][0];
+    var data = sorted[j][1];
+    var pctWidth = (data.value / maxVal) * 100;
+    html += '<div class="pm-row"><div class="pm-rank ' + (j === 0 ? 'gold' : '') + '">' + (j + 1) + '</div><div class="pm-name">' + escHtml(pm) + '</div><div class="pm-stat"><strong>' + data.count + '</strong> projects</div><div class="pm-stat"><strong>' + fmt$(data.value) + '</strong></div><div class="pm-progress-wrap"><div class="pm-progress" style="width:' + pctWidth + '%"></div></div></div>';
+  }
 
   document.getElementById('pmLeaderboard').innerHTML = html || '<div style="color:var(--text2);text-align:center;padding:20px">No PM data</div>';
 }
 
 function renderPMBarChart() {
-  const ctx = document.getElementById('pmBarChart').getContext('2d');
+  var ctx = document.getElementById('pmBarChart').getContext('2d');
   if (pmBarChart) pmBarChart.destroy();
 
-  const pmData = {};
-  projects.forEach(p => {
-    const pm = p['Person Responsible'] || '(No PM)';
+  var pmData = {};
+  for (var i = 0; i < projects.length; i++) {
+    var p = projects[i];
+    var pm = p['Person Responsible'] || '(No PM)';
     if (!pmData[pm]) pmData[pm] = { invoiced: 0, remaining: 0 };
     pmData[pm].invoiced += p['Invoiced Value'];
     pmData[pm].remaining += p['Remaining Inv'];
-  });
+  }
 
-  const sorted = Object.entries(pmData).sort((a,b) => (b[1].invoiced + b[1].remaining) - (a[1].invoiced + a[1].remaining));
-  const labels = sorted.map(([pm]) => pm);
-  const invoicedData = sorted.map(([, d]) => d.invoiced);
-  const remainingData = sorted.map(([, d]) => d.remaining);
+  var sorted = [];
+  for (var key in pmData) { sorted.push([key, pmData[key]]); }
+  sorted.sort(function(a, b) { return (b[1].invoiced + b[1].remaining) - (a[1].invoiced + a[1].remaining); });
+  
+  var labels = [], invoicedData = [], remainingData = [];
+  for (var j = 0; j < sorted.length; j++) {
+    labels.push(sorted[j][0]);
+    invoicedData.push(sorted[j][1].invoiced);
+    remainingData.push(sorted[j][1].remaining);
+  }
 
   pmBarChart = new Chart(ctx, {
     type: 'bar',
     data: {
       labels: labels,
       datasets: [
-        {
-          label: 'Invoiced',
-          data: invoicedData,
-          backgroundColor: '#1E8449',
-          borderRadius: 4
-        },
-        {
-          label: 'Remaining',
-          data: remainingData,
-          backgroundColor: '#C9A84C',
-          borderRadius: 4
-        }
+        { label: 'Invoiced', data: invoicedData, backgroundColor: '#1E8449', borderRadius: 4 },
+        { label: 'Remaining', data: remainingData, backgroundColor: '#C9A84C', borderRadius: 4 }
       ]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: {
-          position: 'top',
-          labels: { font: { family: "'DM Sans', sans-serif", size: 11 }, padding: 16, usePointStyle: true }
-        },
-        tooltip: {
-          callbacks: {
-            label: function(ctx) { return ctx.dataset.label + ': $' + ctx.raw.toLocaleString(); }
-          }
-        }
+        legend: { position: 'top', labels: { font: { family: "'DM Sans', sans-serif", size: 11 }, padding: 16, usePointStyle: true } },
+        tooltip: { callbacks: { label: function(ctx) { return ctx.dataset.label + ': $' + ctx.raw.toLocaleString(); } } }
       },
       scales: {
-        x: {
-          stacked: true,
-          ticks: { font: { family: "'DM Sans', sans-serif", size: 11 } },
-          grid: { display: false }
-        },
+        x: { stacked: true, ticks: { font: { family: "'DM Sans', sans-serif", size: 11 } }, grid: { display: false } },
         y: {
-          stacked: true,
-          beginAtZero: true,
-          ticks: {
-            callback: function(val) {
-              if (val >= 1000000) return '$' + (val / 1000000).toFixed(1) + 'M';
-              return '$' + (val / 1000).toFixed(0) + 'K';
-            },
-            font: { family: "'DM Mono', monospace", size: 10 }
-          },
+          stacked: true, beginAtZero: true,
+          ticks: { callback: function(val) { if (val >= 1000000) return '$' + (val / 1000000).toFixed(1) + 'M'; return '$' + (val / 1000).toFixed(0) + 'K'; }, font: { family: "'DM Mono', monospace", size: 10 } },
           grid: { color: 'rgba(0,0,0,0.05)' }
         }
       }
@@ -1807,137 +1694,116 @@ function renderPMBarChart() {
   });
 }
 
-// ══════════════════════════════════════════════════════
-//  REPORT EXPORT
-// ══════════════════════════════════════════════════════
 function openReportModal() {
   document.getElementById('reportDate').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
   selectedReport = null;
-  document.querySelectorAll('.report-card').forEach(c => c.classList.remove('selected'));
+  var cards = document.querySelectorAll('.report-card');
+  for (var i = 0; i < cards.length; i++) { cards[i].classList.remove('selected'); }
   document.getElementById('exportBtn').disabled = true;
   document.getElementById('reportModal').classList.add('open');
 }
+
 function closeReportModal() { document.getElementById('reportModal').classList.remove('open'); }
+
 function selectReport(type) {
   selectedReport = type;
-  document.querySelectorAll('.report-card').forEach(c => c.classList.remove('selected'));
+  var cards = document.querySelectorAll('.report-card');
+  for (var i = 0; i < cards.length; i++) { cards[i].classList.remove('selected'); }
   document.getElementById('rcard-'+type).classList.add('selected');
   document.getElementById('exportBtn').disabled = false;
 }
 
 function doExport() {
   if (!selectedReport) return;
-  let data, filename, title;
-  const today = new Date().toLocaleDateString('en-US',{month:'2-digit',day:'2-digit',year:'numeric'}).replace(/\//g,'-');
+  var data, filename, title;
+  var today = new Date().toLocaleDateString('en-US',{month:'2-digit',day:'2-digit',year:'numeric'}).replace(/\//g,'-');
 
   if (selectedReport === 'contracts') {
-    data = projects.filter(p => flags[p['Project Code']]?.contracts);
-    filename = `MarineTeknik_Contracts_Report_${today}.xlsx`;
+    data = projects.filter(function(p) { return flags[p['Project Code']] && flags[p['Project Code']].contracts; });
+    filename = 'MarineTeknik_Contracts_Report_' + today + '.xlsx';
     title = 'CONTRACTS DEPARTMENT — FOR REVIEW';
   } else if (selectedReport === 'estimation') {
-    data = projects.filter(p => flags[p['Project Code']]?.estimation);
-    filename = `MarineTeknik_Estimation_Report_${today}.xlsx`;
+    data = projects.filter(function(p) { return flags[p['Project Code']] && flags[p['Project Code']].estimation; });
+    filename = 'MarineTeknik_Estimation_Report_' + today + '.xlsx';
     title = 'ESTIMATION DEPARTMENT — FOR REVIEW';
   } else {
-    data = [...projects];
-    filename = `MarineTeknik_Full_Tracker_${today}.xlsx`;
+    data = projects.slice();
+    filename = 'MarineTeknik_Full_Tracker_' + today + '.xlsx';
     title = 'MARINETEKNIK PROJECT INVOICE TRACKER — FULL REPORT';
   }
 
   if (!data.length) { showToast('⚠ No projects match this report filter'); return; }
 
-  const wb = XLSX.utils.book_new();
+  var wb = XLSX.utils.book_new();
+  var headers = ['Customer No','Project Code','Customer Name','Ship Name','Project Name','PM','Your Reference','PO Number','Project Start','Project End','Next Invoice','Invoice Status','Project Value','Invoiced','% Done','Remaining','Finance Notes','Contracts Notes','Estimation Notes','Flagged Contracts','Flagged Estimation'];
 
-  const headers = ['Customer No','Project Code','Customer Name','Ship Name','Project Name','PM','Your Reference','PO Number','Project Start','Project End','Next Invoice','Invoice Status','Project Value','Invoiced','% Done','Remaining','Finance Notes','Contracts Notes','Estimation Notes','Flagged Contracts','Flagged Estimation'];
-
-  const rows = data.map(p => {
-    const code = p['Project Code'];
-    const cm = comments[code] || {};
-    const fl = flags[code] || {};
+  var rows = data.map(function(p) {
+    var code = p['Project Code'];
+    var cm = comments[code] || {};
+    var fl = flags[code] || {};
     return [
-      p['Customer No'],
-      code,
-      p['Customer Name'],
-      p['Ship Name'],
-      p['Project Name'],
-      p['Person Responsible'],
-      p['Your Reference'],
-      p['PO Number'],
-      p['Project Start'],
-      p['Project End'],
-      p['Next Invoice Date'],
-      p.invoiceStatus,
-      p['Project Value'],
-      p['Invoiced Value'],
-      (p['% invoiced'] || 0) / 100,
-      p['Remaining Inv'],
-      cm.finance || '',
-      cm.contracts || '',
-      cm.estimation || '',
-      fl.contracts ? 'YES' : '',
-      fl.estimation ? 'YES' : '',
+      p['Customer No'], code, p['Customer Name'], p['Ship Name'], p['Project Name'], p['Person Responsible'],
+      p['Your Reference'], p['PO Number'], p['Project Start'], p['Project End'], p['Next Invoice Date'], p.invoiceStatus,
+      p['Project Value'], p['Invoiced Value'], (p['% invoiced'] || 0) / 100, p['Remaining Inv'],
+      cm.finance || '', cm.contracts || '', cm.estimation || '',
+      fl.contracts ? 'YES' : '', fl.estimation ? 'YES' : ''
     ];
   });
 
-  const wsData = [
-    [title],
-    [`Generated: ${new Date().toLocaleString()}`],
-    [],
-    headers,
-    ...rows
-  ];
-  const ws = XLSX.utils.aoa_to_sheet(wsData);
-  ws['!cols'] = headers.map(h => ({ wch: Math.max(h.length + 4, 14) }));
+  var wsData = [[title], ['Generated: ' + new Date().toLocaleString()], [], headers];
+  for (var i = 0; i < rows.length; i++) { wsData.push(rows[i]); }
+  
+  var ws = XLSX.utils.aoa_to_sheet(wsData);
+  ws['!cols'] = headers.map(function(h) { return { wch: Math.max(h.length + 4, 14) }; });
   XLSX.utils.book_append_sheet(wb, ws, 'Report');
 
   if (selectedReport === 'full') {
-    const sumData = [
-      ['SUMMARY', ''],
-      ['Export Date', new Date().toLocaleDateString()],
-      ['Total Projects', projects.length],
-      ['Overdue', projects.filter(p=>p.invoiceStatus==='OVERDUE').length],
-      ['Due Soon (30d)', projects.filter(p=>p.invoiceStatus==='DUE SOON').length],
-      ['Flagged Contracts', projects.filter(p=>flags[p['Project Code']]?.contracts).length],
-      ['Flagged Estimation', projects.filter(p=>flags[p['Project Code']]?.estimation).length],
-      ['Total Project Value', projects.reduce((s,p)=>s+p['Project Value'],0)],
-      ['Total Invoiced', projects.reduce((s,p)=>s+p['Invoiced Value'],0)],
-      ['Total Remaining', projects.reduce((s,p)=>s+p['Remaining Inv'],0)],
-    ];
-    const wsSummary = XLSX.utils.aoa_to_sheet(sumData);
+    var ov = 0, ds = 0, fc = 0, fe = 0, tv = 0, ti = 0, tr = 0;
+    for (var j = 0; j < projects.length; j++) {
+      var proj = projects[j];
+      if (proj.invoiceStatus === 'OVERDUE') ov++;
+      if (proj.invoiceStatus === 'DUE SOON') ds++;
+      if (flags[proj['Project Code']] && flags[proj['Project Code']].contracts) fc++;
+      if (flags[proj['Project Code']] && flags[proj['Project Code']].estimation) fe++;
+      tv += proj['Project Value'];
+      ti += proj['Invoiced Value'];
+      tr += proj['Remaining Inv'];
+    }
+    var sumData = [['SUMMARY',''],['Export Date',new Date().toLocaleDateString()],['Total Projects',projects.length],['Overdue',ov],['Due Soon (30d)',ds],['Flagged Contracts',fc],['Flagged Estimation',fe],['Total Project Value',tv],['Total Invoiced',ti],['Total Remaining',tr]];
+    var wsSummary = XLSX.utils.aoa_to_sheet(sumData);
     XLSX.utils.book_append_sheet(wb, wsSummary, 'Summary');
   }
 
   XLSX.writeFile(wb, filename);
   closeReportModal();
-  showToast(`✓ Exported: ${filename}`);
+  showToast('✓ Exported: ' + filename);
 }
 
-// ══════════════════════════════════════════════════════
-//  TOAST
-// ══════════════════════════════════════════════════════
-let toastTimer;
+var toastTimer;
 function showToast(msg) {
-  const t = document.getElementById('toast');
+  var t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+  toastTimer = setTimeout(function() { t.classList.remove('show'); }, 3000);
 }
 
-// ── Close modals on overlay click ──
-document.querySelectorAll('.modal-overlay').forEach(overlay => {
-  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
-});
+var overlays = document.querySelectorAll('.modal-overlay');
+for (var k = 0; k < overlays.length; k++) {
+  (function(overlay) {
+    overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.classList.remove('open'); });
+  })(overlays[k]);
+}
 
-// ── Keyboard shortcuts ──
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('open'));
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    var modals = document.querySelectorAll('.modal-overlay');
+    for (var m = 0; m < modals.length; m++) { modals[m].classList.remove('open'); }
+  }
   if ((e.ctrlKey || e.metaKey) && e.key === 's' && editingCode) { e.preventDefault(); saveCommentAndClose(); }
 });
 
-// ── Boot ──
 checkAuth();
 </script>
 </body>
 </html>
-
