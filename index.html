@@ -834,11 +834,11 @@
 //  SUPABASE CONFIGURATION
 //  ⚠️ REPLACE THESE WITH YOUR ACTUAL VALUES FROM SUPABASE
 // ══════════════════════════════════════════════════════
-const SUPABASE_URL = 'https://mpvsentuomxnyijhrwli.supabase.co';
+const SUPABASE_URL = 'https://mpvsentuomxnyijhrwli.supabaseClient.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wdnNlbnR1b214bnlpamhyd2xpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3Njg5MTUsImV4cCI6MjA4OTM0NDkxNX0.yL2YDH-fx12oR03-JFDxj651mWZRQoPywv8ilebzox0';
 
 // Initialize Supabase client
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabaseClient = window.supabaseClient.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ══════════════════════════════════════════════════════
 //  STATE
@@ -865,7 +865,7 @@ let pmBarChart = null;
 //  AUTHENTICATION
 // ══════════════════════════════════════════════════════
 async function checkAuth() {
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { session } } = await supabaseClient.auth.getSession();
   if (session) {
     currentUser = session.user;
     showApp();
@@ -900,7 +900,7 @@ async function handleLogin() {
   btn.textContent = 'Signing in...';
   
   try {
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
       email: email,
       password: password
     });
@@ -915,7 +915,7 @@ async function handleLogin() {
 }
 
 async function handleLogout() {
-  await supabase.auth.signOut();
+  await supabaseClient.auth.signOut();
   currentUser = null;
   showLogin();
 }
@@ -936,7 +936,7 @@ function showApp() {
 }
 
 // Listen for auth state changes (handles magic link callback)
-supabase.auth.onAuthStateChange(async (event, session) => {
+supabaseClient.auth.onAuthStateChange(async (event, session) => {
   if (event === 'SIGNED_IN' && session) {
     currentUser = session.user;
     showApp();
@@ -977,7 +977,7 @@ async function loadAllData() {
 }
 
 async function loadProjects() {
-  const { data, error } = await supabase.from('projects').select('*');
+  const { data, error } = await supabaseClient.from('projects').select('*');
   if (error) throw error;
   
   projects = (data || []).map(p => ({
@@ -1002,7 +1002,7 @@ async function loadProjects() {
 }
 
 async function loadComments() {
-  const { data, error } = await supabase.from('comments').select('*');
+  const { data, error } = await supabaseClient.from('comments').select('*');
   if (error) throw error;
   
   comments = {};
@@ -1016,7 +1016,7 @@ async function loadComments() {
 }
 
 async function loadFlags() {
-  const { data, error } = await supabase.from('flags').select('*');
+  const { data, error } = await supabaseClient.from('flags').select('*');
   if (error) throw error;
   
   flags = {};
@@ -1029,7 +1029,7 @@ async function loadFlags() {
 }
 
 async function loadMetadata() {
-  const { data, error } = await supabase.from('app_metadata').select('*').eq('key', 'last_import');
+  const { data, error } = await supabaseClient.from('app_metadata').select('*').eq('key', 'last_import');
   if (error) throw error;
   
   if (data && data.length > 0) {
@@ -1041,7 +1041,7 @@ async function saveProjects() {
   setSyncing(true);
   try {
     // Delete existing and insert new (simple replace strategy)
-    await supabase.from('projects').delete().neq('project_code', '');
+    await supabaseClient.from('projects').delete().neq('project_code', '');
     
     const rows = projects.map(p => ({
       project_code: p['Project Code'],
@@ -1064,7 +1064,7 @@ async function saveProjects() {
     }));
     
     if (rows.length > 0) {
-      const { error } = await supabase.from('projects').insert(rows);
+      const { error } = await supabaseClient.from('projects').insert(rows);
       if (error) throw error;
     }
   } catch (err) {
@@ -1078,7 +1078,7 @@ async function saveComment(code) {
   setSyncing(true);
   const cm = comments[code] || { finance: '', contracts: '', estimation: '' };
   try {
-    const { error } = await supabase.from('comments').upsert({
+    const { error } = await supabaseClient.from('comments').upsert({
       project_code: code,
       finance: cm.finance,
       contracts: cm.contracts,
@@ -1098,7 +1098,7 @@ async function saveFlag(code) {
   setSyncing(true);
   const fl = flags[code] || { contracts: false, estimation: false };
   try {
-    const { error } = await supabase.from('flags').upsert({
+    const { error } = await supabaseClient.from('flags').upsert({
       project_code: code,
       contracts: fl.contracts,
       estimation: fl.estimation,
@@ -1114,7 +1114,7 @@ async function saveFlag(code) {
 
 async function saveMetadata(key, value) {
   try {
-    await supabase.from('app_metadata').upsert({
+    await supabaseClient.from('app_metadata').upsert({
       key: key,
       value: value,
       updated_at: new Date().toISOString()
@@ -1129,28 +1129,28 @@ async function saveMetadata(key, value) {
 // ══════════════════════════════════════════════════════
 function setupRealtimeSubscriptions() {
   // Subscribe to projects changes
-  supabase.channel('projects-changes')
+  supabaseClient.channel('projects-changes')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'projects' }, () => {
       loadProjects().then(() => { renderKPIs(); renderTable(); buildPMDropdown(); });
     })
     .subscribe();
   
   // Subscribe to comments changes
-  supabase.channel('comments-changes')
+  supabaseClient.channel('comments-changes')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'comments' }, () => {
       loadComments().then(() => { renderTable(); });
     })
     .subscribe();
   
   // Subscribe to flags changes
-  supabase.channel('flags-changes')
+  supabaseClient.channel('flags-changes')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'flags' }, () => {
       loadFlags().then(() => { renderKPIs(); renderTable(); });
     })
     .subscribe();
   
   // Subscribe to metadata changes
-  supabase.channel('metadata-changes')
+  supabaseClient.channel('metadata-changes')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'app_metadata' }, () => {
       loadMetadata();
     })
