@@ -476,12 +476,12 @@
   <div class="login-box">
     <div class="login-logo">MARINE<span>TEKNIK</span></div>
     <div class="login-subtitle">Project Invoice Tracker — Team Login</div>
-    <input type="email" class="login-input" id="loginEmail" placeholder="Enter your email address">
-    <button class="login-btn" id="loginBtn" onclick="handleLogin()">Send Magic Link</button>
+    <input type="email" class="login-input" id="loginEmail" placeholder="Email address">
+    <input type="password" class="login-input" id="loginPassword" placeholder="Password">
+    <button class="login-btn" id="loginBtn" onclick="handleLogin()">Sign In</button>
     <div class="login-error" id="loginError"></div>
     <div class="login-success" id="loginSuccess"></div>
     <div class="login-info">
-      A secure login link will be sent to your email.<br>
       Only authorized team members can access this tracker.
     </div>
   </div>
@@ -877,6 +877,7 @@ async function checkAuth() {
 
 async function handleLogin() {
   const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+  const password = document.getElementById('loginPassword').value;
   const errorEl = document.getElementById('loginError');
   const successEl = document.getElementById('loginSuccess');
   const btn = document.getElementById('loginBtn');
@@ -890,25 +891,29 @@ async function handleLogin() {
     return;
   }
   
+  if (!password) {
+    errorEl.textContent = 'Please enter your password.';
+    errorEl.classList.add('show');
+    return;
+  }
+  
   btn.disabled = true;
-  btn.textContent = 'Sending...';
+  btn.textContent = 'Signing in...';
   
   try {
-    const { error } = await supabase.auth.signInWithOtp({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email: email,
-      options: { emailRedirectTo: window.location.href }
+      password: password
     });
     
     if (error) throw error;
     
-    successEl.textContent = '✓ Magic link sent! Check your email and click the link to sign in.';
-    successEl.classList.add('show');
-    btn.textContent = 'Link Sent!';
+    // Auth state change listener will handle the rest
   } catch (err) {
-    errorEl.textContent = err.message || 'Login failed. Make sure your email is on the allowed list.';
+    errorEl.textContent = err.message || 'Login failed. Check your email and password.';
     errorEl.classList.add('show');
     btn.disabled = false;
-    btn.textContent = 'Send Magic Link';
+    btn.textContent = 'Sign In';
   }
 }
 
