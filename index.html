@@ -33,7 +33,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 .page{display:none}
 .page.active{display:block}
 .kpi-row{display:flex;gap:14px;margin-bottom:20px;flex-wrap:wrap}
-.kpi-card{background:var(--white);border-radius:10px;padding:16px 20px;flex:1;min-width:140px;box-shadow:var(--shadow);border-top:3px solid var(--border);position:relative;overflow:hidden}
+.kpi-card{background:var(--white);border-radius:10px;padding:16px 20px;flex:1;min-width:140px;box-shadow:var(--shadow);border-top:3px solid var(--border)}
 .kpi-card.red{border-top-color:var(--red)}
 .kpi-card.orange{border-top-color:var(--orange)}
 .kpi-card.navy{border-top-color:var(--navy)}
@@ -107,14 +107,14 @@ tbody td{padding:9px 10px;vertical-align:middle}
 .dashboard-subtitle{font-size:12px;color:var(--text2);margin-top:4px}
 .dashboard-date{font-size:11px;color:var(--text2);font-family:'DM Mono',monospace}
 .dashboard-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:20px}
-.dash-card{background:var(--white);border-radius:12px;padding:20px 24px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.dash-card{background:var(--white);border-radius:12px;padding:20px 24px;box-shadow:var(--shadow)}
 .dash-card.full-width{grid-column:1/-1}
 .dash-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)}
 .dash-card-title{font-size:14px;font-weight:700;color:var(--navy)}
 .chart-container{position:relative;height:260px}
 .chart-container.tall{height:320px}
 .big-numbers{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
-.big-num-card{background:linear-gradient(135deg,var(--navy) 0%,var(--navy3) 100%);border-radius:12px;padding:20px;color:var(--white);position:relative;overflow:hidden}
+.big-num-card{background:linear-gradient(135deg,var(--navy) 0%,var(--navy3) 100%);border-radius:12px;padding:20px;color:var(--white)}
 .big-num-card.gold-accent{background:linear-gradient(135deg,var(--gold) 0%,#DAB863 100%)}
 .big-num-card.gold-accent .big-num-value{color:var(--navy)}
 .big-num-card.gold-accent .big-num-label{color:var(--navy);opacity:0.7}
@@ -165,19 +165,15 @@ textarea:focus{border-color:var(--navy);background:var(--white)}
 .import-icon{font-size:32px;margin-bottom:10px}
 .import-title{font-size:14px;font-weight:600;color:var(--navy);margin-bottom:4px}
 .import-sub{font-size:11px;color:var(--text2)}
-.import-rules{background:var(--gold-lite);border:1px solid #EDD88A;border-radius:6px;padding:12px 14px;font-size:11px;color:var(--text)}
-.import-rules ul{padding-left:16px;line-height:1.8}
 .report-options{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
 .report-card{flex:1;min-width:140px;border:2px solid var(--border);border-radius:10px;padding:18px 16px;cursor:pointer;transition:all 0.15s;text-align:center}
 .report-card:hover{border-color:var(--navy)}
 .report-card.selected{border-color:var(--gold);background:var(--gold-lite)}
 .report-card-icon{font-size:26px;margin-bottom:8px}
 .report-card-title{font-size:12px;font-weight:700;color:var(--navy);margin-bottom:4px}
-.report-card-desc{font-size:10px;color:var(--text2);line-height:1.5}
 .empty-state{text-align:center;padding:60px 20px;color:var(--text2)}
 .empty-icon{font-size:48px;margin-bottom:16px}
 .empty-title{font-size:16px;font-weight:600;color:var(--navy);margin-bottom:8px}
-.empty-sub{font-size:12px;max-width:320px;margin:0 auto 20px;line-height:1.6}
 .toast{position:fixed;bottom:24px;right:24px;z-index:9999;background:var(--navy);color:var(--white);padding:12px 20px;border-radius:8px;font-size:12px;font-weight:500;box-shadow:var(--shadow-lg);transform:translateY(80px);transition:transform 0.3s;border-left:4px solid var(--gold)}
 .toast.show{transform:translateY(0)}
 .login-overlay{position:fixed;inset:0;background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 100%);z-index:10000;display:flex;align-items:center;justify-content:center}
@@ -186,18 +182,15 @@ textarea:focus{border-color:var(--navy);background:var(--white)}
 .login-logo{font-size:20px;font-weight:700;color:var(--navy);margin-bottom:8px}
 .login-logo span{color:var(--gold)}
 .login-subtitle{font-size:12px;color:var(--text2);margin-bottom:28px}
-.login-input{width:100%;padding:12px 16px;border:1px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;margin-bottom:16px;outline:none;transition:border-color 0.15s}
+.login-input{width:100%;padding:12px 16px;border:1px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;margin-bottom:16px;outline:none}
 .login-input:focus{border-color:var(--navy)}
-.login-btn{width:100%;padding:12px;border:none;border-radius:8px;background:var(--gold);color:var(--navy);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.15s}
-.login-btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,0.2)}
-.login-btn:disabled{opacity:0.6;cursor:not-allowed;transform:none}
+.login-btn{width:100%;padding:12px;border:none;border-radius:8px;background:var(--gold);color:var(--navy);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer}
+.login-btn:disabled{opacity:0.6;cursor:not-allowed}
 .login-error{color:var(--red);font-size:12px;margin-top:12px;display:none}
 .login-error.show{display:block}
-.login-info{font-size:11px;color:var(--text2);margin-top:20px;line-height:1.6}
+.login-info{font-size:11px;color:var(--text2);margin-top:20px}
 .user-badge{display:inline-flex;align-items:center;gap:6px;background:var(--navy3);color:var(--white);font-size:11px;padding:4px 10px;border-radius:20px;margin-right:8px}
-.user-badge-email{opacity:0.7}
-.logout-btn{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.3);color:var(--white);font-size:11px;cursor:pointer;padding:5px 12px;border-radius:6px;font-family:'DM Sans',sans-serif;font-weight:500}
-.logout-btn:hover{background:rgba(255,255,255,0.2)}
+.logout-btn{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.3);color:var(--white);font-size:11px;cursor:pointer;padding:5px 12px;border-radius:6px;font-family:'DM Sans',sans-serif}
 .sync-indicator{display:inline-flex;align-items:center;gap:4px;font-size:10px;color:rgba(255,255,255,0.5);margin-right:12px}
 .sync-dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
 .sync-dot.syncing{background:var(--gold);animation:pulse 1s infinite}
@@ -210,7 +203,6 @@ textarea:focus{border-color:var(--navy);background:var(--white)}
 </style>
 </head>
 <body>
-
 <div class="login-overlay" id="loginOverlay">
   <div class="login-box">
     <div class="login-logo">MARINE<span>TEKNIK</span></div>
@@ -222,34 +214,26 @@ textarea:focus{border-color:var(--navy);background:var(--white)}
     <div class="login-info">Team access only</div>
   </div>
 </div>
-
 <div class="topbar">
   <div class="topbar-left">
     <div class="logo">MARINE<span>TEKNIK</span></div>
     <div class="topbar-badge">Invoice Tracker</div>
   </div>
   <div class="topbar-right">
-    <div class="sync-indicator" id="syncIndicator" style="display:none">
-      <div class="sync-dot" id="syncDot"></div>
-      <span id="syncLabel">Synced</span>
-    </div>
-    <div class="user-badge" id="userBadge" style="display:none">
-      👤 <span class="user-badge-email" id="userEmail"></span>
-    </div>
+    <div class="sync-indicator" id="syncIndicator" style="display:none"><div class="sync-dot" id="syncDot"></div><span id="syncLabel">Synced</span></div>
+    <div class="user-badge" id="userBadge" style="display:none">👤 <span id="userEmail"></span></div>
     <button class="logout-btn" id="logoutBtn" style="display:none" onclick="handleLogout()">Sign Out</button>
     <span class="last-import" id="lastImportLabel"></span>
     <button class="btn btn-outline btn-sm" onclick="openImportModal()">⬆ Import</button>
     <button class="btn btn-primary btn-sm" onclick="openReportModal()">📤 Export</button>
   </div>
 </div>
-
 <div class="tabs">
   <div class="tab active" onclick="switchTab('all',this)">All Projects</div>
   <div class="tab" onclick="switchTab('contracts',this)">🚩 Contracts</div>
   <div class="tab" onclick="switchTab('estimation',this)">🚩 Estimation</div>
   <div class="tab" onclick="switchTab('dashboard',this)">📊 Dashboard</div>
 </div>
-
 <div class="content">
   <div class="page active" id="page-tracker">
     <div class="kpi-row">
@@ -312,7 +296,6 @@ textarea:focus{border-color:var(--navy);background:var(--white)}
       </div>
     </div>
   </div>
-
   <div class="page" id="page-dashboard">
     <div class="dashboard-header">
       <div><div class="dashboard-title">📊 Dashboard</div><div class="dashboard-subtitle">Overview</div></div>
@@ -345,11 +328,10 @@ textarea:focus{border-color:var(--navy);background:var(--white)}
     </div>
   </div>
 </div>
-
 <div class="modal-overlay" id="importModal">
   <div class="modal" style="width:480px">
     <div class="modal-title">⬆ Import BC Export</div>
-    <div class="modal-sub">Comments preserved automatically</div>
+    <div class="modal-sub">Comments preserved. Orphaned data cleaned up automatically.</div>
     <div class="import-zone" id="importZone" onclick="document.getElementById('fileInput').click()" ondragover="event.preventDefault();this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')" ondrop="handleDrop(event)">
       <div class="import-icon">📂</div>
       <div class="import-title">Click or drag file</div>
@@ -359,19 +341,18 @@ textarea:focus{border-color:var(--navy);background:var(--white)}
     <div class="modal-footer"><button class="btn btn-outline" style="color:var(--text2);border-color:var(--border)" onclick="closeImportModal()">Cancel</button></div>
   </div>
 </div>
-
 <div class="modal-overlay" id="commentModal">
   <div class="modal">
     <div class="modal-title">💬 Comments</div>
     <div class="modal-sub">Persist across imports</div>
     <div class="modal-project"><div class="modal-project-code" id="cmProjectCode"></div><div class="modal-project-name" id="cmProjectName"></div></div>
+    <input type="hidden" id="cmProjectCodeHidden">
     <div class="comment-group"><div class="comment-label"><div class="comment-label-dot" style="background:#3498db"></div>Finance</div><textarea id="cmFinance"></textarea></div>
     <div class="comment-group"><div class="comment-label"><div class="comment-label-dot" style="background:#9b59b6"></div>Contracts</div><textarea id="cmContracts"></textarea></div>
     <div class="comment-group"><div class="comment-label"><div class="comment-label-dot" style="background:#27ae60"></div>Estimation</div><textarea id="cmEstimation"></textarea></div>
     <div class="modal-footer"><button class="btn btn-outline" style="color:var(--text2);border-color:var(--border)" onclick="closeCommentModal()">Cancel</button><button class="btn btn-primary" onclick="saveCommentAndClose()">Save</button></div>
   </div>
 </div>
-
 <div class="modal-overlay" id="reportModal">
   <div class="modal" style="width:560px">
     <div class="modal-title">📤 Export</div>
@@ -384,234 +365,77 @@ textarea:focus{border-color:var(--navy);background:var(--white)}
     <div class="modal-footer"><button class="btn btn-outline" style="color:var(--text2);border-color:var(--border)" onclick="closeReportModal()">Cancel</button><button class="btn btn-primary" id="exportBtn" onclick="doExport()" disabled>Download</button></div>
   </div>
 </div>
-
 <div class="toast" id="toast"></div>
-
 <script>
 var SUPABASE_URL='https://mpvsentuomxnyijhrwli.supabase.co';
 var SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wdnNlbnR1b214bnlpamhyd2xpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3Njg5MTUsImV4cCI6MjA4OTM0NDkxNX0.yL2YDH-fx12oR03-JFDxj651mWZRQoPywv8ilebzox0';
 var supabaseClient=null;
-try{supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);}catch(e){console.error('Supabase init error',e);}
+try{supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);}catch(e){console.error(e);}
+var projects=[],comments={},flags={},activeTab='all',activeFilters=new Set(),activePM=null,sortCol='invoiceStatus',sortDir='asc',selectedReport=null,currentUser=null;
+var statusChart=null,valueByStatusChart=null,collectionChart=null,pmBarChart=null,isSyncing=false;
 
-var projects=[];
-var comments={};
-var flags={};
-var activeTab='all';
-var activeFilters=new Set();
-var activePM=null;
-var sortCol='invoiceStatus';
-var sortDir='asc';
-var editingCode=null;
-var selectedReport=null;
-var currentUser=null;
-var statusChart=null;
-var valueByStatusChart=null;
-var collectionChart=null;
-var pmBarChart=null;
-var isSyncing=false;
+function setSyncing(v){isSyncing=v;var d=document.getElementById('syncDot'),l=document.getElementById('syncLabel');if(d&&l){if(v){d.classList.add('syncing');l.textContent='Syncing...';}else{d.classList.remove('syncing');l.textContent='Synced';}}}
 
-function setSyncing(v){
-  isSyncing=v;
-  var dot=document.getElementById('syncDot');
-  var label=document.getElementById('syncLabel');
-  if(dot&&label){
-    if(v){dot.classList.add('syncing');label.textContent='Syncing...';}
-    else{dot.classList.remove('syncing');label.textContent='Synced';}
-  }
-}
+async function checkAuth(){if(!supabaseClient){showLogin();return;}try{var r=await supabaseClient.auth.getSession();if(r&&r.data&&r.data.session){currentUser=r.data.session.user;showApp();await loadAllData();}else{showLogin();}}catch(e){showLogin();}}
 
-async function checkAuth(){
-  if(!supabaseClient){showLogin();return;}
+async function handleLogin(){var email=document.getElementById('loginEmail').value.trim().toLowerCase(),pw=document.getElementById('loginPassword').value,err=document.getElementById('loginError'),btn=document.getElementById('loginBtn');err.classList.remove('show');if(!email||!pw){err.textContent='Enter email and password';err.classList.add('show');return;}btn.disabled=true;btn.textContent='...';try{var r=await supabaseClient.auth.signInWithPassword({email:email,password:pw});if(r.error)throw r.error;currentUser=r.data.user;showApp();await loadAllData();}catch(e){err.textContent=e.message||'Failed';err.classList.add('show');btn.disabled=false;btn.textContent='Sign In';}}
+
+function handleLogout(){if(supabaseClient)supabaseClient.auth.signOut();currentUser=null;projects=[];comments={};flags={};try{localStorage.clear();sessionStorage.clear();}catch(e){}showLogin();}
+
+function showLogin(){document.getElementById('loginOverlay').classList.remove('hidden');document.getElementById('userBadge').style.display='none';document.getElementById('logoutBtn').style.display='none';document.getElementById('syncIndicator').style.display='none';var b=document.getElementById('loginBtn');if(b){b.disabled=false;b.textContent='Sign In';}}
+
+function showApp(){document.getElementById('loginOverlay').classList.add('hidden');document.getElementById('userBadge').style.display='inline-flex';document.getElementById('userEmail').textContent=currentUser?currentUser.email:'';document.getElementById('logoutBtn').style.display='inline';document.getElementById('syncIndicator').style.display='inline-flex';}
+
+async function loadAllData(){if(isSyncing)return;setSyncing(true);try{await loadProjects();await loadComments();await loadFlags();await loadMetadata();renderKPIs();renderTable();buildPMDropdown();}catch(e){console.error(e);showToast('⚠ Load error');}setSyncing(false);}
+
+async function refreshData(){await loadAllData();showToast('✓ Refreshed');}
+
+async function loadProjects(){var r=await supabaseClient.from('projects').select('*');if(r.error)throw r.error;projects=(r.data||[]).map(function(p){return{'Customer No':p.customer_no||'','Project Code':p.project_code||'','Customer Name':p.customer_name||'','Ship Name':p.ship_name||'','Project Name':p.project_name||'','Person Responsible':p.person_responsible||'','Your Reference':p.your_reference||'','PO Number':p.po_number||'','Project Start':p.project_start||'','Project End':p.project_end||'','Next Invoice Date':p.next_invoice_date||'','Project Value':parseFloat(p.project_value)||0,'Invoiced Value':parseFloat(p.invoiced_value)||0,'% invoiced':parseFloat(p.percent_invoiced)||0,'Remaining Inv':parseFloat(p.remaining_inv)||0,'Status':p.status||'Open','invoiceStatus':p.invoice_status||calcInvoiceStatus(p.next_invoice_date)};});}
+
+async function loadComments(){var r=await supabaseClient.from('comments').select('*');if(r.error){console.error(r.error);return;}comments={};(r.data||[]).forEach(function(c){if(c.project_code)comments[c.project_code]={finance:c.finance||'',contracts:c.contracts||'',estimation:c.estimation||''};});}
+
+async function loadFlags(){var r=await supabaseClient.from('flags').select('*');if(r.error){console.error(r.error);return;}flags={};(r.data||[]).forEach(function(f){if(f.project_code)flags[f.project_code]={contracts:f.contracts||false,estimation:f.estimation||false};});}
+
+async function loadMetadata(){try{var r=await supabaseClient.from('app_metadata').select('*').eq('key','last_import');if(r.data&&r.data.length>0)document.getElementById('lastImportLabel').textContent='Last: '+r.data[0].value;}catch(e){}}
+
+async function saveProjects(){setSyncing(true);try{await supabaseClient.from('projects').delete().neq('project_code','');var rows=projects.map(function(p){return{project_code:p['Project Code'],customer_no:p['Customer No'],customer_name:p['Customer Name'],ship_name:p['Ship Name'],project_name:p['Project Name'],person_responsible:p['Person Responsible'],your_reference:p['Your Reference'],po_number:p['PO Number'],project_start:p['Project Start']||null,project_end:p['Project End']||null,next_invoice_date:p['Next Invoice Date']||null,project_value:p['Project Value'],invoiced_value:p['Invoiced Value'],percent_invoiced:p['% invoiced'],remaining_inv:p['Remaining Inv'],status:p['Status'],invoice_status:p['invoiceStatus']};});if(rows.length>0){var r=await supabaseClient.from('projects').insert(rows);if(r.error)throw r.error;}}catch(e){console.error(e);showToast('⚠ Save error');}setSyncing(false);}
+
+// ========== CLEANUP FUNCTION ==========
+async function cleanupOrphanedData(validProjectCodes){
+  var cleaned=0;
   try{
-    var result=await supabaseClient.auth.getSession();
-    if(result&&result.data&&result.data.session){
-      currentUser=result.data.session.user;
-      showApp();
-      await loadAllData();
-    }else{showLogin();}
-  }catch(e){console.error('Auth error:',e);showLogin();}
-}
-
-async function handleLogin(){
-  var email=document.getElementById('loginEmail').value.trim().toLowerCase();
-  var password=document.getElementById('loginPassword').value;
-  var errorEl=document.getElementById('loginError');
-  var btn=document.getElementById('loginBtn');
-  errorEl.classList.remove('show');
-  if(!email){errorEl.textContent='Enter email';errorEl.classList.add('show');return;}
-  if(!password){errorEl.textContent='Enter password';errorEl.classList.add('show');return;}
-  btn.disabled=true;btn.textContent='...';
-  try{
-    var result=await supabaseClient.auth.signInWithPassword({email:email,password:password});
-    if(result.error)throw result.error;
-    currentUser=result.data.user;
-    showApp();
-    await loadAllData();
-  }catch(e){
-    errorEl.textContent=e.message||'Failed';
-    errorEl.classList.add('show');
-    btn.disabled=false;btn.textContent='Sign In';
-  }
-}
-
-function handleLogout(){
-  if(supabaseClient){
-    supabaseClient.auth.signOut().catch(function(e){console.log(e);});
-  }
-  currentUser=null;
-  projects=[];comments={};flags={};
-  try{localStorage.clear();sessionStorage.clear();}catch(e){}
-  showLogin();
-}
-
-function showLogin(){
-  document.getElementById('loginOverlay').classList.remove('hidden');
-  document.getElementById('userBadge').style.display='none';
-  document.getElementById('logoutBtn').style.display='none';
-  document.getElementById('syncIndicator').style.display='none';
-  var btn=document.getElementById('loginBtn');
-  if(btn){btn.disabled=false;btn.textContent='Sign In';}
-}
-
-function showApp(){
-  document.getElementById('loginOverlay').classList.add('hidden');
-  document.getElementById('userBadge').style.display='inline-flex';
-  document.getElementById('userEmail').textContent=currentUser?currentUser.email:'';
-  document.getElementById('logoutBtn').style.display='inline';
-  document.getElementById('syncIndicator').style.display='inline-flex';
-}
-
-async function loadAllData(){
-  if(isSyncing)return;
-  setSyncing(true);
-  try{
-    await loadProjects();
-    await loadComments();
-    await loadFlags();
-    await loadMetadata();
-    renderKPIs();
-    renderTable();
-    buildPMDropdown();
-  }catch(e){console.error('Load error:',e);showToast('⚠ Load error');}
-  setSyncing(false);
-}
-
-async function refreshData(){
-  await loadAllData();
-  showToast('✓ Refreshed');
-}
-
-async function loadProjects(){
-  var result=await supabaseClient.from('projects').select('*');
-  if(result.error)throw result.error;
-  projects=(result.data||[]).map(function(p){
-    return{
-      'Customer No':p.customer_no||'',
-      'Project Code':p.project_code||'',
-      'Customer Name':p.customer_name||'',
-      'Ship Name':p.ship_name||'',
-      'Project Name':p.project_name||'',
-      'Person Responsible':p.person_responsible||'',
-      'Your Reference':p.your_reference||'',
-      'PO Number':p.po_number||'',
-      'Project Start':p.project_start||'',
-      'Project End':p.project_end||'',
-      'Next Invoice Date':p.next_invoice_date||'',
-      'Project Value':parseFloat(p.project_value)||0,
-      'Invoiced Value':parseFloat(p.invoiced_value)||0,
-      '% invoiced':parseFloat(p.percent_invoiced)||0,
-      'Remaining Inv':parseFloat(p.remaining_inv)||0,
-      'Status':p.status||'Open',
-      'invoiceStatus':p.invoice_status||calcInvoiceStatus(p.next_invoice_date)
-    };
-  });
-}
-
-async function loadComments(){
-  var result=await supabaseClient.from('comments').select('*');
-  if(result.error)throw result.error;
-  comments={};
-  (result.data||[]).forEach(function(c){
-    comments[c.project_code]={finance:c.finance||'',contracts:c.contracts||'',estimation:c.estimation||''};
-  });
-}
-
-async function loadFlags(){
-  var result=await supabaseClient.from('flags').select('*');
-  if(result.error)throw result.error;
-  flags={};
-  (result.data||[]).forEach(function(f){
-    flags[f.project_code]={contracts:f.contracts||false,estimation:f.estimation||false};
-  });
-}
-
-async function loadMetadata(){
-  try{
-    var result=await supabaseClient.from('app_metadata').select('*').eq('key','last_import');
-    if(result.data&&result.data.length>0){
-      document.getElementById('lastImportLabel').textContent='Last: '+result.data[0].value;
+    // Get all comments
+    var commentsResult=await supabaseClient.from('comments').select('project_code');
+    if(commentsResult.data){
+      var orphanedComments=commentsResult.data.filter(function(c){return validProjectCodes.indexOf(c.project_code)===-1;});
+      for(var i=0;i<orphanedComments.length;i++){
+        await supabaseClient.from('comments').delete().eq('project_code',orphanedComments[i].project_code);
+        cleaned++;
+      }
     }
-  }catch(e){}
-}
-
-async function saveProjects(){
-  setSyncing(true);
-  try{
-    await supabaseClient.from('projects').delete().neq('project_code','');
-    var rows=projects.map(function(p){
-      return{
-        project_code:p['Project Code'],customer_no:p['Customer No'],customer_name:p['Customer Name'],
-        ship_name:p['Ship Name'],project_name:p['Project Name'],person_responsible:p['Person Responsible'],
-        your_reference:p['Your Reference'],po_number:p['PO Number'],
-        project_start:p['Project Start']||null,project_end:p['Project End']||null,
-        next_invoice_date:p['Next Invoice Date']||null,project_value:p['Project Value'],
-        invoiced_value:p['Invoiced Value'],percent_invoiced:p['% invoiced'],
-        remaining_inv:p['Remaining Inv'],status:p['Status'],invoice_status:p['invoiceStatus']
-      };
-    });
-    if(rows.length>0){
-      var result=await supabaseClient.from('projects').insert(rows);
-      if(result.error)throw result.error;
+    // Get all flags
+    var flagsResult=await supabaseClient.from('flags').select('project_code');
+    if(flagsResult.data){
+      var orphanedFlags=flagsResult.data.filter(function(f){return validProjectCodes.indexOf(f.project_code)===-1;});
+      for(var j=0;j<orphanedFlags.length;j++){
+        await supabaseClient.from('flags').delete().eq('project_code',orphanedFlags[j].project_code);
+        cleaned++;
+      }
     }
-  }catch(e){console.error('Save error:',e);showToast('⚠ Save error');}
-  setSyncing(false);
+  }catch(e){console.error('Cleanup error:',e);}
+  return cleaned;
 }
 
-async function saveComment(code){
-  setSyncing(true);
-  var cm=comments[code]||{finance:'',contracts:'',estimation:''};
-  try{
-    var result=await supabaseClient.from('comments').upsert({
-      project_code:code,finance:cm.finance,contracts:cm.contracts,estimation:cm.estimation,
-      updated_at:new Date().toISOString(),updated_by:currentUser?currentUser.email:''
-    },{onConflict:'project_code'});
-    if(result.error)throw result.error;
-  }catch(e){console.error('Comment error:',e);showToast('⚠ Save error');}
-  setSyncing(false);
-}
+async function saveComment(code){if(!code){console.error('No code');showToast('⚠ Error');return;}setSyncing(true);var cm=comments[code]||{finance:'',contracts:'',estimation:''};try{var r=await supabaseClient.from('comments').upsert({project_code:code,finance:cm.finance||'',contracts:cm.contracts||'',estimation:cm.estimation||'',updated_at:new Date().toISOString(),updated_by:currentUser?currentUser.email:''},{onConflict:'project_code'});if(r.error){console.error(r.error);showToast('⚠ Save failed');}else{showToast('✓ Saved');}}catch(e){console.error(e);showToast('⚠ Error');}setSyncing(false);}
 
-async function saveFlag(code){
-  setSyncing(true);
-  var fl=flags[code]||{contracts:false,estimation:false};
-  try{
-    var result=await supabaseClient.from('flags').upsert({
-      project_code:code,contracts:fl.contracts,estimation:fl.estimation,
-      updated_at:new Date().toISOString()
-    },{onConflict:'project_code'});
-    if(result.error)throw result.error;
-  }catch(e){console.error('Flag error:',e);showToast('⚠ Save error');}
-  setSyncing(false);
-}
+async function saveFlag(code){if(!code)return;setSyncing(true);var fl=flags[code]||{contracts:false,estimation:false};try{await supabaseClient.from('flags').upsert({project_code:code,contracts:fl.contracts,estimation:fl.estimation,updated_at:new Date().toISOString()},{onConflict:'project_code'});}catch(e){console.error(e);}setSyncing(false);}
 
-async function saveMetadata(key,value){
-  try{await supabaseClient.from('app_metadata').upsert({key:key,value:value,updated_at:new Date().toISOString()},{onConflict:'key'});}catch(e){}
-}
+async function saveMetadata(k,v){try{await supabaseClient.from('app_metadata').upsert({key:k,value:v,updated_at:new Date().toISOString()},{onConflict:'key'});}catch(e){}}
 
 function openImportModal(){document.getElementById('importModal').classList.add('open');}
 function closeImportModal(){document.getElementById('importModal').classList.remove('open');}
-
-function handleDrop(e){e.preventDefault();document.getElementById('importZone').classList.remove('dragover');var file=e.dataTransfer.files[0];if(file)processFile(file);}
-function handleFileSelect(e){var file=e.target.files[0];if(file)processFile(file);}
+function handleDrop(e){e.preventDefault();document.getElementById('importZone').classList.remove('dragover');var f=e.dataTransfer.files[0];if(f)processFile(f);}
+function handleFileSelect(e){var f=e.target.files[0];if(f)processFile(f);}
 
 async function processFile(file){
   var reader=new FileReader();
@@ -622,309 +446,91 @@ async function processFile(file){
       var rows=XLSX.utils.sheet_to_json(ws,{defval:''});
       if(!rows.length){showToast('⚠ Empty');return;}
       if(!('Project Code' in rows[0])){showToast('⚠ No Project Code');return;}
-      projects=rows.map(function(r){
-        return{
-          'Customer No':String(r['Customer No']||''),
-          'Project Code':String(r['Project Code']||'').trim(),
-          'Customer Name':String(r['Customer Name']||''),
-          'Ship Name':String(r['Ship Name']||''),
-          'Project Name':String(r['Project Name']||''),
-          'Person Responsible':String(r['Person Responsible']||''),
-          'Your Reference':String(r['Your Reference']||''),
-          'PO Number':String(r['PO Number']||''),
-          'Project Start':formatDateVal(r['Project Start']),
-          'Project End':formatDateVal(r['Project End']),
-          'Next Invoice Date':formatDateVal(r['Next Invoice Date']),
-          'Project Value':parseFloat(r['Project Value'])||0,
-          'Invoiced Value':parseFloat(r['Invoiced Value'])||0,
-          '% invoiced':parseFloat(r['% invoiced']||r['% Invoiced'])||0,
-          'Remaining Inv':parseFloat(r['Remaining Inv'])||0,
-          'Status':String(r['Status']||'Open'),
-          'invoiceStatus':calcInvoiceStatus(r['Next Invoice Date'])
-        };
-      });
+      
+      projects=rows.map(function(r){return{'Customer No':String(r['Customer No']||''),'Project Code':String(r['Project Code']||'').trim(),'Customer Name':String(r['Customer Name']||''),'Ship Name':String(r['Ship Name']||''),'Project Name':String(r['Project Name']||''),'Person Responsible':String(r['Person Responsible']||''),'Your Reference':String(r['Your Reference']||''),'PO Number':String(r['PO Number']||''),'Project Start':formatDateVal(r['Project Start']),'Project End':formatDateVal(r['Project End']),'Next Invoice Date':formatDateVal(r['Next Invoice Date']),'Project Value':parseFloat(r['Project Value'])||0,'Invoiced Value':parseFloat(r['Invoiced Value'])||0,'% invoiced':parseFloat(r['% invoiced']||r['% Invoiced'])||0,'Remaining Inv':parseFloat(r['Remaining Inv'])||0,'Status':String(r['Status']||'Open'),'invoiceStatus':calcInvoiceStatus(r['Next Invoice Date'])};});
+      
+      // Get valid project codes from import
+      var validCodes=projects.map(function(p){return p['Project Code'];});
+      
       var now=new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
       document.getElementById('lastImportLabel').textContent='Last: '+now;
+      
       await saveProjects();
       await saveMetadata('last_import',now);
+      
+      // CLEANUP: Delete orphaned comments and flags
+      var cleanedCount=await cleanupOrphanedData(validCodes);
+      
+      // Reload comments and flags after cleanup
+      await loadComments();
+      await loadFlags();
+      
       renderKPIs();renderTable();buildPMDropdown();
       closeImportModal();
-      showToast('✓ '+projects.length+' imported');
+      
+      var msg='✓ '+projects.length+' imported';
+      if(cleanedCount>0)msg+=' · '+cleanedCount+' orphaned cleaned';
+      showToast(msg);
     }catch(err){showToast('⚠ '+err.message);}
   };
   reader.readAsArrayBuffer(file);
 }
 
-function formatDateVal(val){
-  if(!val||val===''||val==='NaT')return'';
-  if(val instanceof Date){if(isNaN(val.getTime()))return'';return val.toISOString().split('T')[0];}
-  if(typeof val==='string'){if(val.indexOf('NaT')>=0||val.trim()==='')return'';return val.split('T')[0];}
-  if(typeof val==='number'){var d=new Date((val-25569)*86400*1000);return d.toISOString().split('T')[0];}
-  return String(val);
-}
+function formatDateVal(v){if(!v||v===''||v==='NaT')return'';if(v instanceof Date){if(isNaN(v.getTime()))return'';return v.toISOString().split('T')[0];}if(typeof v==='string'){if(v.indexOf('NaT')>=0||v.trim()==='')return'';return v.split('T')[0];}if(typeof v==='number'){var d=new Date((v-25569)*86400*1000);return d.toISOString().split('T')[0];}return String(v);}
 
-function calcInvoiceStatus(raw){
-  if(!raw||raw===''||raw==='NaT')return'No Date';
-  var d;if(raw instanceof Date)d=raw;else d=new Date(raw);
-  if(isNaN(d.getTime()))return'No Date';
-  var today=new Date();today.setHours(0,0,0,0);
-  var diff=Math.floor((d-today)/86400000);
-  if(diff<0)return'OVERDUE';
-  if(diff<=30)return'DUE SOON';
-  return'Upcoming';
-}
+function calcInvoiceStatus(r){if(!r||r===''||r==='NaT')return'No Date';var d;if(r instanceof Date)d=r;else d=new Date(r);if(isNaN(d.getTime()))return'No Date';var t=new Date();t.setHours(0,0,0,0);var diff=Math.floor((d-t)/86400000);if(diff<0)return'OVERDUE';if(diff<=30)return'DUE SOON';return'Upcoming';}
 
-function renderKPIs(){
-  var total=projects.length;
-  var overdue=0,duesoon=0,rem=0,flagC=0,flagE=0,totVal=0,totInv=0;
-  for(var i=0;i<projects.length;i++){
-    var p=projects[i];
-    if(p.invoiceStatus==='OVERDUE')overdue++;
-    if(p.invoiceStatus==='DUE SOON')duesoon++;
-    rem+=p['Remaining Inv'];totVal+=p['Project Value'];totInv+=p['Invoiced Value'];
-    if(flags[p['Project Code']]&&flags[p['Project Code']].contracts)flagC++;
-    if(flags[p['Project Code']]&&flags[p['Project Code']].estimation)flagE++;
-  }
-  var pct=totVal?(totInv/totVal*100):0;
-  document.getElementById('kpiTotal').textContent=total;
-  document.getElementById('kpiOverdue').textContent=overdue;
-  document.getElementById('kpiDueSoon').textContent=duesoon;
-  document.getElementById('kpiRemaining').textContent=fmt$(rem);
-  document.getElementById('kpiContracts').textContent=flagC;
-  document.getElementById('kpiEstimation').textContent=flagE;
-  document.getElementById('tableFooter').style.display='flex';
-  document.getElementById('tfValue').textContent=fmt$(totVal);
-  document.getElementById('tfInvoiced').textContent=fmt$(totInv);
-  document.getElementById('tfRemaining').textContent=fmt$(rem);
-  document.getElementById('tfPct').textContent=pct.toFixed(1)+'%';
-}
+function renderKPIs(){var total=projects.length,overdue=0,duesoon=0,rem=0,flagC=0,flagE=0,totVal=0,totInv=0;for(var i=0;i<projects.length;i++){var p=projects[i];if(p.invoiceStatus==='OVERDUE')overdue++;if(p.invoiceStatus==='DUE SOON')duesoon++;rem+=p['Remaining Inv'];totVal+=p['Project Value'];totInv+=p['Invoiced Value'];if(flags[p['Project Code']]&&flags[p['Project Code']].contracts)flagC++;if(flags[p['Project Code']]&&flags[p['Project Code']].estimation)flagE++;}var pct=totVal?(totInv/totVal*100):0;document.getElementById('kpiTotal').textContent=total;document.getElementById('kpiOverdue').textContent=overdue;document.getElementById('kpiDueSoon').textContent=duesoon;document.getElementById('kpiRemaining').textContent=fmt$(rem);document.getElementById('kpiContracts').textContent=flagC;document.getElementById('kpiEstimation').textContent=flagE;document.getElementById('tableFooter').style.display='flex';document.getElementById('tfValue').textContent=fmt$(totVal);document.getElementById('tfInvoiced').textContent=fmt$(totInv);document.getElementById('tfRemaining').textContent=fmt$(rem);document.getElementById('tfPct').textContent=pct.toFixed(1)+'%';}
 
 function fmt$(v){if(!v&&v!==0)return'—';return'$'+v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
 function fmtDate(s){if(!s)return'—';var d=new Date(s+'T12:00:00');if(isNaN(d.getTime()))return s;return(d.getMonth()+1).toString().padStart(2,'0')+'/'+d.getDate().toString().padStart(2,'0')+'/'+String(d.getFullYear()).slice(2);}
 
-function buildPMDropdown(){
-  var pmMap={};
-  for(var i=0;i<projects.length;i++){var pm=projects[i]['Person Responsible']||'(None)';if(!pmMap[pm])pmMap[pm]=0;pmMap[pm]++;}
-  var sorted=[];for(var key in pmMap)sorted.push([key,pmMap[key]]);
-  sorted.sort(function(a,b){return b[1]-a[1];});
-  var html='<div class="pm-dropdown-item '+(!activePM?'selected':'')+'" onclick="selectPM(null)"><span class="check">✓</span><span>All</span><span class="pm-count">'+projects.length+'</span></div>';
-  for(var j=0;j<sorted.length;j++){
-    var pm=sorted[j][0],count=sorted[j][1],sel=activePM===pm?'selected':'';
-    html+='<div class="pm-dropdown-item '+sel+'" onclick="selectPM(\''+escHtml(pm)+'\')"><span class="check">✓</span><span>'+escHtml(pm)+'</span><span class="pm-count">'+count+'</span></div>';
-  }
-  document.getElementById('pmDropdown').innerHTML=html;
-}
+function buildPMDropdown(){var m={};for(var i=0;i<projects.length;i++){var pm=projects[i]['Person Responsible']||'(None)';if(!m[pm])m[pm]=0;m[pm]++;}var s=[];for(var k in m)s.push([k,m[k]]);s.sort(function(a,b){return b[1]-a[1];});var h='<div class="pm-dropdown-item '+(!activePM?'selected':'')+'" onclick="selectPM(null)"><span class="check">✓</span><span>All</span><span class="pm-count">'+projects.length+'</span></div>';for(var j=0;j<s.length;j++){var pm=s[j][0],c=s[j][1],sel=activePM===pm?'selected':'';h+='<div class="pm-dropdown-item '+sel+'" onclick="selectPM(\''+escHtml(pm)+'\')"><span class="check">✓</span><span>'+escHtml(pm)+'</span><span class="pm-count">'+c+'</span></div>';}document.getElementById('pmDropdown').innerHTML=h;}
 
 function togglePMDropdown(){document.getElementById('pmDropdown').classList.toggle('open');}
 function selectPM(pm){activePM=pm;document.getElementById('pmFilterLabel').textContent=pm||'All';document.getElementById('pmFilterBtn').classList.toggle('active',!!pm);document.getElementById('pmDropdown').classList.remove('open');buildPMDropdown();renderTable();}
 document.addEventListener('click',function(e){if(!e.target.closest('.pm-filter-wrap'))document.getElementById('pmDropdown').classList.remove('open');});
 
 var STATUS_ORDER={'OVERDUE':0,'DUE SOON':1,'Upcoming':2,'No Date':3};
-var STATUS_BADGE_CLASS={'OVERDUE':'badge-overdue','DUE SOON':'badge-duesoon','Upcoming':'badge-upcoming','No Date':'badge-nodate'};
+var STATUS_BADGE={'OVERDUE':'badge-overdue','DUE SOON':'badge-duesoon','Upcoming':'badge-upcoming','No Date':'badge-nodate'};
 var ROW_CLASS={'OVERDUE':'row-overdue','DUE SOON':'row-due-soon','Upcoming':'row-upcoming','No Date':''};
 
-function getFilteredProjects(){
-  var list=projects.slice();
-  if(activeTab==='contracts')list=list.filter(function(p){return flags[p['Project Code']]&&flags[p['Project Code']].contracts;});
-  if(activeTab==='estimation')list=list.filter(function(p){return flags[p['Project Code']]&&flags[p['Project Code']].estimation;});
-  if(activeFilters.size>0)list=list.filter(function(p){return activeFilters.has(p.invoiceStatus);});
-  if(activePM)list=list.filter(function(p){return(p['Person Responsible']||'(None)')===activePM;});
-  var q=document.getElementById('searchInput').value.toLowerCase().trim();
-  if(q){
-    list=list.filter(function(p){
-      return p['Project Code'].toLowerCase().indexOf(q)>=0||p['Customer Name'].toLowerCase().indexOf(q)>=0||
-        p['Customer No'].toLowerCase().indexOf(q)>=0||p['Ship Name'].toLowerCase().indexOf(q)>=0||
-        p['Project Name'].toLowerCase().indexOf(q)>=0||p['Person Responsible'].toLowerCase().indexOf(q)>=0;
-    });
-  }
-  list.sort(function(a,b){
-    var av=a[sortCol],bv=b[sortCol];
-    if(sortCol==='invoiceStatus'){av=STATUS_ORDER[av]!==undefined?STATUS_ORDER[av]:9;bv=STATUS_ORDER[bv]!==undefined?STATUS_ORDER[bv]:9;}
-    if(typeof av==='string')av=av.toLowerCase();
-    if(typeof bv==='string')bv=bv.toLowerCase();
-    if(av<bv)return sortDir==='asc'?-1:1;
-    if(av>bv)return sortDir==='asc'?1:-1;
-    return 0;
-  });
-  return list;
-}
+function getFilteredProjects(){var list=projects.slice();if(activeTab==='contracts')list=list.filter(function(p){return flags[p['Project Code']]&&flags[p['Project Code']].contracts;});if(activeTab==='estimation')list=list.filter(function(p){return flags[p['Project Code']]&&flags[p['Project Code']].estimation;});if(activeFilters.size>0)list=list.filter(function(p){return activeFilters.has(p.invoiceStatus);});if(activePM)list=list.filter(function(p){return(p['Person Responsible']||'(None)')===activePM;});var q=document.getElementById('searchInput').value.toLowerCase().trim();if(q){list=list.filter(function(p){return p['Project Code'].toLowerCase().indexOf(q)>=0||p['Customer Name'].toLowerCase().indexOf(q)>=0||p['Ship Name'].toLowerCase().indexOf(q)>=0||p['Project Name'].toLowerCase().indexOf(q)>=0||p['Person Responsible'].toLowerCase().indexOf(q)>=0;});}list.sort(function(a,b){var av=a[sortCol],bv=b[sortCol];if(sortCol==='invoiceStatus'){av=STATUS_ORDER[av]!==undefined?STATUS_ORDER[av]:9;bv=STATUS_ORDER[bv]!==undefined?STATUS_ORDER[bv]:9;}if(typeof av==='string')av=av.toLowerCase();if(typeof bv==='string')bv=bv.toLowerCase();if(av<bv)return sortDir==='asc'?-1:1;if(av>bv)return sortDir==='asc'?1:-1;return 0;});return list;}
 
-function renderTable(){
-  var tbody=document.getElementById('tableBody');
-  var list=getFilteredProjects();
-  document.getElementById('rowCountLabel').textContent=list.length;
-  if(!projects.length){
-    tbody.innerHTML='<tr><td colspan="20"><div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">No data</div><button class="btn btn-primary" onclick="openImportModal()">Import</button></div></td></tr>';
-    return;
-  }
-  if(!list.length){tbody.innerHTML='<tr><td colspan="20" style="text-align:center;padding:40px">No matches</td></tr>';return;}
-  var html='';
-  for(var i=0;i<list.length;i++){
-    var p=list[i],code=p['Project Code'],cm=comments[code]||{},fl=flags[code]||{},st=p.invoiceStatus;
-    var rowCls=(fl.contracts||fl.estimation)?'row-flagged':(ROW_CLASS[st]||'');
-    var fn=cm.finance||'',cn=cm.contracts||'',en=cm.estimation||'',pct=p['% invoiced']||0;
-    html+='<tr class="'+rowCls+'">';
-    html+='<td><span class="cell-code" style="font-size:10px">'+escHtml(p['Customer No'])+'</span></td>';
-    html+='<td><span class="cell-code">'+escHtml(code)+'</span></td>';
-    html+='<td><span class="cell-name" title="'+escHtml(p['Customer Name'])+'">'+escHtml(p['Customer Name'])+'</span></td>';
-    html+='<td><span class="cell-name">'+escHtml(p['Ship Name'])+'</span></td>';
-    html+='<td><span class="cell-name">'+escHtml(p['Project Name'])+'</span></td>';
-    html+='<td style="font-size:11px">'+escHtml(p['Person Responsible'])+'</td>';
-    html+='<td><span style="font-size:10px">'+escHtml(p['Your Reference'])+'</span></td>';
-    html+='<td><span style="font-size:10px">'+escHtml(p['PO Number'])+'</span></td>';
-    html+='<td class="cell-date">'+fmtDate(p['Project Start'])+'</td>';
-    html+='<td class="cell-date">'+fmtDate(p['Project End'])+'</td>';
-    html+='<td class="cell-date">'+fmtDate(p['Next Invoice Date'])+'</td>';
-    html+='<td><span class="badge '+(STATUS_BADGE_CLASS[st]||'badge-nodate')+'">'+st+'</span></td>';
-    html+='<td class="cell-num">'+fmt$(p['Project Value'])+'</td>';
-    html+='<td class="cell-num">'+fmt$(p['Invoiced Value'])+'</td>';
-    html+='<td class="cell-num">'+fmt$(p['Remaining Inv'])+'</td>';
-    html+='<td><div style="display:flex;align-items:center;gap:4px"><div class="progress-bar-wrap"><div class="progress-bar" style="width:'+Math.min(100,pct)+'%"></div></div><span style="font-size:10px">'+pct+'%</span></div></td>';
-    html+='<td class="comment-cell col-finance">'+(fn?'<span class="comment-text has-comment" onclick="openCommentModal(\''+escHtml(code)+'\')">'+escHtml(fn)+'</span>':'<button class="add-comment-btn" onclick="openCommentModal(\''+escHtml(code)+'\')">+</button>')+'</td>';
-    html+='<td class="comment-cell col-contracts">'+(cn?'<span class="comment-text has-comment" onclick="openCommentModal(\''+escHtml(code)+'\')">'+escHtml(cn)+'</span>':'<button class="add-comment-btn" onclick="openCommentModal(\''+escHtml(code)+'\')">+</button>')+'</td>';
-    html+='<td class="comment-cell col-estimation">'+(en?'<span class="comment-text has-comment" onclick="openCommentModal(\''+escHtml(code)+'\')">'+escHtml(en)+'</span>':'<button class="add-comment-btn" onclick="openCommentModal(\''+escHtml(code)+'\')">+</button>')+'</td>';
-    html+='<td><button class="flag-toggle '+(fl.contracts?'flagged':'')+'" onclick="toggleFlag(\''+escHtml(code)+'\',\'contracts\')">C</button><button class="flag-toggle '+(fl.estimation?'flagged':'')+'" onclick="toggleFlag(\''+escHtml(code)+'\',\'estimation\')">E</button></td>';
-    html+='</tr>';
-  }
-  tbody.innerHTML=html;
-}
+function renderTable(){var tbody=document.getElementById('tableBody'),list=getFilteredProjects();document.getElementById('rowCountLabel').textContent=list.length;if(!projects.length){tbody.innerHTML='<tr><td colspan="20"><div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">No data</div><button class="btn btn-primary" onclick="openImportModal()">Import</button></div></td></tr>';return;}if(!list.length){tbody.innerHTML='<tr><td colspan="20" style="text-align:center;padding:40px">No matches</td></tr>';return;}var h='';for(var i=0;i<list.length;i++){var p=list[i],code=p['Project Code'],cm=comments[code]||{},fl=flags[code]||{},st=p.invoiceStatus,rowCls=(fl.contracts||fl.estimation)?'row-flagged':(ROW_CLASS[st]||''),fn=cm.finance||'',cn=cm.contracts||'',en=cm.estimation||'',pct=p['% invoiced']||0;h+='<tr class="'+rowCls+'">';h+='<td><span class="cell-code" style="font-size:10px">'+escHtml(p['Customer No'])+'</span></td>';h+='<td><span class="cell-code">'+escHtml(code)+'</span></td>';h+='<td><span class="cell-name">'+escHtml(p['Customer Name'])+'</span></td>';h+='<td><span class="cell-name">'+escHtml(p['Ship Name'])+'</span></td>';h+='<td><span class="cell-name">'+escHtml(p['Project Name'])+'</span></td>';h+='<td style="font-size:11px">'+escHtml(p['Person Responsible'])+'</td>';h+='<td style="font-size:10px">'+escHtml(p['Your Reference'])+'</td>';h+='<td style="font-size:10px">'+escHtml(p['PO Number'])+'</td>';h+='<td class="cell-date">'+fmtDate(p['Project Start'])+'</td>';h+='<td class="cell-date">'+fmtDate(p['Project End'])+'</td>';h+='<td class="cell-date">'+fmtDate(p['Next Invoice Date'])+'</td>';h+='<td><span class="badge '+(STATUS_BADGE[st]||'badge-nodate')+'">'+st+'</span></td>';h+='<td class="cell-num">'+fmt$(p['Project Value'])+'</td>';h+='<td class="cell-num">'+fmt$(p['Invoiced Value'])+'</td>';h+='<td class="cell-num">'+fmt$(p['Remaining Inv'])+'</td>';h+='<td><div style="display:flex;align-items:center;gap:4px"><div class="progress-bar-wrap"><div class="progress-bar" style="width:'+Math.min(100,pct)+'%"></div></div><span style="font-size:10px">'+pct+'%</span></div></td>';h+='<td class="comment-cell col-finance">'+(fn?'<span class="comment-text has-comment" onclick="openCommentModal(\''+escHtml(code)+'\')">'+escHtml(fn)+'</span>':'<button class="add-comment-btn" onclick="openCommentModal(\''+escHtml(code)+'\')">+</button>')+'</td>';h+='<td class="comment-cell col-contracts">'+(cn?'<span class="comment-text has-comment" onclick="openCommentModal(\''+escHtml(code)+'\')">'+escHtml(cn)+'</span>':'<button class="add-comment-btn" onclick="openCommentModal(\''+escHtml(code)+'\')">+</button>')+'</td>';h+='<td class="comment-cell col-estimation">'+(en?'<span class="comment-text has-comment" onclick="openCommentModal(\''+escHtml(code)+'\')">'+escHtml(en)+'</span>':'<button class="add-comment-btn" onclick="openCommentModal(\''+escHtml(code)+'\')">+</button>')+'</td>';h+='<td><button class="flag-toggle '+(fl.contracts?'flagged':'')+'" onclick="toggleFlag(\''+escHtml(code)+'\',\'contracts\')">C</button><button class="flag-toggle '+(fl.estimation?'flagged':'')+'" onclick="toggleFlag(\''+escHtml(code)+'\',\'estimation\')">E</button></td>';h+='</tr>';}tbody.innerHTML=h;}
 
 function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
-function sortBy(col){if(sortCol===col)sortDir=sortDir==='asc'?'desc':'asc';else{sortCol=col;sortDir='asc';}renderTable();}
+function sortBy(c){if(sortCol===c)sortDir=sortDir==='asc'?'desc':'asc';else{sortCol=c;sortDir='asc';}renderTable();}
 function toggleFilter(el){var f=el.getAttribute('data-filter');if(activeFilters.has(f)){activeFilters.delete(f);el.classList.remove('active');}else{activeFilters.add(f);el.classList.add('active');}renderTable();}
-function switchTab(tab,el){activeTab=tab;var tabs=document.querySelectorAll('.tab');for(var i=0;i<tabs.length;i++)tabs[i].classList.remove('active');el.classList.add('active');var pages=document.querySelectorAll('.page');for(var j=0;j<pages.length;j++)pages[j].classList.remove('active');if(tab==='dashboard'){document.getElementById('page-dashboard').classList.add('active');renderDashboard();}else{document.getElementById('page-tracker').classList.add('active');renderTable();}}
+function switchTab(t,el){activeTab=t;var tabs=document.querySelectorAll('.tab');for(var i=0;i<tabs.length;i++)tabs[i].classList.remove('active');el.classList.add('active');var pages=document.querySelectorAll('.page');for(var j=0;j<pages.length;j++)pages[j].classList.remove('active');if(t==='dashboard'){document.getElementById('page-dashboard').classList.add('active');renderDashboard();}else{document.getElementById('page-tracker').classList.add('active');renderTable();}}
 
-async function toggleFlag(code,type){
-  if(!flags[code])flags[code]={contracts:false,estimation:false};
-  flags[code][type]=!flags[code][type];
-  renderTable();renderKPIs();
-  await saveFlag(code);
-}
+async function toggleFlag(code,type){if(!code)return;if(!flags[code])flags[code]={contracts:false,estimation:false};flags[code][type]=!flags[code][type];renderTable();renderKPIs();await saveFlag(code);}
 
-function openCommentModal(code){
-  editingCode=code;
-  var p=null;for(var i=0;i<projects.length;i++){if(projects[i]['Project Code']===code){p=projects[i];break;}}
-  p=p||{};var cm=comments[code]||{};
-  document.getElementById('cmProjectCode').textContent=code;
-  document.getElementById('cmProjectName').textContent=p['Project Name']||'';
-  document.getElementById('cmFinance').value=cm.finance||'';
-  document.getElementById('cmContracts').value=cm.contracts||'';
-  document.getElementById('cmEstimation').value=cm.estimation||'';
-  document.getElementById('commentModal').classList.add('open');
-}
-function closeCommentModal(){document.getElementById('commentModal').classList.remove('open');editingCode=null;}
-async function saveCommentAndClose(){
-  if(!editingCode)return;
-  comments[editingCode]={finance:document.getElementById('cmFinance').value.trim(),contracts:document.getElementById('cmContracts').value.trim(),estimation:document.getElementById('cmEstimation').value.trim()};
-  renderTable();
-  closeCommentModal();
-  await saveComment(editingCode);
-  showToast('✓ Saved');
-}
+function openCommentModal(code){if(!code)return;document.getElementById('cmProjectCodeHidden').value=code;var p=null;for(var i=0;i<projects.length;i++){if(projects[i]['Project Code']===code){p=projects[i];break;}}p=p||{};var cm=comments[code]||{};document.getElementById('cmProjectCode').textContent=code;document.getElementById('cmProjectName').textContent=p['Project Name']||'';document.getElementById('cmFinance').value=cm.finance||'';document.getElementById('cmContracts').value=cm.contracts||'';document.getElementById('cmEstimation').value=cm.estimation||'';document.getElementById('commentModal').classList.add('open');}
 
-function renderDashboard(){
-  if(!projects.length)return;
-  document.getElementById('dashDate').textContent=new Date().toLocaleDateString();
-  var totVal=0,totInv=0,totRem=0,overdue=0,duesoon=0,upcoming=0,nodate=0;
-  for(var i=0;i<projects.length;i++){
-    var p=projects[i];totVal+=p['Project Value'];totInv+=p['Invoiced Value'];totRem+=p['Remaining Inv'];
-    if(p.invoiceStatus==='OVERDUE')overdue++;else if(p.invoiceStatus==='DUE SOON')duesoon++;else if(p.invoiceStatus==='Upcoming')upcoming++;else nodate++;
-  }
-  var pct=totVal?(totInv/totVal*100):0;
-  document.getElementById('dashTotalValue').textContent=fmt$(totVal);
-  document.getElementById('dashProjectCount').textContent=projects.length;
-  document.getElementById('dashInvoiced').textContent=fmt$(totInv);
-  document.getElementById('dashInvoicedPct').textContent=pct.toFixed(1)+'%';
-  document.getElementById('dashRemaining').textContent=fmt$(totRem);
-  document.getElementById('dashAtRisk').textContent=overdue+duesoon;
-  document.getElementById('statOverdue').textContent=overdue;
-  document.getElementById('statDueSoon').textContent=duesoon;
-  document.getElementById('statUpcoming').textContent=upcoming;
-  document.getElementById('statNoDate').textContent=nodate;
-  renderStatusChart(overdue,duesoon,upcoming,nodate);
-  renderValueByStatusChart();
-  renderCollectionChart(totInv,totRem);
-  renderPMLeaderboard();
-  renderPMBarChart();
-}
+function closeCommentModal(){document.getElementById('commentModal').classList.remove('open');document.getElementById('cmProjectCodeHidden').value='';}
 
-function renderStatusChart(overdue,duesoon,upcoming,nodate){
-  var ctx=document.getElementById('statusChart');if(!ctx)return;ctx=ctx.getContext('2d');
-  if(statusChart)statusChart.destroy();
-  statusChart=new Chart(ctx,{type:'doughnut',data:{labels:['Overdue','Due Soon','Upcoming','No Date'],datasets:[{data:[overdue,duesoon,upcoming,nodate],backgroundColor:['#C0392B','#D35400','#1E8449','#95a5a6'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'right',labels:{font:{size:11}}}}}});
-}
+async function saveCommentAndClose(){var code=document.getElementById('cmProjectCodeHidden').value;if(!code){showToast('⚠ No project');return;}comments[code]={finance:document.getElementById('cmFinance').value.trim(),contracts:document.getElementById('cmContracts').value.trim(),estimation:document.getElementById('cmEstimation').value.trim()};renderTable();closeCommentModal();await saveComment(code);}
 
-function renderValueByStatusChart(){
-  var ctx=document.getElementById('valueByStatusChart');if(!ctx)return;ctx=ctx.getContext('2d');
-  if(valueByStatusChart)valueByStatusChart.destroy();
-  var ov=0,ds=0,up=0,nd=0;
-  for(var i=0;i<projects.length;i++){var p=projects[i];if(p.invoiceStatus==='OVERDUE')ov+=p['Remaining Inv'];else if(p.invoiceStatus==='DUE SOON')ds+=p['Remaining Inv'];else if(p.invoiceStatus==='Upcoming')up+=p['Remaining Inv'];else nd+=p['Remaining Inv'];}
-  valueByStatusChart=new Chart(ctx,{type:'bar',data:{labels:['Overdue','Due Soon','Upcoming','No Date'],datasets:[{data:[ov,ds,up,nd],backgroundColor:['#C0392B','#D35400','#1E8449','#95a5a6'],borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{callback:function(v){return'$'+(v/1000).toFixed(0)+'K';}}},x:{grid:{display:false}}}}});
-}
+function renderDashboard(){if(!projects.length)return;document.getElementById('dashDate').textContent=new Date().toLocaleDateString();var totVal=0,totInv=0,totRem=0,overdue=0,duesoon=0,upcoming=0,nodate=0;for(var i=0;i<projects.length;i++){var p=projects[i];totVal+=p['Project Value'];totInv+=p['Invoiced Value'];totRem+=p['Remaining Inv'];if(p.invoiceStatus==='OVERDUE')overdue++;else if(p.invoiceStatus==='DUE SOON')duesoon++;else if(p.invoiceStatus==='Upcoming')upcoming++;else nodate++;}var pct=totVal?(totInv/totVal*100):0;document.getElementById('dashTotalValue').textContent=fmt$(totVal);document.getElementById('dashProjectCount').textContent=projects.length;document.getElementById('dashInvoiced').textContent=fmt$(totInv);document.getElementById('dashInvoicedPct').textContent=pct.toFixed(1)+'%';document.getElementById('dashRemaining').textContent=fmt$(totRem);document.getElementById('dashAtRisk').textContent=overdue+duesoon;document.getElementById('statOverdue').textContent=overdue;document.getElementById('statDueSoon').textContent=duesoon;document.getElementById('statUpcoming').textContent=upcoming;document.getElementById('statNoDate').textContent=nodate;renderCharts(overdue,duesoon,upcoming,nodate,totInv,totRem);}
 
-function renderCollectionChart(invoiced,remaining){
-  var ctx=document.getElementById('collectionChart');if(!ctx)return;ctx=ctx.getContext('2d');
-  if(collectionChart)collectionChart.destroy();
-  collectionChart=new Chart(ctx,{type:'doughnut',data:{labels:['Invoiced','Remaining'],datasets:[{data:[invoiced,remaining],backgroundColor:['#1E8449','#C9A84C'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'70%',plugins:{legend:{position:'bottom'}}}});
-}
+function renderCharts(ov,ds,up,nd,inv,rem){var c1=document.getElementById('statusChart');if(c1){if(statusChart)statusChart.destroy();statusChart=new Chart(c1.getContext('2d'),{type:'doughnut',data:{labels:['Overdue','Due Soon','Upcoming','No Date'],datasets:[{data:[ov,ds,up,nd],backgroundColor:['#C0392B','#D35400','#1E8449','#95a5a6'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'right',labels:{font:{size:11}}}}}});}var c2=document.getElementById('valueByStatusChart');if(c2){if(valueByStatusChart)valueByStatusChart.destroy();var ov$=0,ds$=0,up$=0,nd$=0;for(var i=0;i<projects.length;i++){var p=projects[i];if(p.invoiceStatus==='OVERDUE')ov$+=p['Remaining Inv'];else if(p.invoiceStatus==='DUE SOON')ds$+=p['Remaining Inv'];else if(p.invoiceStatus==='Upcoming')up$+=p['Remaining Inv'];else nd$+=p['Remaining Inv'];}valueByStatusChart=new Chart(c2.getContext('2d'),{type:'bar',data:{labels:['Overdue','Due Soon','Upcoming','No Date'],datasets:[{data:[ov$,ds$,up$,nd$],backgroundColor:['#C0392B','#D35400','#1E8449','#95a5a6'],borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{callback:function(v){return'$'+(v/1000).toFixed(0)+'K';}}},x:{grid:{display:false}}}}});}var c3=document.getElementById('collectionChart');if(c3){if(collectionChart)collectionChart.destroy();collectionChart=new Chart(c3.getContext('2d'),{type:'doughnut',data:{labels:['Invoiced','Remaining'],datasets:[{data:[inv,rem],backgroundColor:['#1E8449','#C9A84C'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'70%',plugins:{legend:{position:'bottom'}}}});}renderPMLeaderboard();renderPMBarChart();}
 
-function renderPMLeaderboard(){
-  var pmData={};
-  for(var i=0;i<projects.length;i++){var p=projects[i],pm=p['Person Responsible']||'(None)';if(!pmData[pm])pmData[pm]={count:0,value:0};pmData[pm].count++;pmData[pm].value+=p['Project Value'];}
-  var sorted=[];for(var key in pmData)sorted.push([key,pmData[key]]);
-  sorted.sort(function(a,b){return b[1].value-a[1].value;});
-  var maxVal=sorted.length?sorted[0][1].value:1;
-  var html='';
-  for(var j=0;j<Math.min(8,sorted.length);j++){
-    var pm=sorted[j][0],data=sorted[j][1],pctW=(data.value/maxVal)*100;
-    html+='<div class="pm-row"><div class="pm-rank '+(j===0?'gold':'')+'">'+(j+1)+'</div><div class="pm-name">'+escHtml(pm)+'</div><div class="pm-stat"><strong>'+data.count+'</strong></div><div class="pm-stat"><strong>'+fmt$(data.value)+'</strong></div><div class="pm-progress-wrap"><div class="pm-progress" style="width:'+pctW+'%"></div></div></div>';
-  }
-  document.getElementById('pmLeaderboard').innerHTML=html||'No data';
-}
+function renderPMLeaderboard(){var m={};for(var i=0;i<projects.length;i++){var p=projects[i],pm=p['Person Responsible']||'(None)';if(!m[pm])m[pm]={count:0,value:0};m[pm].count++;m[pm].value+=p['Project Value'];}var s=[];for(var k in m)s.push([k,m[k]]);s.sort(function(a,b){return b[1].value-a[1].value;});var max=s.length?s[0][1].value:1,h='';for(var j=0;j<Math.min(8,s.length);j++){var pm=s[j][0],d=s[j][1],w=(d.value/max)*100;h+='<div class="pm-row"><div class="pm-rank '+(j===0?'gold':'')+'">'+(j+1)+'</div><div class="pm-name">'+escHtml(pm)+'</div><div class="pm-stat"><strong>'+d.count+'</strong></div><div class="pm-stat"><strong>'+fmt$(d.value)+'</strong></div><div class="pm-progress-wrap"><div class="pm-progress" style="width:'+w+'%"></div></div></div>';}document.getElementById('pmLeaderboard').innerHTML=h||'No data';}
 
-function renderPMBarChart(){
-  var ctx=document.getElementById('pmBarChart');if(!ctx)return;ctx=ctx.getContext('2d');
-  if(pmBarChart)pmBarChart.destroy();
-  var pmData={};
-  for(var i=0;i<projects.length;i++){var p=projects[i],pm=p['Person Responsible']||'(None)';if(!pmData[pm])pmData[pm]={invoiced:0,remaining:0};pmData[pm].invoiced+=p['Invoiced Value'];pmData[pm].remaining+=p['Remaining Inv'];}
-  var sorted=[];for(var key in pmData)sorted.push([key,pmData[key]]);
-  sorted.sort(function(a,b){return(b[1].invoiced+b[1].remaining)-(a[1].invoiced+a[1].remaining);});
-  var labels=[],invData=[],remData=[];
-  for(var j=0;j<sorted.length;j++){labels.push(sorted[j][0]);invData.push(sorted[j][1].invoiced);remData.push(sorted[j][1].remaining);}
-  pmBarChart=new Chart(ctx,{type:'bar',data:{labels:labels,datasets:[{label:'Invoiced',data:invData,backgroundColor:'#1E8449',borderRadius:4},{label:'Remaining',data:remData,backgroundColor:'#C9A84C',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,beginAtZero:true,ticks:{callback:function(v){if(v>=1000000)return'$'+(v/1000000).toFixed(1)+'M';return'$'+(v/1000).toFixed(0)+'K';}}}}}});
-}
+function renderPMBarChart(){var c=document.getElementById('pmBarChart');if(!c)return;if(pmBarChart)pmBarChart.destroy();var m={};for(var i=0;i<projects.length;i++){var p=projects[i],pm=p['Person Responsible']||'(None)';if(!m[pm])m[pm]={inv:0,rem:0};m[pm].inv+=p['Invoiced Value'];m[pm].rem+=p['Remaining Inv'];}var s=[];for(var k in m)s.push([k,m[k]]);s.sort(function(a,b){return(b[1].inv+b[1].rem)-(a[1].inv+a[1].rem);});var labels=[],invD=[],remD=[];for(var j=0;j<s.length;j++){labels.push(s[j][0]);invD.push(s[j][1].inv);remD.push(s[j][1].rem);}pmBarChart=new Chart(c.getContext('2d'),{type:'bar',data:{labels:labels,datasets:[{label:'Invoiced',data:invD,backgroundColor:'#1E8449',borderRadius:4},{label:'Remaining',data:remD,backgroundColor:'#C9A84C',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,beginAtZero:true,ticks:{callback:function(v){if(v>=1e6)return'$'+(v/1e6).toFixed(1)+'M';return'$'+(v/1000).toFixed(0)+'K';}}}}}});}
 
 function openReportModal(){document.getElementById('reportDate').textContent=new Date().toLocaleDateString();selectedReport=null;var cards=document.querySelectorAll('.report-card');for(var i=0;i<cards.length;i++)cards[i].classList.remove('selected');document.getElementById('exportBtn').disabled=true;document.getElementById('reportModal').classList.add('open');}
 function closeReportModal(){document.getElementById('reportModal').classList.remove('open');}
-function selectReport(type){selectedReport=type;var cards=document.querySelectorAll('.report-card');for(var i=0;i<cards.length;i++)cards[i].classList.remove('selected');document.getElementById('rcard-'+type).classList.add('selected');document.getElementById('exportBtn').disabled=false;}
+function selectReport(t){selectedReport=t;var cards=document.querySelectorAll('.report-card');for(var i=0;i<cards.length;i++)cards[i].classList.remove('selected');document.getElementById('rcard-'+t).classList.add('selected');document.getElementById('exportBtn').disabled=false;}
 
-function doExport(){
-  if(!selectedReport)return;
-  var data,filename;
-  var today=new Date().toLocaleDateString('en-US',{month:'2-digit',day:'2-digit',year:'numeric'}).replace(/\//g,'-');
-  if(selectedReport==='contracts'){data=projects.filter(function(p){return flags[p['Project Code']]&&flags[p['Project Code']].contracts;});filename='Contracts_'+today+'.xlsx';}
-  else if(selectedReport==='estimation'){data=projects.filter(function(p){return flags[p['Project Code']]&&flags[p['Project Code']].estimation;});filename='Estimation_'+today+'.xlsx';}
-  else{data=projects.slice();filename='Full_'+today+'.xlsx';}
-  if(!data.length){showToast('⚠ No data');return;}
-  var wb=XLSX.utils.book_new();
-  var headers=['Cust#','Code','Customer','Ship','Project','PM','Ref','PO','Start','End','Next Inv','Status','Value','Invoiced','%','Remaining','Finance','Contracts','Estimation','C','E'];
-  var rows=data.map(function(p){var code=p['Project Code'],cm=comments[code]||{},fl=flags[code]||{};return[p['Customer No'],code,p['Customer Name'],p['Ship Name'],p['Project Name'],p['Person Responsible'],p['Your Reference'],p['PO Number'],p['Project Start'],p['Project End'],p['Next Invoice Date'],p.invoiceStatus,p['Project Value'],p['Invoiced Value'],(p['% invoiced']||0)/100,p['Remaining Inv'],cm.finance||'',cm.contracts||'',cm.estimation||'',fl.contracts?'Y':'',fl.estimation?'Y':''];});
-  var wsData=[headers];for(var i=0;i<rows.length;i++)wsData.push(rows[i]);
-  var ws=XLSX.utils.aoa_to_sheet(wsData);
-  XLSX.utils.book_append_sheet(wb,ws,'Report');
-  XLSX.writeFile(wb,filename);
-  closeReportModal();showToast('✓ Exported');
-}
+function doExport(){if(!selectedReport)return;var data,fn,today=new Date().toLocaleDateString('en-US',{month:'2-digit',day:'2-digit',year:'numeric'}).replace(/\//g,'-');if(selectedReport==='contracts'){data=projects.filter(function(p){return flags[p['Project Code']]&&flags[p['Project Code']].contracts;});fn='Contracts_'+today+'.xlsx';}else if(selectedReport==='estimation'){data=projects.filter(function(p){return flags[p['Project Code']]&&flags[p['Project Code']].estimation;});fn='Estimation_'+today+'.xlsx';}else{data=projects.slice();fn='Full_'+today+'.xlsx';}if(!data.length){showToast('⚠ No data');return;}var wb=XLSX.utils.book_new(),hdr=['Cust#','Code','Customer','Ship','Project','PM','Ref','PO','Start','End','Next Inv','Status','Value','Invoiced','%','Remaining','Finance','Contracts','Estimation','C','E'],rows=data.map(function(p){var code=p['Project Code'],cm=comments[code]||{},fl=flags[code]||{};return[p['Customer No'],code,p['Customer Name'],p['Ship Name'],p['Project Name'],p['Person Responsible'],p['Your Reference'],p['PO Number'],p['Project Start'],p['Project End'],p['Next Invoice Date'],p.invoiceStatus,p['Project Value'],p['Invoiced Value'],(p['% invoiced']||0)/100,p['Remaining Inv'],cm.finance||'',cm.contracts||'',cm.estimation||'',fl.contracts?'Y':'',fl.estimation?'Y':''];});var wsData=[hdr];for(var i=0;i<rows.length;i++)wsData.push(rows[i]);var ws=XLSX.utils.aoa_to_sheet(wsData);XLSX.utils.book_append_sheet(wb,ws,'Report');XLSX.writeFile(wb,fn);closeReportModal();showToast('✓ Exported');}
 
 var toastTimer;
-function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(function(){t.classList.remove('show');},3000);}
+function showToast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(function(){t.classList.remove('show');},3000);}
 
-var overlays=document.querySelectorAll('.modal-overlay');
-for(var k=0;k<overlays.length;k++){(function(overlay){overlay.addEventListener('click',function(e){if(e.target===overlay)overlay.classList.remove('open');});})(overlays[k]);}
-
-document.addEventListener('keydown',function(e){
-  if(e.key==='Escape'){var modals=document.querySelectorAll('.modal-overlay');for(var m=0;m<modals.length;m++)modals[m].classList.remove('open');}
-});
+var overlays=document.querySelectorAll('.modal-overlay');for(var k=0;k<overlays.length;k++){(function(o){o.addEventListener('click',function(e){if(e.target===o)o.classList.remove('open');});})(overlays[k]);}
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){var m=document.querySelectorAll('.modal-overlay');for(var i=0;i<m.length;i++)m[i].classList.remove('open');}});
 
 checkAuth();
 </script>
