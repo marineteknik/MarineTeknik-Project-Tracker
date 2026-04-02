@@ -257,6 +257,8 @@ textarea:focus{border-color:var(--navy);background:var(--white)}
         <div class="pm-dropdown" id="pmDropdown"></div>
       </div>
       <div class="spacer"></div>
+      <button class="btn btn-sm btn-outline" style="color:var(--navy);border-color:var(--border)" onclick="clearAllFlags('contracts')">Clear Contracts</button>
+      <button class="btn btn-sm btn-outline" style="color:var(--navy);border-color:var(--border)" onclick="clearAllFlags('estimation')">Clear Estimation</button>
       <button class="btn btn-sm btn-outline" style="color:var(--navy);border-color:var(--border)" onclick="refreshData()">🔄 Refresh</button>
       <span style="font-size:11px;color:var(--text2)" id="rowCountLabel"></span>
     </div>
@@ -533,6 +535,8 @@ function toggleFilter(el){var f=el.getAttribute('data-filter');if(activeFilters.
 function switchTab(t,el){activeTab=t;var tabs=document.querySelectorAll('.tab');for(var i=0;i<tabs.length;i++)tabs[i].classList.remove('active');el.classList.add('active');var pages=document.querySelectorAll('.page');for(var j=0;j<pages.length;j++)pages[j].classList.remove('active');if(t==='dashboard'){document.getElementById('page-dashboard').classList.add('active');renderDashboard();}else{document.getElementById('page-tracker').classList.add('active');renderTable();}}
 
 async function toggleFlag(code,type){if(!code)return;if(!flags[code])flags[code]={contracts:false,estimation:false};flags[code][type]=!flags[code][type];renderTable();renderKPIs();await saveFlag(code);}
+
+async function clearAllFlags(type){if(!confirm('Clear all '+type+' flags?'))return;for(var i=0;i<projects.length;i++){var code=projects[i]['Project Code'];if(!flags[code])flags[code]={contracts:false,estimation:false};flags[code][type]=false;await saveFlag(code);}renderTable();renderKPIs();showToast('✓ '+type+' flags cleared');}
 
 function openCommentModal(code){if(!code)return;document.getElementById('cmProjectCodeHidden').value=code;var p=null;for(var i=0;i<projects.length;i++){if(projects[i]['Project Code']===code){p=projects[i];break;}}p=p||{};var cm=comments[code]||{};document.getElementById('cmProjectCode').textContent=code;document.getElementById('cmProjectName').textContent=p['Project Name']||'';document.getElementById('cmFinance').value=cm.finance||'';document.getElementById('cmContracts').value=cm.contracts||'';document.getElementById('cmEstimation').value=cm.estimation||'';document.getElementById('commentModal').classList.add('open');}
 
