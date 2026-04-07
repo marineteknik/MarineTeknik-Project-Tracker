@@ -70,9 +70,17 @@ table{width:100%;border-collapse:collapse;font-size:12px}
 thead tr{background:var(--navy)}
 thead th{padding:11px 10px;text-align:left;font-size:10px;font-weight:600;color:rgba(255,255,255,0.75);letter-spacing:0.06em;text-transform:uppercase;white-space:nowrap;border-right:1px solid rgba(255,255,255,0.07);user-select:none;cursor:pointer}
 thead th:hover{color:var(--gold)}
+thead th:nth-child(1),thead th:nth-child(2),thead th:nth-child(3){position:sticky;background:var(--navy);z-index:10}
+thead th:nth-child(1){left:0;width:50px}
+thead th:nth-child(2){left:50px}
+thead th:nth-child(3){left:calc(50px + 60px)}
 tbody tr{border-bottom:1px solid var(--border);transition:background 0.1s}
 tbody tr:hover{background:rgba(201,168,76,0.06)!important}
 tbody td{padding:9px 10px;vertical-align:middle}
+tbody td:nth-child(1),tbody td:nth-child(2),tbody td:nth-child(3){position:sticky;z-index:9;background:inherit}
+tbody td:nth-child(1){left:0;width:50px}
+tbody td:nth-child(2){left:50px}
+tbody td:nth-child(3){left:calc(50px + 60px)}
 .row-overdue{background:#FEF2F2}
 .row-due-soon{background:#FFF8F0}
 .row-upcoming{background:var(--grey-lite)}
