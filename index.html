@@ -4,112 +4,104 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MarineTeknik · Project Invoice Tracker</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Aptos:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{--navy:#1B2A4A;--navy2:#243558;--navy3:#2E4272;--gold:#C9A84C;--gold-lite:#FFF8E7;--white:#FFFFFF;--bg:#F0F2F7;--bg2:#E8EBF3;--text:#1A1A2E;--text2:#4A5070;--border:#D0D5E8;--red:#C0392B;--red-lite:#FADBD8;--orange:#D35400;--orange-lite:#FDEBD0;--green:#1E8449;--green-lite:#D5F5E3;--grey-lite:#F5F6FA;--blue:#2980B9;--blue-lite:#EBF5FB;--shadow:0 2px 12px rgba(27,42,74,0.10);--shadow-lg:0 8px 32px rgba(27,42,74,0.16)}
+:root{--primary:#0F3460;--accent:#E8A537;--neutral-50:#FAFAF9;--neutral-100:#F5F5F4;--neutral-200:#E7E5E4;--neutral-300:#D6D3D1;--neutral-400:#A8A29E;--neutral-500:#78716B;--neutral-600:#57534E;--neutral-700:#44403C;--neutral-800:#292421;--neutral-900:#1C1917;--red:#C0392B;--red-lite:#FADBD8;--orange:#D35400;--orange-lite:#FDEBD0;--green:#1E8449;--green-lite:#D5F5E3;--grey-lite:#F5F6FA;--blue:#2980B9;--blue-lite:#EBF5FB;--shadow:0 2px 12px rgba(15,52,96,0.10);--shadow-lg:0 8px 32px rgba(15,52,96,0.16)}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:13px;min-height:100vh}
-.topbar{background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 100%);color:var(--white);display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:56px;position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(0,0,0,0.25)}
+body{font-family:'Aptos',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--neutral-100);color:var(--neutral-800);font-size:13px;font-weight:500;letter-spacing:0.3px;min-height:100vh;line-height:1.5}
+.topbar{background:linear-gradient(135deg,var(--primary) 0%,#1a3f5a 100%);color:var(--neutral-50);display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:56px;position:sticky;top:0;z-index:100;box-shadow:var(--shadow-lg)}
 .topbar-left{display:flex;align-items:center;gap:16px}
-.logo{font-size:15px;font-weight:700;letter-spacing:0.04em;color:var(--white)}
-.logo span{color:var(--gold)}
-.topbar-badge{background:var(--navy3);color:var(--gold);font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px;letter-spacing:0.06em;text-transform:uppercase}
+.logo{font-size:15px;font-weight:700;letter-spacing:0.04em;color:var(--neutral-50)}
+.logo span{color:var(--accent)}
+.topbar-badge{background:rgba(232,165,55,0.15);color:var(--accent);font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px;letter-spacing:0.06em;text-transform:uppercase}
 .topbar-right{display:flex;align-items:center;gap:10px}
-.last-import{font-size:11px;color:rgba(255,255,255,0.5);font-family:'DM Mono',monospace}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:6px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;transition:all 0.15s;letter-spacing:0.01em;white-space:nowrap}
-.btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,0.2)}
-.btn-primary{background:var(--gold);color:var(--navy)}
-.btn-outline{background:transparent;color:var(--white);border:1px solid rgba(255,255,255,0.3)}
+.last-import{font-size:11px;color:rgba(255,255,255,0.6);font-family:'DM Mono',monospace;font-weight:400}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:6px;border:none;cursor:pointer;font-family:'Aptos',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:12px;font-weight:600;transition:all 0.15s;letter-spacing:0.01em;white-space:nowrap}
+.btn:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
+.btn-primary{background:var(--accent);color:var(--primary);font-weight:600}
+.btn-outline{background:transparent;color:var(--neutral-50);border:1px solid rgba(255,255,255,0.3)}
 .btn-outline:hover{background:rgba(255,255,255,0.1)}
 .btn-sm{padding:5px 11px;font-size:11px}
-.tabs{background:var(--navy2);display:flex;align-items:center;gap:2px;padding:0 28px}
-.tab{padding:10px 18px;font-size:12px;font-weight:500;color:rgba(255,255,255,0.55);cursor:pointer;border-bottom:3px solid transparent;transition:all 0.15s;letter-spacing:0.02em;white-space:nowrap}
+.tabs{background:var(--primary);display:flex;align-items:center;gap:2px;padding:0 28px}
+.tab{padding:10px 18px;font-size:12px;font-weight:500;color:rgba(255,255,255,0.6);cursor:pointer;border-bottom:3px solid transparent;transition:all 0.15s;letter-spacing:0.02em;white-space:nowrap}
 .tab:hover{color:rgba(255,255,255,0.85)}
-.tab.active{color:var(--gold);border-bottom-color:var(--gold);font-weight:700}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
 .content{padding:20px 28px}
 .page{display:none}
 .page.active{display:block}
 .kpi-row{display:flex;gap:14px;margin-bottom:20px;flex-wrap:wrap}
-.kpi-card{background:var(--white);border-radius:10px;padding:16px 20px;flex:1;min-width:140px;box-shadow:var(--shadow);border-top:3px solid var(--border)}
+.kpi-card{background:var(--neutral-50);border-radius:10px;padding:16px 20px;flex:1;min-width:140px;box-shadow:var(--shadow);border-top:3px solid var(--neutral-200)}
 .kpi-card.red{border-top-color:var(--red)}
 .kpi-card.orange{border-top-color:var(--orange)}
-.kpi-card.navy{border-top-color:var(--navy)}
-.kpi-card.gold{border-top-color:var(--gold)}
+.kpi-card.navy{border-top-color:var(--primary)}
+.kpi-card.gold{border-top-color:var(--accent)}
 .kpi-card.green{border-top-color:var(--green)}
-.kpi-label{font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px}
-.kpi-value{font-size:28px;font-weight:700;color:var(--text);line-height:1}
-.kpi-sub{font-size:10px;color:var(--text2);margin-top:4px;font-family:'DM Mono',monospace}
+.kpi-label{font-size:10px;font-weight:600;color:var(--neutral-600);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px}
+.kpi-value{font-size:28px;font-weight:700;color:var(--neutral-800);line-height:1}
+.kpi-sub{font-size:10px;color:var(--neutral-600);margin-top:4px;font-family:'DM Mono',monospace}
 .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
-.search-box{display:flex;align-items:center;gap:8px;background:var(--white);border:1px solid var(--border);border-radius:6px;padding:6px 12px;flex:1;max-width:340px}
-.search-box input{border:none;outline:none;font-family:'DM Sans',sans-serif;font-size:12px;width:100%;color:var(--text);background:transparent}
+.search-box{display:flex;align-items:center;gap:8px;background:var(--neutral-50);border:1px solid var(--neutral-300);border-radius:6px;padding:6px 12px;flex:1;max-width:340px}
+.search-box input{border:none;outline:none;font-family:'Aptos',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:12px;width:100%;color:var(--neutral-800);background:transparent;font-weight:500}
 .filter-group{display:flex;gap:6px;flex-wrap:wrap}
-.filter-chip{padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:var(--white);font-size:11px;font-weight:500;cursor:pointer;transition:all 0.15s;color:var(--text2);white-space:nowrap}
-.filter-chip:hover,.filter-chip.active{background:var(--navy);color:var(--white);border-color:var(--navy)}
+.filter-chip{padding:5px 12px;border-radius:20px;border:1px solid var(--neutral-300);background:var(--neutral-50);font-size:11px;font-weight:500;cursor:pointer;transition:all 0.15s;color:var(--neutral-600);white-space:nowrap}
+.filter-chip:hover,.filter-chip.active{background:var(--primary);color:var(--neutral-50);border-color:var(--primary)}
 .filter-chip.red.active{background:var(--red);border-color:var(--red)}
 .filter-chip.orange.active{background:var(--orange);border-color:var(--orange)}
 .filter-chip.green.active{background:var(--green);border-color:var(--green)}
 .spacer{flex:1}
 .pm-filter-wrap{position:relative;display:inline-block}
-.pm-filter-btn{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px;border:1px solid var(--border);background:var(--white);font-size:11px;font-weight:500;cursor:pointer;color:var(--text2);transition:all 0.15s}
-.pm-filter-btn:hover{border-color:var(--navy)}
-.pm-filter-btn.active{background:var(--navy);color:var(--white);border-color:var(--navy)}
-.pm-dropdown{position:absolute;top:calc(100% + 4px);left:0;z-index:50;background:var(--white);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow-lg);min-width:220px;max-height:280px;overflow-y:auto;display:none}
+.pm-filter-btn{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px;border:1px solid var(--neutral-300);background:var(--neutral-50);font-size:11px;font-weight:500;cursor:pointer;color:var(--neutral-600);transition:all 0.15s}
+.pm-filter-btn:hover{border-color:var(--primary)}
+.pm-filter-btn.active{background:var(--primary);color:var(--neutral-50);border-color:var(--primary)}
+.pm-dropdown{position:absolute;top:calc(100% + 4px);left:0;z-index:50;background:var(--neutral-50);border:1px solid var(--neutral-300);border-radius:8px;box-shadow:var(--shadow-lg);min-width:220px;max-height:280px;overflow-y:auto;display:none}
 .pm-dropdown.open{display:block}
-.pm-dropdown-item{padding:9px 14px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:background 0.1s}
-.pm-dropdown-item:hover{background:var(--bg)}
-.pm-dropdown-item.selected{background:var(--blue-lite);font-weight:600}
+.pm-dropdown-item{padding:9px 14px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:background 0.1s;color:var(--neutral-800)}
+.pm-dropdown-item:hover{background:var(--neutral-100)}
+.pm-dropdown-item.selected{background:var(--blue-lite);font-weight:600;color:var(--primary)}
 .pm-dropdown-item .check{color:var(--navy);opacity:0}
 .pm-dropdown-item.selected .check{opacity:1}
-.pm-count{font-size:10px;color:var(--text2);margin-left:auto;font-family:'DM Mono',monospace}
-.table-wrap{background:var(--white);border-radius:10px;box-shadow:var(--shadow);overflow:hidden}
+.pm-count{font-size:10px;color:var(--neutral-600);margin-left:auto;font-family:'DM Mono',monospace;font-weight:400}
+.table-wrap{background:var(--neutral-50);border-radius:10px;box-shadow:var(--shadow);overflow:hidden}
 .table-scroll{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:12px}
-thead tr{background:var(--navy)}
-thead th{padding:11px 10px;text-align:left;font-size:10px;font-weight:600;color:rgba(255,255,255,0.75);letter-spacing:0.06em;text-transform:uppercase;white-space:nowrap;border-right:1px solid rgba(255,255,255,0.07);user-select:none;cursor:pointer}
-thead th:hover{color:var(--gold)}
-thead th:nth-child(1),thead th:nth-child(2),thead th:nth-child(3){position:sticky;background:var(--navy);z-index:10}
-thead th:nth-child(1){left:0;width:50px}
-thead th:nth-child(2){left:50px}
-thead th:nth-child(3){left:calc(50px + 60px)}
-tbody tr{border-bottom:1px solid var(--border);transition:background 0.1s}
-tbody tr:hover{background:rgba(201,168,76,0.06)!important}
-tbody td{padding:9px 10px;vertical-align:middle}
-tbody td:nth-child(1),tbody td:nth-child(2),tbody td:nth-child(3){position:sticky;z-index:9;background:inherit}
-tbody td:nth-child(1){left:0;width:50px}
-tbody td:nth-child(2){left:50px}
-tbody td:nth-child(3){left:calc(50px + 60px)}
-.row-overdue{background:#FEF2F2}
-.row-due-soon{background:#FFF8F0}
-.row-upcoming{background:var(--grey-lite)}
-.row-flagged{background:#FFFBF0}
+table{width:100%;border-collapse:collapse;font-size:12px;font-weight:500;color:var(--neutral-800)}
+thead tr{background:var(--primary)}
+thead th{padding:11px 10px;text-align:left;font-size:10px;font-weight:600;color:rgba(255,255,255,0.85);letter-spacing:0.06em;text-transform:uppercase;white-space:nowrap;border-right:1px solid rgba(255,255,255,0.1);user-select:none;cursor:pointer}
+thead th:hover{color:var(--accent)}
+tbody tr{border-bottom:1px solid var(--neutral-200);transition:background 0.1s}
+tbody tr:hover{background:rgba(232,165,55,0.04)!important}
+tbody td{padding:9px 10px;vertical-align:middle;font-weight:500;color:var(--neutral-800)}
+.row-overdue{background:rgba(192,57,43,0.06)}
+.row-due-soon{background:rgba(211,84,0,0.06)}
+.row-upcoming{background:var(--neutral-100)}
+.row-flagged{background:rgba(232,165,55,0.08)}
 .badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:0.04em;white-space:nowrap}
-.badge-overdue{background:var(--red);color:var(--white)}
-.badge-duesoon{background:var(--orange);color:var(--white)}
-.badge-upcoming{background:var(--green);color:var(--white)}
-.badge-nodate{background:#95a5a6;color:var(--white)}
-.cell-code{font-family:'DM Mono',monospace;font-size:11px;font-weight:600;color:var(--navy)}
-.cell-num{font-family:'DM Mono',monospace;font-size:11px;text-align:right}
-.cell-date{font-family:'DM Mono',monospace;font-size:11px;color:var(--text2);white-space:nowrap}
+.badge-overdue{background:var(--red);color:var(--neutral-50)}
+.badge-duesoon{background:var(--orange);color:var(--neutral-50)}
+.badge-upcoming{background:var(--green);color:var(--neutral-50)}
+.badge-nodate{background:var(--neutral-400);color:var(--neutral-50)}
+.cell-code{font-family:'DM Mono',monospace;font-size:11px;font-weight:600;color:var(--primary)}
+.cell-num{font-family:'DM Mono',monospace;font-size:11px;text-align:right;color:var(--neutral-800)}
+.cell-date{font-family:'DM Mono',monospace;font-size:11px;color:var(--neutral-600);white-space:nowrap}
 .cell-name{max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .progress-bar-wrap{width:60px;background:var(--bg2);border-radius:3px;height:5px;display:inline-block;vertical-align:middle;margin-right:5px}
 .progress-bar{height:5px;border-radius:3px;background:var(--green)}
 .comment-cell{position:relative}
-.comment-text{max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text2);font-size:11px}
-.comment-text.has-comment{color:var(--text);cursor:pointer}
-.comment-text.has-comment:hover{color:var(--navy);text-decoration:underline}
-.add-comment-btn{color:var(--text2);font-size:10px;cursor:pointer;padding:2px 6px;border:1px dashed var(--border);border-radius:4px;background:none;white-space:nowrap}
-.add-comment-btn:hover{border-color:var(--navy);color:var(--navy);background:var(--grey-lite)}
-.flag-toggle{cursor:pointer;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:600;border:1px solid var(--border);background:none;transition:all 0.12s;white-space:nowrap}
-.flag-toggle.flagged{background:#FFF8E7;border-color:var(--gold);color:var(--gold)}
-.flag-toggle:not(.flagged){color:#ccc}
-.flag-toggle:hover{border-color:var(--gold);color:var(--gold)}
-.table-footer{display:flex;align-items:center;padding:12px 16px;background:var(--navy);color:rgba(255,255,255,0.7);font-size:11px;gap:24px}
+.comment-text{max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--neutral-600);font-size:11px;font-weight:400}
+.comment-text.has-comment{color:var(--neutral-800);cursor:pointer;font-weight:500}
+.comment-text.has-comment:hover{color:var(--primary);text-decoration:underline}
+.add-comment-btn{color:var(--neutral-600);font-size:10px;cursor:pointer;padding:2px 6px;border:1px dashed var(--neutral-300);border-radius:4px;background:none;white-space:nowrap;font-weight:500}
+.add-comment-btn:hover{border-color:var(--primary);color:var(--primary);background:var(--neutral-100)}
+.flag-toggle{cursor:pointer;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:600;border:1px solid var(--neutral-300);background:none;transition:all 0.12s;white-space:nowrap}
+.flag-toggle.flagged{background:rgba(232,165,55,0.15);border-color:var(--accent);color:var(--accent)}
+.flag-toggle:not(.flagged){color:var(--neutral-400)}
+.flag-toggle:hover{border-color:var(--accent);color:var(--accent)}
+.table-footer{display:flex;align-items:center;padding:12px 16px;background:var(--primary);color:rgba(255,255,255,0.8);font-size:11px;gap:24px}
 .tf-item{display:flex;flex-direction:column;gap:2px}
-.tf-label{font-size:9px;text-transform:uppercase;letter-spacing:0.07em;opacity:0.6}
-.tf-value{font-family:'DM Mono',monospace;font-size:13px;font-weight:600;color:var(--white)}
+.tf-label{font-size:9px;text-transform:uppercase;letter-spacing:0.07em;opacity:0.7;font-weight:500}
+.tf-value{font-family:'DM Mono',monospace;font-size:13px;font-weight:600;color:var(--neutral-50)}
 .dashboard-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:16px}
 .dashboard-title{font-size:24px;font-weight:700;color:var(--navy)}
 .dashboard-subtitle{font-size:12px;color:var(--text2);margin-top:4px}
@@ -265,7 +257,6 @@ textarea:focus{border-color:var(--navy);background:var(--white)}
         <div class="pm-dropdown" id="pmDropdown"></div>
       </div>
       <div class="spacer"></div>
-      <button class="btn btn-sm btn-outline" style="color:var(--navy);border-color:var(--border)" onclick="clearAllFlags('both')">Clear All Flags</button>
       <button class="btn btn-sm btn-outline" style="color:var(--navy);border-color:var(--border)" onclick="refreshData()">🔄 Refresh</button>
       <span style="font-size:11px;color:var(--text2)" id="rowCountLabel"></span>
     </div>
@@ -273,7 +264,6 @@ textarea:focus{border-color:var(--navy);background:var(--white)}
       <div class="table-scroll">
         <table id="mainTable">
           <thead><tr>
-            <th style="width:50px">🚩</th>
             <th onclick="sortBy('Customer No')">Cust #</th>
             <th onclick="sortBy('Project Code')">Code</th>
             <th onclick="sortBy('Customer Name')">Customer</th>
@@ -293,6 +283,7 @@ textarea:focus{border-color:var(--navy);background:var(--white)}
             <th class="col-finance">Finance</th>
             <th class="col-contracts">Contracts</th>
             <th class="col-estimation">Estimation</th>
+            <th>🚩</th>
           </tr></thead>
           <tbody id="tableBody"></tbody>
         </table>
@@ -534,7 +525,7 @@ var ROW_CLASS={'OVERDUE':'row-overdue','DUE SOON':'row-due-soon','Upcoming':'row
 
 function getFilteredProjects(){var list=projects.slice();if(activeTab==='contracts')list=list.filter(function(p){return flags[p['Project Code']]&&flags[p['Project Code']].contracts;});if(activeTab==='estimation')list=list.filter(function(p){return flags[p['Project Code']]&&flags[p['Project Code']].estimation;});if(activeFilters.size>0)list=list.filter(function(p){return activeFilters.has(p.invoiceStatus);});if(activePM)list=list.filter(function(p){return(p['Person Responsible']||'(None)')===activePM;});var q=document.getElementById('searchInput').value.toLowerCase().trim();if(q){list=list.filter(function(p){return p['Project Code'].toLowerCase().indexOf(q)>=0||p['Customer Name'].toLowerCase().indexOf(q)>=0||p['Ship Name'].toLowerCase().indexOf(q)>=0||p['Project Name'].toLowerCase().indexOf(q)>=0||p['Person Responsible'].toLowerCase().indexOf(q)>=0;});}list.sort(function(a,b){var av=a[sortCol],bv=b[sortCol];if(sortCol==='invoiceStatus'){av=STATUS_ORDER[av]!==undefined?STATUS_ORDER[av]:9;bv=STATUS_ORDER[bv]!==undefined?STATUS_ORDER[bv]:9;}if(typeof av==='string')av=av.toLowerCase();if(typeof bv==='string')bv=bv.toLowerCase();if(av<bv)return sortDir==='asc'?-1:1;if(av>bv)return sortDir==='asc'?1:-1;return 0;});return list;}
 
-function renderTable(){var tbody=document.getElementById('tableBody'),list=getFilteredProjects();document.getElementById('rowCountLabel').textContent=list.length;if(!projects.length){tbody.innerHTML='<tr><td colspan="21"><div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">No data</div><button class="btn btn-primary" onclick="openImportModal()">Import</button></div></td></tr>';return;}if(!list.length){tbody.innerHTML='<tr><td colspan="21" style="text-align:center;padding:40px">No matches</td></tr>';return;}var h='';for(var i=0;i<list.length;i++){var p=list[i],code=p['Project Code'],cm=comments[code]||{},fl=flags[code]||{},st=p.invoiceStatus,rowCls=(fl.contracts||fl.estimation)?'row-flagged':(ROW_CLASS[st]||''),fn=cm.finance||'',cn=cm.contracts||'',en=cm.estimation||'',pct=p['% invoiced']||0;h+='<tr class="'+rowCls+'">';h+='<td><button class="flag-toggle '+(fl.contracts?'flagged':'')+'" onclick="toggleFlag(\''+escHtml(code)+'\',\'contracts\')">C</button><button class="flag-toggle '+(fl.estimation?'flagged':'')+'" onclick="toggleFlag(\''+escHtml(code)+'\',\'estimation\')">E</button></td>';h+='<td><span class="cell-code" style="font-size:10px">'+escHtml(p['Customer No'])+'</span></td>';h+='<td><span class="cell-code">'+escHtml(code)+'</span></td>';h+='<td><span class="cell-name">'+escHtml(p['Customer Name'])+'</span></td>';h+='<td><span class="cell-name">'+escHtml(p['Ship Name'])+'</span></td>';h+='<td><span class="cell-name">'+escHtml(p['Project Name'])+'</span></td>';h+='<td style="font-size:11px">'+escHtml(p['Person Responsible'])+'</td>';h+='<td style="font-size:10px">'+escHtml(p['Your Reference'])+'</td>';h+='<td style="font-size:10px">'+escHtml(p['PO Number'])+'</td>';h+='<td class="cell-date">'+fmtDate(p['Project Start'])+'</td>';h+='<td class="cell-date">'+fmtDate(p['Project End'])+'</td>';h+='<td class="cell-date">'+fmtDate(p['Next Invoice Date'])+'</td>';h+='<td><span class="badge '+(STATUS_BADGE[st]||'badge-nodate')+'">'+st+'</span></td>';h+='<td class="cell-num">'+fmt$(p['Project Value'])+'</td>';h+='<td class="cell-num">'+fmt$(p['Invoiced Value'])+'</td>';h+='<td class="cell-num">'+fmt$(p['Remaining Inv'])+'</td>';h+='<td><div style="display:flex;align-items:center;gap:4px"><div class="progress-bar-wrap"><div class="progress-bar" style="width:'+Math.min(100,pct)+'%"></div></div><span style="font-size:10px">'+pct+'%</span></div></td>';h+='<td class="comment-cell col-finance">'+(fn?'<span class="comment-text has-comment" onclick="openCommentModal(\''+escHtml(code)+'\')">'+escHtml(fn)+'</span>':'<button class="add-comment-btn" onclick="openCommentModal(\''+escHtml(code)+'\')">+</button>')+'</td>';h+='<td class="comment-cell col-contracts">'+(cn?'<span class="comment-text has-comment" onclick="openCommentModal(\''+escHtml(code)+'\')">'+escHtml(cn)+'</span>':'<button class="add-comment-btn" onclick="openCommentModal(\''+escHtml(code)+'\')">+</button>')+'</td>';h+='<td class="comment-cell col-estimation">'+(en?'<span class="comment-text has-comment" onclick="openCommentModal(\''+escHtml(code)+'\')">'+escHtml(en)+'</span>':'<button class="add-comment-btn" onclick="openCommentModal(\''+escHtml(code)+'\')">+</button>')+'</td>';h+='</tr>';}tbody.innerHTML=h;}
+function renderTable(){var tbody=document.getElementById('tableBody'),list=getFilteredProjects();document.getElementById('rowCountLabel').textContent=list.length;if(!projects.length){tbody.innerHTML='<tr><td colspan="20"><div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">No data</div><button class="btn btn-primary" onclick="openImportModal()">Import</button></div></td></tr>';return;}if(!list.length){tbody.innerHTML='<tr><td colspan="20" style="text-align:center;padding:40px">No matches</td></tr>';return;}var h='';for(var i=0;i<list.length;i++){var p=list[i],code=p['Project Code'],cm=comments[code]||{},fl=flags[code]||{},st=p.invoiceStatus,rowCls=(fl.contracts||fl.estimation)?'row-flagged':(ROW_CLASS[st]||''),fn=cm.finance||'',cn=cm.contracts||'',en=cm.estimation||'',pct=p['% invoiced']||0;h+='<tr class="'+rowCls+'">';h+='<td><span class="cell-code" style="font-size:10px">'+escHtml(p['Customer No'])+'</span></td>';h+='<td><span class="cell-code">'+escHtml(code)+'</span></td>';h+='<td><span class="cell-name">'+escHtml(p['Customer Name'])+'</span></td>';h+='<td><span class="cell-name">'+escHtml(p['Ship Name'])+'</span></td>';h+='<td><span class="cell-name">'+escHtml(p['Project Name'])+'</span></td>';h+='<td style="font-size:11px">'+escHtml(p['Person Responsible'])+'</td>';h+='<td style="font-size:10px">'+escHtml(p['Your Reference'])+'</td>';h+='<td style="font-size:10px">'+escHtml(p['PO Number'])+'</td>';h+='<td class="cell-date">'+fmtDate(p['Project Start'])+'</td>';h+='<td class="cell-date">'+fmtDate(p['Project End'])+'</td>';h+='<td class="cell-date">'+fmtDate(p['Next Invoice Date'])+'</td>';h+='<td><span class="badge '+(STATUS_BADGE[st]||'badge-nodate')+'">'+st+'</span></td>';h+='<td class="cell-num">'+fmt$(p['Project Value'])+'</td>';h+='<td class="cell-num">'+fmt$(p['Invoiced Value'])+'</td>';h+='<td class="cell-num">'+fmt$(p['Remaining Inv'])+'</td>';h+='<td><div style="display:flex;align-items:center;gap:4px"><div class="progress-bar-wrap"><div class="progress-bar" style="width:'+Math.min(100,pct)+'%"></div></div><span style="font-size:10px">'+pct+'%</span></div></td>';h+='<td class="comment-cell col-finance">'+(fn?'<span class="comment-text has-comment" onclick="openCommentModal(\''+escHtml(code)+'\')">'+escHtml(fn)+'</span>':'<button class="add-comment-btn" onclick="openCommentModal(\''+escHtml(code)+'\')">+</button>')+'</td>';h+='<td class="comment-cell col-contracts">'+(cn?'<span class="comment-text has-comment" onclick="openCommentModal(\''+escHtml(code)+'\')">'+escHtml(cn)+'</span>':'<button class="add-comment-btn" onclick="openCommentModal(\''+escHtml(code)+'\')">+</button>')+'</td>';h+='<td class="comment-cell col-estimation">'+(en?'<span class="comment-text has-comment" onclick="openCommentModal(\''+escHtml(code)+'\')">'+escHtml(en)+'</span>':'<button class="add-comment-btn" onclick="openCommentModal(\''+escHtml(code)+'\')">+</button>')+'</td>';h+='<td><button class="flag-toggle '+(fl.contracts?'flagged':'')+'" onclick="toggleFlag(\''+escHtml(code)+'\',\'contracts\')">C</button><button class="flag-toggle '+(fl.estimation?'flagged':'')+'" onclick="toggleFlag(\''+escHtml(code)+'\',\'estimation\')">E</button></td>';h+='</tr>';}tbody.innerHTML=h;}
 
 function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 function sortBy(c){if(sortCol===c)sortDir=sortDir==='asc'?'desc':'asc';else{sortCol=c;sortDir='asc';}renderTable();}
@@ -542,8 +533,6 @@ function toggleFilter(el){var f=el.getAttribute('data-filter');if(activeFilters.
 function switchTab(t,el){activeTab=t;var tabs=document.querySelectorAll('.tab');for(var i=0;i<tabs.length;i++)tabs[i].classList.remove('active');el.classList.add('active');var pages=document.querySelectorAll('.page');for(var j=0;j<pages.length;j++)pages[j].classList.remove('active');if(t==='dashboard'){document.getElementById('page-dashboard').classList.add('active');renderDashboard();}else{document.getElementById('page-tracker').classList.add('active');renderTable();}}
 
 async function toggleFlag(code,type){if(!code)return;if(!flags[code])flags[code]={contracts:false,estimation:false};flags[code][type]=!flags[code][type];renderTable();renderKPIs();await saveFlag(code);}
-
-async function clearAllFlags(type){var msg=type==='both'?'Clear all flags?':('Clear all '+type+' flags?');if(!confirm(msg))return;for(var i=0;i<projects.length;i++){var code=projects[i]['Project Code'];if(!flags[code])flags[code]={contracts:false,estimation:false};if(type==='both'){flags[code].contracts=false;flags[code].estimation=false;}else{flags[code][type]=false;}}for(var i=0;i<projects.length;i++){await saveFlag(projects[i]['Project Code']);}renderTable();renderKPIs();var toast=type==='both'?'✓ All flags cleared':('✓ '+type+' flags cleared');showToast(toast);}
 
 function openCommentModal(code){if(!code)return;document.getElementById('cmProjectCodeHidden').value=code;var p=null;for(var i=0;i<projects.length;i++){if(projects[i]['Project Code']===code){p=projects[i];break;}}p=p||{};var cm=comments[code]||{};document.getElementById('cmProjectCode').textContent=code;document.getElementById('cmProjectName').textContent=p['Project Name']||'';document.getElementById('cmFinance').value=cm.finance||'';document.getElementById('cmContracts').value=cm.contracts||'';document.getElementById('cmEstimation').value=cm.estimation||'';document.getElementById('commentModal').classList.add('open');}
 
@@ -563,8 +552,7 @@ function openReportModal(){document.getElementById('reportDate').textContent=new
 function closeReportModal(){document.getElementById('reportModal').classList.remove('open');}
 function selectReport(t){selectedReport=t;var cards=document.querySelectorAll('.report-card');for(var i=0;i<cards.length;i++)cards[i].classList.remove('selected');document.getElementById('rcard-'+t).classList.add('selected');document.getElementById('exportBtn').disabled=false;}
 
-function doExport(){if(!selectedReport)return;var data,fn,today=new Date().toLocaleDateString('en-US',{month:'2-digit',day:'2-digit',year:'numeric'}).replace(/\//g,'-');var reportType='Full';if(selectedReport==='contracts'){data=projects.filter(function(p){return flags[p['Project Code']]&&flags[p['Project Code']].contracts;});reportType='Contracts';}else if(selectedReport==='estimation'){data=projects.filter(function(p){return flags[p['Project Code']]&&flags[p['Project Code']].estimation;});reportType='Estimation';}else{data=projects.slice();}fn='MarineTeknik_'+reportType+'_'+today+'.xlsx';if(!data.length){showToast('⚠ No data');return;}var hdr=['Cust#','Code','Customer','Ship','Project','PM','Ref','PO','Start','End','Next Inv','Status','Value','Invoiced','%','Remaining','Finance','Contracts','Estimation','C','E'];var rows=[hdr];for(var i=0;i<data.length;i++){var p=data[i],code=p['Project Code'],cm=comments[code]||{},fl=flags[code]||{};rows.push([p['Customer No'],code,p['Customer Name'],p['Ship Name'],p['Project Name'],p['Person Responsible'],p['Your Reference'],p['PO Number'],p['Project Start'],p['Project End'],p['Next Invoice Date'],p.invoiceStatus,p['Project Value'],p['Invoiced Value'],p['% invoiced']||0,p['Remaining Inv'],cm.finance||'',cm.contracts||'',cm.estimation||'',fl.contracts?'Y':'',fl.estimation?'Y':'']);}var ws=XLSX.utils.aoa_to_sheet(rows);ws['!cols']=[{wch:8},{wch:10},{wch:15},{wch:12},{wch:15},{wch:12},{wch:8},{wch:8},{wch:10},{wch:10},{wch:10},{wch:12},{wch:12},{wch:12},{wch:8},{wch:12},{wch:12},{wch:12},{wch:12},{wch:3},{wch:3}];var headerFill={fgColor:{rgb:'1B2A4A'}};var headerFont={bold:true,color:{rgb:'FFFFFF'},sz:11};var headerAlign={horizontal:'center',vertical:'center'};for(var c=0;c<hdr.length;c++){var cellRef=XLSX.utils.encode_col(c)+'1';ws[cellRef].s={fill:headerFill,font:headerFont,alignment:headerAlign,border:{top:{style:'thin'},bottom:{style:'thin'},left:{style:'thin'},right:{style:'thin'}}};}for(var r=1;r<rows.length;r++){var vCell=XLSX.utils.encode_col(12)+(r+1);var iCell=XLSX.utils.encode_col(13)+(r+1);var pCell=XLSX.utils.encode_col(14)+(r+1);var rCell=XLSX.utils.encode_col(15)+(r+1);var rightAlign={horizontal:'right'};if(ws[vCell]){ws[vCell].s={numFmt:'$#,##0.00',alignment:rightAlign,border:{right:{style:'thin'}}};}if(ws[iCell]){ws[iCell].s={numFmt:'$#,##0.00',alignment:rightAlign,border:{right:{style:'thin'}}};}if(ws[pCell]){ws[pCell].s={numFmt:'0.0%',alignment:rightAlign,border:{right:{style:'thin'}}};}if(ws[rCell]){ws[rCell].s={numFmt:'$#,##0.00',alignment:rightAlign,border:{right:{style:'thin'}}};}var cCell=XLSX.utils.encode_col(19)+(r+1);var eCell=XLSX.utils.encode_col(20)+(r+1);var centerAlign={horizontal:'center'};if(ws[cCell]){ws[cCell].s={alignment:centerAlign};}if(ws[eCell]){ws[eCell].s={alignment:centerAlign};}}ws['!ref']=XLSX.utils.encode_range({s:{c:0,r:0},e:{c:hdr.length-1,r:rows.length-1}});var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Report');XLSX.writeFile(wb,fn);closeReportModal();showToast('✓ Exported');}
-
+function doExport(){if(!selectedReport)return;var data,fn,today=new Date().toLocaleDateString('en-US',{month:'2-digit',day:'2-digit',year:'numeric'}).replace(/\//g,'-');if(selectedReport==='contracts'){data=projects.filter(function(p){return flags[p['Project Code']]&&flags[p['Project Code']].contracts;});fn='Contracts_'+today+'.xlsx';}else if(selectedReport==='estimation'){data=projects.filter(function(p){return flags[p['Project Code']]&&flags[p['Project Code']].estimation;});fn='Estimation_'+today+'.xlsx';}else{data=projects.slice();fn='Full_'+today+'.xlsx';}if(!data.length){showToast('⚠ No data');return;}var wb=XLSX.utils.book_new(),hdr=['Cust#','Code','Customer','Ship','Project','PM','Ref','PO','Start','End','Next Inv','Status','Value','Invoiced','%','Remaining','Finance','Contracts','Estimation','C','E'],rows=data.map(function(p){var code=p['Project Code'],cm=comments[code]||{},fl=flags[code]||{};return[p['Customer No'],code,p['Customer Name'],p['Ship Name'],p['Project Name'],p['Person Responsible'],p['Your Reference'],p['PO Number'],p['Project Start'],p['Project End'],p['Next Invoice Date'],p.invoiceStatus,p['Project Value'],p['Invoiced Value'],(p['% invoiced']||0)/100,p['Remaining Inv'],cm.finance||'',cm.contracts||'',cm.estimation||'',fl.contracts?'Y':'',fl.estimation?'Y':''];});var wsData=[hdr];for(var i=0;i<rows.length;i++)wsData.push(rows[i]);var ws=XLSX.utils.aoa_to_sheet(wsData);XLSX.utils.book_append_sheet(wb,ws,'Report');XLSX.writeFile(wb,fn);closeReportModal();showToast('✓ Exported');}
 
 var toastTimer;
 function showToast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(function(){t.classList.remove('show');},3000);}
