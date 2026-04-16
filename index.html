@@ -192,6 +192,7 @@
       gap: 16px;
       flex-wrap: wrap;
       align-items: center;
+      justify-content: center;
     }
 
     .search-box {
@@ -332,7 +333,7 @@
     th {
       color: white;
       padding: 14px;
-      text-align: left;
+      text-align: center;
       font-weight: 700;
       white-space: nowrap;
       border-bottom: 2px solid #667eea;
@@ -347,6 +348,7 @@
     td {
       padding: 12px 14px;
       border-bottom: 1px solid #e2e8f0;
+      text-align: center;
     }
 
     tbody tr:hover {
@@ -973,11 +975,32 @@
 
     function getInvoiceStatus(dateStr) {
       if (!dateStr) return 'No Date';
-      const date = new Date(dateStr);
+      
+      let date;
+      if (typeof dateStr === 'string') {
+        // Handle ISO format or MM/DD/YYYY format
+        if (dateStr.includes('-')) {
+          date = new Date(dateStr + 'T00:00:00');
+        } else if (dateStr.includes('/')) {
+          const [m, d, y] = dateStr.split('/');
+          date = new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
+        } else {
+          return 'No Date';
+        }
+      } else if (typeof dateStr === 'number') {
+        // Excel serial date
+        date = new Date((dateStr - 25569) * 86400 * 1000);
+      } else {
+        return 'No Date';
+      }
+      
+      if (isNaN(date.getTime())) return 'No Date';
+      
       const today = new Date();
       today.setHours(0,0,0,0);
       date.setHours(0,0,0,0);
       const diffDays = Math.ceil((date - today) / (1000 * 60 * 60 * 24));
+      
       if (diffDays < 0) return 'OVERDUE';
       if (diffDays <= 30) return 'DUE SOON';
       return 'Upcoming';
@@ -996,9 +1019,31 @@
 
     function formatDate(dateStr) {
       if (!dateStr) return '—';
-      const date = new Date(dateStr + 'T00:00:00');
-      if (isNaN(date)) return dateStr;
-      return (date.getMonth() + 1).toString().padStart(2, '0') + '/' + date.getDate().toString().padStart(2, '0') + '/' + date.getFullYear().toString().slice(2);
+      
+      let date;
+      if (typeof dateStr === 'string') {
+        // Handle ISO format or MM/DD/YYYY format
+        if (dateStr.includes('-')) {
+          date = new Date(dateStr + 'T00:00:00');
+        } else if (dateStr.includes('/')) {
+          const [m, d, y] = dateStr.split('/');
+          date = new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
+        } else {
+          return dateStr;
+        }
+      } else if (typeof dateStr === 'number') {
+        // Excel serial date
+        date = new Date((dateStr - 25569) * 86400 * 1000);
+      } else {
+        return dateStr;
+      }
+      
+      if (isNaN(date.getTime())) return String(dateStr);
+      
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const day = date.getDate().toString().padStart(2, '0');
+      const year = date.getFullYear().toString().slice(2);
+      return month + '/' + day + '/' + year;
     }
 
     function buildPMDropdown() {
@@ -1098,7 +1143,7 @@
     function renderTableRows(rows) {
       const tbody = document.getElementById('tableBody');
       if (!rows.length) {
-        tbody.innerHTML = '<tr><td colspan="19" class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">No matching projects</div></td></tr>';
+        tbody.innerHTML = '<tr><td colspan="15" class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">No matching projects</div></td></tr>';
         return;
       }
 
@@ -1338,27 +1383,8 @@
           const ws = wb.Sheets[wb.SheetNames[0]];
           const rows = XLSX.utils.sheet_to_json(ws);
 
-          console.log('Rows read:', rows.length);
-          if (rows.length > 0) {
-            console.log('First row keys:', Object.keys(rows[0]));
-            console.log('First row:', rows[0]);
-          }
-
-          // Check if we have data and valid columns
           if (!rows.length) {
             showToast('No data found in file', 'error');
-            return;
-          }
-
-          // Look for Project Code column (case-insensitive)
-          const firstRow = rows[0];
-          let projectCodeKey = Object.keys(firstRow).find(k => 
-            k && k.toLowerCase().includes('project') && k.toLowerCase().includes('code')
-          );
-
-          if (!projectCodeKey) {
-            console.log('Available columns:', Object.keys(firstRow));
-            showToast('Invalid file format - missing Project Code column', 'error');
             return;
           }
 
@@ -1405,33 +1431,25 @@
           }));
           
           if (insertData.length > 0) {
-            const { error } = await supabaseClient.from('projects').insert(insertData);
-            if (error) {
-              console.error('Insert error:', error);
-              showToast('Error saving to database: ' + error.message, 'error');
-              return;
-            }
+            await supabaseClient.from('projects').insert(insertData);
           }
 
-          // Wait a moment for data to sync
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          
           closeImportModal();
-          const importedCount = insertData.length;
           
-          // Reset filter to show all
+          // Reset filters and render
           currentFilter = 'all';
           document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
           const allBtn = document.querySelector('[data-filter="all"]');
           if (allBtn) allBtn.classList.add('active');
           
-          await loadAllData();
+          filterTable();
+          updateKPIs();
           buildPMDropdown();
-          showToast(`✓ ${importedCount} projects imported`);
+          showToast(projects.length + ' projects imported');
           event.target.value = '';
         } catch (err) {
-          console.error('Import error:', err);
-          showToast('Import failed: ' + err.message, 'error');
+          console.error('Error:', err);
+          showToast('Error: ' + err.message, 'error');
         }
       };
       reader.readAsArrayBuffer(file);
