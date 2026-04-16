@@ -732,6 +732,7 @@
             <button class="filter-btn" data-filter="overdue" onclick="setFilter(this, 'overdue')">⚠️ Overdue</button>
             <button class="filter-btn" data-filter="duesoon" onclick="setFilter(this, 'duesoon')">⏰ Due Soon</button>
             <button class="filter-btn" data-filter="upcoming" onclick="setFilter(this, 'upcoming')">✅ Upcoming</button>
+            <button class="filter-btn" data-filter="nodate" onclick="setFilter(this, 'nodate')">❓ No Due Date</button>
             <button class="filter-btn" data-filter="contracts" onclick="setFilter(this, 'contracts')">🚩 Contracts</button>
             <button class="filter-btn" data-filter="estimation" onclick="setFilter(this, 'estimation')">🚩 Estimation</button>
           </div>
@@ -1103,6 +1104,7 @@
       if (currentFilter === 'overdue') filtered = filtered.filter(p => p.invoiceStatus === 'OVERDUE');
       else if (currentFilter === 'duesoon') filtered = filtered.filter(p => p.invoiceStatus === 'DUE SOON');
       else if (currentFilter === 'upcoming') filtered = filtered.filter(p => p.invoiceStatus === 'Upcoming');
+      else if (currentFilter === 'nodate') filtered = filtered.filter(p => p.invoiceStatus === 'No Date');
       else if (currentFilter === 'contracts') filtered = filtered.filter(p => flags[p['Project Code']]?.contracts);
       else if (currentFilter === 'estimation') filtered = filtered.filter(p => flags[p['Project Code']]?.estimation);
 
