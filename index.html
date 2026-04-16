@@ -1279,34 +1279,38 @@
         return;
       }
 
-      // Use exact same column headers as import
-      const ws_data = [['Project Code', 'Project Name', 'Person Responsible', 'PO Number', 'Project Start', 'Project End', 'Next Invoice Date', 'Status', 'Project Value', 'Invoiced Value', 'Remaining Inv', '% invoiced', 'Finance']];
+      // Use exact same column headers as import plus Finance comments
+      const ws_data = [['Customer No', 'Project Code', 'Customer Name', 'Ship Name', 'Project Name', 'Person Responsible', 'Your Reference', 'PO Number', 'Project Start', 'Project End', 'Next Invoice Date', 'Project Value', 'Invoiced Value', '% invoiced', 'Remaining Inv', 'Status', 'Finance']];
 
       data.forEach(p => {
         const code = p['Project Code'];
         const cm = comments[code] || {};
         ws_data.push([
+          p['Customer No'],
           code,
+          p['Customer Name'],
+          p['Ship Name'],
           p['Project Name'],
           p['Person Responsible'],
+          p['Your Reference'],
           p['PO Number'],
           p['Project Start'],
           p['Project End'],
           p['Next Invoice Date'],
-          p['Status'],
           p['Project Value'],
           p['Invoiced Value'],
-          p['Remaining Inv'],
           p['% invoiced'],
+          p['Remaining Inv'],
+          p['Status'],
           cm.finance || ''
         ]);
       });
 
       const ws = XLSX.utils.aoa_to_sheet(ws_data);
-      ws['!cols'] = Array(13).fill({ wch: 15 });
+      ws['!cols'] = Array(17).fill({ wch: 15 });
 
       // Style header
-      for (let c = 0; c < 13; c++) {
+      for (let c = 0; c < 17; c++) {
         const cellRef = XLSX.utils.encode_col(c) + '1';
         ws[cellRef].s = {
           fill: { fgColor: { rgb: '667eea' } },
