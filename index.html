@@ -750,6 +750,7 @@
                 <th onclick="sortBy('Person Responsible')">PM</th>
                 <th onclick="sortBy('PO Number')">PO</th>
                 <th onclick="sortBy('Project Start')">Start</th>
+                <th onclick="sortBy('Project End')">End</th>
                 <th onclick="sortBy('Next Invoice Date')">Next Inv</th>
                 <th onclick="sortBy('invoiceStatus')">Status</th>
                 <th onclick="sortBy('Project Value')">Value</th>
@@ -758,8 +759,7 @@
                 <th onclick="sortBy('% invoiced')">%</th>
                 <th>Contracts</th>
                 <th>Estimation</th>
-                <th>Comments</th>
-                <th>Actions</th>
+                <th>Notes</th>
               </tr>
             </thead>
             <tbody id="tableBody">
@@ -811,21 +811,17 @@
   <div class="modal" id="commentModal">
     <div class="modal-content">
       <div class="modal-header">
-        <h2>💬 Comments</h2>
+        <h2>💬 Latest Update</h2>
         <p id="commentProjectInfo"></p>
       </div>
       <input type="hidden" id="commentProjectCode">
       <div class="option-group">
-        <label>Contracts Comments</label>
-        <textarea id="contractsComment" style="width:100%;padding:10px;border:1px solid #e2e8f0;border-radius:6px;font-size:13px;font-family:inherit;resize:vertical;min-height:80px;outline:none" placeholder="Add notes for contracts team..."></textarea>
-      </div>
-      <div class="option-group">
-        <label>Estimation Comments</label>
-        <textarea id="estimationComment" style="width:100%;padding:10px;border:1px solid #e2e8f0;border-radius:6px;font-size:13px;font-family:inherit;resize:vertical;min-height:80px;outline:none" placeholder="Add notes for estimation team..."></textarea>
+        <label style="color:#667eea;font-weight:700">📝 Your Notes</label>
+        <textarea id="financeComment" style="width:100%;padding:10px;border:2px solid #667eea;border-radius:6px;font-size:13px;font-family:inherit;resize:vertical;min-height:100px;outline:none;background:#f7fafc" placeholder="Record the latest update..."></textarea>
       </div>
       <div class="modal-footer">
         <button class="btn-cancel" onclick="closeCommentModal()">Cancel</button>
-        <button class="btn-export" onclick="saveComment()">Save Comments</button>
+        <button class="btn-export" onclick="saveComment()">Save</button>
       </div>
     </div>
   </div>
@@ -835,7 +831,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h2>📊 Export Report</h2>
-        <p>Select which flagged projects to export</p>
+        <p>Select which report to export</p>
       </div>
       <div class="option-group">
         <label>Report Type</label>
@@ -1118,32 +1114,19 @@
             <td>${escapeHtml(p['Person Responsible'])}</td>
             <td>${escapeHtml(p['PO Number'])}</td>
             <td>${formatDate(p['Project Start'])}</td>
+            <td>${formatDate(p['Project End'])}</td>
             <td>${formatDate(p['Next Invoice Date'])}</td>
             <td><span class="status-badge ${getStatusClass(status)}">${status}</span></td>
             <td class="currency">${formatCurrency(p['Project Value'])}</td>
             <td class="currency">${formatCurrency(p['Invoiced Value'])}</td>
             <td class="currency">${formatCurrency(p['Remaining Inv'])}</td>
             <td style="text-align:right">${(p['% invoiced'] || 0).toFixed(1)}%</td>
-            <td><button class="flag-btn ${fl.contracts ? 'flagged' : ''}" onclick="toggleFlag('${code}', 'contracts')">${fl.contracts ? 'C' : '—'}</button></td>
-            <td><button class="flag-btn ${fl.estimation ? 'flagged' : ''}" onclick="toggleFlag('${code}', 'estimation')">${fl.estimation ? 'E' : '—'}</button></td>
-            <td><small style="color:#718096">${cm.contracts || cm.estimation ? '💬' : '—'}</small></td>
-            <td><button class="btn" style="padding:6px 12px;font-size:11px" onclick="openCommentModal('${escapeHtml(code)}')">✏️</button></td>
+            <td><button class="flag-btn ${fl.contracts ? 'flagged' : ''}" onclick="toggleFlag('${code}', 'contracts')">${fl.contracts ? '🚩' : '—'}</button></td>
+            <td><button class="flag-btn ${fl.estimation ? 'flagged' : ''}" onclick="toggleFlag('${code}', 'estimation')">${fl.estimation ? '🚩' : '—'}</button></td>
+            <td><button class="btn" style="padding:6px 12px;font-size:11px" onclick="openCommentModal('${escapeHtml(code)}')">${cm.finance ? '✏️ 💬' : '✏️'}</button></td>
           </tr>
         `;
       }).join('');
-    }
-
-    async function toggleFlag(code, type) {
-      if (!flags[code]) flags[code] = { contracts: false, estimation: false };
-      flags[code][type] = !flags[code][type];
-      await supabaseClient.from('flags').upsert({
-        project_code: code,
-        contracts: flags[code].contracts,
-        estimation: flags[code].estimation,
-        updated_at: new Date().toISOString()
-      }, { onConflict: 'project_code' });
-      updateKPIs();
-      filterTable();
     }
 
     function updateKPIs() {
@@ -1163,6 +1146,19 @@
       document.getElementById('kpiValue').textContent = formatCurrency(totVal);
       document.getElementById('kpiContracts').textContent = flagC;
       document.getElementById('kpiEstimation').textContent = flagE;
+    }
+
+    async function toggleFlag(code, type) {
+      if (!flags[code]) flags[code] = { contracts: false, estimation: false };
+      flags[code][type] = !flags[code][type];
+      await supabaseClient.from('flags').upsert({
+        project_code: code,
+        contracts: flags[code].contracts,
+        estimation: flags[code].estimation,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'project_code' });
+      updateKPIs();
+      filterTable();
     }
 
     function switchTab(tab) {
@@ -1279,12 +1275,12 @@
       }
 
       if (!data.length) {
-        showToast('No projects to export', 'error');
+        showToast('No projects flagged for ' + reportType, 'error');
         return;
       }
 
       // Use exact same column headers as import
-      const ws_data = [['Project Code', 'Project Name', 'Person Responsible', 'PO Number', 'Project Start', 'Next Invoice Date', 'Status', 'Project Value', 'Invoiced Value', 'Remaining Inv', '% invoiced', 'Contracts', 'Estimation']];
+      const ws_data = [['Project Code', 'Project Name', 'Person Responsible', 'PO Number', 'Project Start', 'Project End', 'Next Invoice Date', 'Status', 'Project Value', 'Invoiced Value', 'Remaining Inv', '% invoiced', 'Finance']];
 
       data.forEach(p => {
         const code = p['Project Code'];
@@ -1295,22 +1291,22 @@
           p['Person Responsible'],
           p['PO Number'],
           p['Project Start'],
+          p['Project End'],
           p['Next Invoice Date'],
           p['Status'],
           p['Project Value'],
           p['Invoiced Value'],
           p['Remaining Inv'],
           p['% invoiced'],
-          cm.contracts || '',
-          cm.estimation || ''
+          cm.finance || ''
         ]);
       });
 
       const ws = XLSX.utils.aoa_to_sheet(ws_data);
-      ws['!cols'] = Array(19).fill({ wch: 15 });
+      ws['!cols'] = Array(13).fill({ wch: 15 });
 
       // Style header
-      for (let c = 0; c < 19; c++) {
+      for (let c = 0; c < 13; c++) {
         const cellRef = XLSX.utils.encode_col(c) + '1';
         ws[cellRef].s = {
           fill: { fgColor: { rgb: '667eea' } },
@@ -1430,8 +1426,7 @@
       const cm = comments[code] || {};
       document.getElementById('commentProjectCode').value = code;
       document.getElementById('commentProjectInfo').textContent = proj ? proj['Project Name'] : code;
-      document.getElementById('contractsComment').value = cm.contracts || '';
-      document.getElementById('estimationComment').value = cm.estimation || '';
+      document.getElementById('financeComment').value = cm.finance || '';
       document.getElementById('commentModal').classList.add('active');
     }
 
@@ -1442,20 +1437,19 @@
     async function saveComment() {
       const code = document.getElementById('commentProjectCode').value;
       if (!comments[code]) comments[code] = {};
-      comments[code].contracts = document.getElementById('contractsComment').value;
-      comments[code].estimation = document.getElementById('estimationComment').value;
+      comments[code].finance = document.getElementById('financeComment').value;
 
       await supabaseClient.from('comments').upsert({
         project_code: code,
-        finance: comments[code].finance || '',
-        contracts: comments[code].contracts,
-        estimation: comments[code].estimation,
+        finance: comments[code].finance,
+        contracts: comments[code].contracts || '',
+        estimation: comments[code].estimation || '',
         updated_at: new Date().toISOString()
       }, { onConflict: 'project_code' });
 
       closeCommentModal();
       filterTable();
-      showToast('✓ Comments saved');
+      showToast('✓ Notes saved');
     }
 
     window.addEventListener('load', initApp);
