@@ -762,7 +762,8 @@
                 <th onclick="sortBy('% invoiced')">%</th>
                 <th>Contracts</th>
                 <th>Estimation</th>
-                <th>Notes</th>
+                <th>Finance Notes</th>
+                <th>Edit</th>
               </tr>
             </thead>
             <tbody id="tableBody">
@@ -1149,7 +1150,7 @@
     function renderTableRows(rows) {
       const tbody = document.getElementById('tableBody');
       if (!rows.length) {
-        tbody.innerHTML = '<tr><td colspan="15" class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">No matching projects</div></td></tr>';
+        tbody.innerHTML = '<tr><td colspan="16" class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">No matching projects</div></td></tr>';
         return;
       }
 
@@ -1174,7 +1175,8 @@
             <td style="text-align:right">${(p['% invoiced'] || 0).toFixed(1)}%</td>
             <td><button class="flag-btn ${fl.contracts ? 'flagged' : ''}" onclick="toggleFlag('${code}', 'contracts')">${fl.contracts ? '🚩' : '—'}</button></td>
             <td><button class="flag-btn ${fl.estimation ? 'flagged' : ''}" onclick="toggleFlag('${code}', 'estimation')">${fl.estimation ? '🚩' : '—'}</button></td>
-            <td><button class="btn" style="padding:6px 12px;font-size:11px;cursor:pointer;position:relative" title="${cm.finance ? cm.finance.substring(0, 100) : 'Add notes'}" onclick="openCommentModal('${escapeHtml(code)}')">${cm.finance ? '✏️ 💬' : '✏️'}</button></td>
+            <td style="text-align:left;padding:8px;font-size:12px;color:#2d3748;max-width:300px;white-space:pre-wrap;word-break:break-word;background:${cm.finance ? '#f0f4f8' : 'transparent'}">${cm.finance ? escapeHtml(cm.finance) : '—'}</td>
+            <td><button class="btn" style="padding:6px 12px;font-size:11px;cursor:pointer" onclick="openCommentModal('${escapeHtml(code)}')">${cm.finance ? '✏️' : '➕'}</button></td>
           </tr>
         `;
       }).join('');
