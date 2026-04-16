@@ -1338,8 +1338,27 @@
           const ws = wb.Sheets[wb.SheetNames[0]];
           const rows = XLSX.utils.sheet_to_json(ws);
 
-          if (!rows.length || !('Project Code' in rows[0])) {
-            showToast('Invalid file format', 'error');
+          console.log('Rows read:', rows.length);
+          if (rows.length > 0) {
+            console.log('First row keys:', Object.keys(rows[0]));
+            console.log('First row:', rows[0]);
+          }
+
+          // Check if we have data and valid columns
+          if (!rows.length) {
+            showToast('No data found in file', 'error');
+            return;
+          }
+
+          // Look for Project Code column (case-insensitive)
+          const firstRow = rows[0];
+          let projectCodeKey = Object.keys(firstRow).find(k => 
+            k && k.toLowerCase().includes('project') && k.toLowerCase().includes('code')
+          );
+
+          if (!projectCodeKey) {
+            console.log('Available columns:', Object.keys(firstRow));
+            showToast('Invalid file format - missing Project Code column', 'error');
             return;
           }
 
@@ -1386,15 +1405,32 @@
           }));
           
           if (insertData.length > 0) {
-            await supabaseClient.from('projects').insert(insertData);
+            const { error } = await supabaseClient.from('projects').insert(insertData);
+            if (error) {
+              console.error('Insert error:', error);
+              showToast('Error saving to database: ' + error.message, 'error');
+              return;
+            }
           }
 
+          // Wait a moment for data to sync
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
           closeImportModal();
+          const importedCount = insertData.length;
+          
+          // Reset filter to show all
+          currentFilter = 'all';
+          document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+          const allBtn = document.querySelector('[data-filter="all"]');
+          if (allBtn) allBtn.classList.add('active');
+          
           await loadAllData();
           buildPMDropdown();
-          showToast(`✓ ${projects.length} projects imported`);
+          showToast(`✓ ${importedCount} projects imported`);
           event.target.value = '';
         } catch (err) {
+          console.error('Import error:', err);
           showToast('Import failed: ' + err.message, 'error');
         }
       };
