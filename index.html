@@ -820,7 +820,11 @@
       <input type="hidden" id="commentProjectCode">
       <div class="option-group">
         <label style="color:#667eea;font-weight:700">📝 Your Notes</label>
-        <textarea id="financeComment" style="width:100%;padding:10px;border:2px solid #667eea;border-radius:6px;font-size:13px;font-family:inherit;resize:vertical;min-height:100px;outline:none;background:#f7fafc" placeholder="Record the latest update..."></textarea>
+        <textarea id="financeComment" style="width:100%;padding:10px;border:2px solid #667eea;border-radius:6px;font-size:13px;font-family:inherit;resize:vertical;min-height:120px;outline:none;background:#f7fafc" placeholder="Record the latest update..."></textarea>
+        <div id="commentDisplay" style="margin-top:12px;padding:12px;background:#f0f4f8;border-radius:6px;border-left:4px solid #667eea;display:none;">
+          <div style="font-size:11px;color:#667eea;font-weight:700;margin-bottom:8px">📌 Last Saved:</div>
+          <div id="commentText" style="font-size:13px;color:#2d3748;line-height:1.5;white-space:pre-wrap;word-break:break-word;"></div>
+        </div>
       </div>
       <div class="modal-footer">
         <button class="btn-cancel" onclick="closeCommentModal()">Cancel</button>
@@ -1170,7 +1174,7 @@
             <td style="text-align:right">${(p['% invoiced'] || 0).toFixed(1)}%</td>
             <td><button class="flag-btn ${fl.contracts ? 'flagged' : ''}" onclick="toggleFlag('${code}', 'contracts')">${fl.contracts ? '🚩' : '—'}</button></td>
             <td><button class="flag-btn ${fl.estimation ? 'flagged' : ''}" onclick="toggleFlag('${code}', 'estimation')">${fl.estimation ? '🚩' : '—'}</button></td>
-            <td><button class="btn" style="padding:6px 12px;font-size:11px" onclick="openCommentModal('${escapeHtml(code)}')">${cm.finance ? '✏️ 💬' : '✏️'}</button></td>
+            <td><button class="btn" style="padding:6px 12px;font-size:11px;cursor:pointer;position:relative" title="${cm.finance ? cm.finance.substring(0, 100) : 'Add notes'}" onclick="openCommentModal('${escapeHtml(code)}')">${cm.finance ? '✏️ 💬' : '✏️'}</button></td>
           </tr>
         `;
       }).join('');
@@ -1487,6 +1491,17 @@
       document.getElementById('commentProjectCode').value = code;
       document.getElementById('commentProjectInfo').textContent = proj ? proj['Project Name'] : code;
       document.getElementById('financeComment').value = cm.finance || '';
+      
+      // Display saved comment if exists
+      const commentDisplay = document.getElementById('commentDisplay');
+      const commentText = document.getElementById('commentText');
+      if (cm.finance) {
+        commentText.textContent = cm.finance;
+        commentDisplay.style.display = 'block';
+      } else {
+        commentDisplay.style.display = 'none';
+      }
+      
       document.getElementById('commentModal').classList.add('active');
     }
 
