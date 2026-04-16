@@ -1,508 +1,959 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MarineTeknik · Project Invoice Tracker</title>
-<link href="https://fonts.googleapis.com/css2?family=Aptos:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-:root{--primary:#0F3460;--accent:#E8A537;--neutral-50:#FAFAF9;--neutral-100:#F5F5F4;--neutral-200:#E7E5E4;--neutral-300:#D6D3D1;--neutral-400:#A8A29E;--neutral-500:#78716B;--neutral-600:#57534E;--neutral-700:#44403C;--neutral-800:#292421;--neutral-900:#1C1917;--red:#C0392B;--red-lite:#FADBD8;--orange:#D35400;--orange-lite:#FDEBD0;--green:#1E8449;--green-lite:#D5F5E3;--grey-lite:#F5F6FA;--blue:#2980B9;--blue-lite:#EBF5FB;--shadow:0 2px 12px rgba(15,52,96,0.10);--shadow-lg:0 8px 32px rgba(15,52,96,0.16)}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Aptos',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--neutral-100);color:var(--neutral-800);font-size:13px;font-weight:500;letter-spacing:0.3px;min-height:100vh;line-height:1.5}
-.topbar{background:linear-gradient(135deg,var(--primary) 0%,#1a3f5a 100%);color:var(--neutral-50);display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:56px;position:sticky;top:0;z-index:100;box-shadow:var(--shadow-lg)}
-.topbar-left{display:flex;align-items:center;gap:16px}
-.logo{font-size:15px;font-weight:700;letter-spacing:0.04em;color:var(--neutral-50)}
-.logo span{color:var(--accent)}
-.topbar-badge{background:rgba(232,165,55,0.15);color:var(--accent);font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px;letter-spacing:0.06em;text-transform:uppercase}
-.topbar-right{display:flex;align-items:center;gap:10px}
-.last-import{font-size:11px;color:rgba(255,255,255,0.6);font-family:'DM Mono',monospace;font-weight:400}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:6px;border:none;cursor:pointer;font-family:'Aptos',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:12px;font-weight:600;transition:all 0.15s;letter-spacing:0.01em;white-space:nowrap}
-.btn:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
-.btn-primary{background:var(--accent);color:var(--primary);font-weight:600}
-.btn-outline{background:transparent;color:var(--neutral-50);border:1px solid rgba(255,255,255,0.3)}
-.btn-outline:hover{background:rgba(255,255,255,0.1)}
-.btn-sm{padding:5px 11px;font-size:11px}
-.tabs{background:var(--primary);display:flex;align-items:center;gap:2px;padding:0 28px}
-.tab{padding:10px 18px;font-size:12px;font-weight:500;color:rgba(255,255,255,0.6);cursor:pointer;border-bottom:3px solid transparent;transition:all 0.15s;letter-spacing:0.02em;white-space:nowrap}
-.tab:hover{color:rgba(255,255,255,0.85)}
-.tab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
-.content{padding:20px 28px}
-.page{display:none}
-.page.active{display:block}
-.kpi-row{display:flex;gap:14px;margin-bottom:20px;flex-wrap:wrap}
-.kpi-card{background:var(--neutral-50);border-radius:10px;padding:16px 20px;flex:1;min-width:140px;box-shadow:var(--shadow);border-top:3px solid var(--neutral-200)}
-.kpi-card.red{border-top-color:var(--red)}
-.kpi-card.orange{border-top-color:var(--orange)}
-.kpi-card.navy{border-top-color:var(--primary)}
-.kpi-card.gold{border-top-color:var(--accent)}
-.kpi-card.green{border-top-color:var(--green)}
-.kpi-label{font-size:10px;font-weight:600;color:var(--neutral-600);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px}
-.kpi-value{font-size:28px;font-weight:700;color:var(--neutral-800);line-height:1}
-.kpi-sub{font-size:10px;color:var(--neutral-600);margin-top:4px;font-family:'DM Mono',monospace;font-weight:400}
-.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
-.search-box{display:flex;align-items:center;gap:8px;background:var(--neutral-50);border:1px solid var(--neutral-300);border-radius:6px;padding:6px 12px;flex:1;max-width:340px}
-.search-box input{border:none;outline:none;font-family:'Aptos',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:12px;width:100%;color:var(--neutral-800);background:transparent;font-weight:500}
-.filter-group{display:flex;gap:6px;flex-wrap:wrap}
-.filter-chip{padding:5px 12px;border-radius:20px;border:1px solid var(--neutral-300);background:var(--neutral-50);font-size:11px;font-weight:500;cursor:pointer;transition:all 0.15s;color:var(--neutral-600);white-space:nowrap}
-.filter-chip:hover,.filter-chip.active{background:var(--primary);color:var(--neutral-50);border-color:var(--primary)}
-.filter-chip.red.active{background:var(--red);border-color:var(--red)}
-.filter-chip.orange.active{background:var(--orange);border-color:var(--orange)}
-.filter-chip.green.active{background:var(--green);border-color:var(--green)}
-.spacer{flex:1}
-.pm-filter-wrap{position:relative;display:inline-block}
-.pm-filter-btn{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px;border:1px solid var(--neutral-300);background:var(--neutral-50);font-size:11px;font-weight:500;cursor:pointer;color:var(--neutral-600);transition:all 0.15s}
-.pm-filter-btn:hover{border-color:var(--primary)}
-.pm-filter-btn.active{background:var(--primary);color:var(--neutral-50);border-color:var(--primary)}
-.pm-dropdown{position:absolute;top:calc(100% + 4px);left:0;z-index:50;background:var(--neutral-50);border:1px solid var(--neutral-300);border-radius:8px;box-shadow:var(--shadow-lg);min-width:220px;max-height:280px;overflow-y:auto;display:none}
-.pm-dropdown.open{display:block}
-.pm-dropdown-item{padding:9px 14px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:background 0.1s;color:var(--neutral-800)}
-.pm-dropdown-item:hover{background:var(--neutral-100)}
-.pm-dropdown-item.selected{background:var(--blue-lite);font-weight:600;color:var(--primary)}
-.pm-dropdown-item .check{color:var(--primary);opacity:0}
-.pm-dropdown-item.selected .check{opacity:1}
-.pm-count{font-size:10px;color:var(--neutral-600);margin-left:auto;font-family:'DM Mono',monospace;font-weight:400}
-.table-wrap{background:var(--neutral-50);border-radius:10px;box-shadow:var(--shadow);overflow:hidden}
-.table-scroll{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:12px;font-weight:500;color:var(--neutral-800)}
-thead tr{background:var(--primary)}
-thead th{padding:11px 10px;text-align:left;font-size:10px;font-weight:600;color:rgba(255,255,255,0.85);letter-spacing:0.06em;text-transform:uppercase;white-space:nowrap;border-right:1px solid rgba(255,255,255,0.1);user-select:none;cursor:pointer}
-thead th:hover{color:var(--accent)}
-thead th:nth-child(1),thead th:nth-child(2),thead th:nth-child(3){position:sticky;background:var(--primary);z-index:10}
-thead th:nth-child(1){left:0;width:50px}
-thead th:nth-child(2){left:50px}
-thead th:nth-child(3){left:calc(50px + 60px)}
-tbody tr{border-bottom:1px solid var(--neutral-200);transition:background 0.1s}
-tbody tr:hover{background:rgba(232,165,55,0.04)!important}
-tbody td{padding:9px 10px;vertical-align:middle;font-weight:500;color:var(--neutral-800)}
-tbody td:nth-child(1){position:sticky;left:0;width:50px;z-index:8;background:var(--neutral-50)}
-tbody td:nth-child(2){position:sticky;left:50px;width:60px;z-index:8;background:var(--neutral-50)}
-tbody td:nth-child(3){position:sticky;left:110px;width:auto;z-index:8;background:var(--neutral-50)}
-tbody tr:hover td:nth-child(1),tbody tr:hover td:nth-child(2),tbody tr:hover td:nth-child(3){background:rgba(232,165,55,0.04)}
-tbody tr.row-overdue td:nth-child(1),tbody tr.row-overdue td:nth-child(2),tbody tr.row-overdue td:nth-child(3){background:rgba(192,57,43,0.06)}
-tbody tr.row-due-soon td:nth-child(1),tbody tr.row-due-soon td:nth-child(2),tbody tr.row-due-soon td:nth-child(3){background:rgba(211,84,0,0.06)}
-tbody tr.row-upcoming td:nth-child(1),tbody tr.row-upcoming td:nth-child(2),tbody tr.row-upcoming td:nth-child(3){background:var(--neutral-100)}
-tbody tr.row-flagged td:nth-child(1),tbody tr.row-flagged td:nth-child(2),tbody tr.row-flagged td:nth-child(3){background:rgba(232,165,55,0.08)}
-.row-overdue{background:rgba(192,57,43,0.06)}
-.row-due-soon{background:rgba(211,84,0,0.06)}
-.row-upcoming{background:var(--neutral-100)}
-.row-flagged{background:rgba(232,165,55,0.08)}
-.badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:0.04em;white-space:nowrap}
-.badge-overdue{background:var(--red);color:var(--neutral-50)}
-.badge-duesoon{background:var(--orange);color:var(--neutral-50)}
-.badge-upcoming{background:var(--green);color:var(--neutral-50)}
-.badge-nodate{background:var(--neutral-400);color:var(--neutral-50)}
-.cell-code{font-family:'DM Mono',monospace;font-size:11px;font-weight:600;color:var(--primary)}
-.cell-num{font-family:'DM Mono',monospace;font-size:11px;text-align:right;color:var(--neutral-800)}
-.cell-date{font-family:'DM Mono',monospace;font-size:11px;color:var(--neutral-600);white-space:nowrap;font-weight:400}
-.cell-name{max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.progress-bar-wrap{width:60px;background:var(--neutral-200);border-radius:3px;height:5px;display:inline-block;vertical-align:middle;margin-right:5px}
-.progress-bar{height:5px;border-radius:3px;background:var(--green)}
-.comment-cell{position:relative}
-.comment-text{max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--neutral-600);font-size:11px;font-weight:400}
-.comment-text.has-comment{color:var(--neutral-800);cursor:pointer;font-weight:500}
-.comment-text.has-comment:hover{color:var(--primary);text-decoration:underline}
-.add-comment-btn{color:var(--neutral-600);font-size:10px;cursor:pointer;padding:2px 6px;border:1px dashed var(--neutral-300);border-radius:4px;background:none;white-space:nowrap;font-weight:500}
-.add-comment-btn:hover{border-color:var(--primary);color:var(--primary);background:var(--neutral-100)}
-.flag-toggle{cursor:pointer;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:600;border:1px solid var(--neutral-300);background:none;transition:all 0.12s;white-space:nowrap}
-.flag-toggle.flagged{background:rgba(232,165,55,0.15);border-color:var(--accent);color:var(--accent)}
-.flag-toggle:not(.flagged){color:var(--neutral-400)}
-.flag-toggle:hover{border-color:var(--accent);color:var(--accent)}
-.table-footer{display:flex;align-items:center;padding:12px 16px;background:var(--primary);color:rgba(255,255,255,0.8);font-size:11px;gap:24px}
-.tf-item{display:flex;flex-direction:column;gap:2px}
-.tf-label{font-size:9px;text-transform:uppercase;letter-spacing:0.07em;opacity:0.7;font-weight:500}
-.tf-value{font-family:'DM Mono',monospace;font-size:13px;font-weight:600;color:var(--neutral-50)}
-.dashboard-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:16px}
-.dashboard-title{font-size:24px;font-weight:700;color:var(--neutral-800)}
-.dashboard-subtitle{font-size:12px;color:var(--neutral-600);margin-top:4px;font-weight:500}
-.dashboard-date{font-size:11px;color:var(--neutral-600);font-family:'DM Mono',monospace;font-weight:400}
-.dashboard-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:20px}
-.dash-card{background:var(--neutral-50);border-radius:12px;padding:20px 24px;box-shadow:var(--shadow)}
-.dash-card.full-width{grid-column:1/-1}
-.dash-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--neutral-200)}
-.dash-card-title{font-size:14px;font-weight:700;color:var(--neutral-800)}
-.chart-container{position:relative;height:260px}
-.chart-container.tall{height:320px}
-.big-numbers{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
-.big-num-card{background:linear-gradient(135deg,var(--primary) 0%,#1a3f5a 100%);border-radius:12px;padding:20px;color:var(--neutral-50)}
-.big-num-card.gold-accent{background:linear-gradient(135deg,var(--accent) 0%,#f0b469 100%)}
-.big-num-card.gold-accent .big-num-value{color:var(--primary)}
-.big-num-card.gold-accent .big-num-label{color:var(--primary);opacity:0.85}
-.big-num-card.red-accent{background:linear-gradient(135deg,var(--red) 0%,#E74C3C 100%)}
-.big-num-card.green-accent{background:linear-gradient(135deg,var(--green) 0%,#27AE60 100%)}
-.big-num-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;opacity:0.8;margin-bottom:8px}
-.big-num-value{font-size:32px;font-weight:700;line-height:1}
-.big-num-sub{font-size:11px;margin-top:6px;opacity:0.7;font-family:'DM Mono',monospace;font-weight:400}
-.pm-list{}
-.pm-row{display:flex;align-items:center;padding:12px 0;border-bottom:1px solid var(--neutral-200)}
-.pm-row:last-child{border-bottom:none}
-.pm-rank{width:28px;height:28px;border-radius:50%;background:var(--primary);color:var(--neutral-50);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-right:12px}
-.pm-rank.gold{background:var(--accent);color:var(--primary)}
-.pm-name{font-weight:600;flex:1;color:var(--neutral-800)}
-.pm-stat{font-family:'DM Mono',monospace;font-size:12px;color:var(--neutral-600);margin-left:12px;text-align:right;font-weight:400}
-.pm-stat strong{color:var(--primary);font-weight:700}
-.pm-progress-wrap{width:100px;height:6px;background:var(--neutral-200);border-radius:3px;margin-left:12px}
-.pm-progress{height:6px;border-radius:3px;background:var(--blue)}
-.status-breakdown{display:flex;gap:12px;flex-wrap:wrap}
-.status-item{flex:1;min-width:100px;padding:14px;border-radius:8px;text-align:center;background:var(--neutral-100)}
-.status-item.overdue{background:var(--red-lite)}
-.status-item.duesoon{background:var(--orange-lite)}
-.status-item.upcoming{background:var(--green-lite)}
-.status-item.nodate{background:var(--neutral-200)}
-.status-count{font-size:28px;font-weight:700}
-.status-item.overdue .status-count{color:var(--red)}
-.status-item.duesoon .status-count{color:var(--orange)}
-.status-item.upcoming .status-count{color:var(--green)}
-.status-item.nodate .status-count{color:var(--neutral-600)}
-.status-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--neutral-600);margin-top:4px}
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.2s}
-.modal-overlay.open{opacity:1;pointer-events:all}
-.modal{background:var(--neutral-50);border-radius:12px;padding:28px;width:520px;max-width:95vw;box-shadow:var(--shadow-lg);transform:translateY(12px);transition:transform 0.2s}
-.modal-overlay.open .modal{transform:translateY(0)}
-.modal-title{font-size:15px;font-weight:700;color:var(--neutral-800);margin-bottom:4px}
-.modal-sub{font-size:11px;color:var(--neutral-600);margin-bottom:20px;font-weight:400}
-.modal-project{background:var(--neutral-100);border-radius:8px;padding:12px 14px;margin-bottom:18px}
-.modal-project-code{font-family:'DM Mono',monospace;font-size:12px;font-weight:700;color:var(--primary)}
-.modal-project-name{font-size:12px;color:var(--neutral-600);margin-top:3px;font-weight:500}
-.comment-group{margin-bottom:14px}
-.comment-label{font-size:11px;font-weight:600;color:var(--neutral-600);margin-bottom:6px;display:flex;align-items:center;gap:6px}
-.comment-label-dot{width:8px;height:8px;border-radius:50%}
-textarea{width:100%;border:1px solid var(--neutral-300);border-radius:6px;padding:9px 12px;font-family:'Aptos',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:12px;color:var(--neutral-800);resize:vertical;min-height:70px;outline:none;transition:border-color 0.15s;background:var(--neutral-100);font-weight:500}
-textarea:focus{border-color:var(--primary);background:var(--neutral-50)}
-.modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
-.import-zone{border:2px dashed var(--neutral-300);border-radius:8px;padding:36px 20px;text-align:center;cursor:pointer;transition:all 0.15s;background:var(--neutral-100);margin-bottom:16px}
-.import-zone:hover,.import-zone.dragover{border-color:var(--primary);background:var(--blue-lite)}
-.import-icon{font-size:32px;margin-bottom:10px}
-.import-title{font-size:14px;font-weight:600;color:var(--primary);margin-bottom:4px}
-.import-sub{font-size:11px;color:var(--neutral-600);font-weight:400}
-.report-options{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
-.report-card{flex:1;min-width:140px;border:2px solid var(--neutral-300);border-radius:10px;padding:18px 16px;cursor:pointer;transition:all 0.15s;text-align:center}
-.report-card:hover{border-color:var(--primary)}
-.report-card.selected{border-color:var(--accent);background:rgba(232,165,55,0.08)}
-.report-card-icon{font-size:26px;margin-bottom:8px}
-.report-card-title{font-size:12px;font-weight:700;color:var(--neutral-800);margin-bottom:4px}
-.empty-state{text-align:center;padding:60px 20px;color:var(--neutral-600)}
-.empty-icon{font-size:48px;margin-bottom:16px}
-.empty-title{font-size:16px;font-weight:600;color:var(--neutral-800);margin-bottom:8px}
-.toast{position:fixed;bottom:24px;right:24px;z-index:9999;background:var(--primary);color:var(--neutral-50);padding:12px 20px;border-radius:8px;font-size:12px;font-weight:500;box-shadow:var(--shadow-lg);transform:translateY(80px);transition:transform 0.3s;border-left:4px solid var(--accent)}
-.toast.show{transform:translateY(0)}
-.login-overlay{position:fixed;inset:0;background:linear-gradient(135deg,var(--primary) 0%,#1a3f5a 100%);z-index:10000;display:flex;align-items:center;justify-content:center}
-.login-overlay.hidden{display:none}
-.login-box{background:var(--neutral-50);border-radius:16px;padding:40px;width:400px;max-width:90vw;box-shadow:var(--shadow-lg);text-align:center}
-.login-logo{font-size:20px;font-weight:700;color:var(--neutral-800);margin-bottom:8px}
-.login-logo span{color:var(--accent)}
-.login-subtitle{font-size:12px;color:var(--neutral-600);margin-bottom:28px;font-weight:400}
-.login-input{width:100%;padding:12px 16px;border:1px solid var(--neutral-300);border-radius:8px;font-family:'Aptos',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;margin-bottom:16px;outline:none;color:var(--neutral-800);font-weight:500}
-.login-input:focus{border-color:var(--primary)}
-.login-btn{width:100%;padding:12px;border:none;border-radius:8px;background:var(--accent);color:var(--primary);font-family:'Aptos',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;font-weight:600;cursor:pointer}
-.login-btn:disabled{opacity:0.6;cursor:not-allowed}
-.login-error{color:var(--red);font-size:12px;margin-top:12px;display:none;font-weight:500}
-.login-error.show{display:block}
-.login-info{font-size:11px;color:var(--neutral-600);margin-top:20px;font-weight:400}
-.user-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(232,165,55,0.2);color:var(--neutral-50);font-size:11px;padding:4px 10px;border-radius:20px;margin-right:8px;font-weight:500}
-.logout-btn{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.3);color:var(--neutral-50);font-size:11px;cursor:pointer;padding:5px 12px;border-radius:6px;font-family:'Aptos',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-weight:500}
-.sync-indicator{display:inline-flex;align-items:center;gap:4px;font-size:10px;color:rgba(255,255,255,0.5);margin-right:12px}
-.sync-dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
-.sync-dot.syncing{background:var(--accent);animation:pulse 1s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
-.col-finance{border-left:3px solid #3498db}
-.col-contracts{border-left:3px solid #9b59b6}
-.col-estimation{border-left:3px solid #27ae60}
-@media(max-width:900px){.big-numbers{grid-template-columns:repeat(2,1fr)}.dashboard-grid{grid-template-columns:1fr}}
-@media(max-width:600px){.big-numbers{grid-template-columns:1fr}.topbar{padding:0 16px}.content{padding:16px}}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MarineTeknik Invoice Tracker</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #2d3748;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-left h1 {
+      font-size: 32px;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    .header-left p {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .header-right {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: white;
+      color: #667eea;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .content {
+      padding: 40px;
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    .card {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    .card-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      color: #667eea;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .card-value {
+      font-size: 36px;
+      font-weight: 700;
+      color: #2d3748;
+    }
+
+    .card-sub {
+      font-size: 12px;
+      color: #718096;
+      margin-top: 4px;
+    }
+
+    .controls {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .search-box {
+      flex: 1;
+      min-width: 250px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #f7fafc;
+      padding: 12px 16px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .search-box input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .filter-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 8px 16px;
+      border: 2px solid #e2e8f0;
+      background: white;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      color: #4a5568;
+    }
+
+    .filter-btn:hover,
+    .filter-btn.active {
+      border-color: #667eea;
+      background: #667eea;
+      color: white;
+    }
+
+    .table-container {
+      background: white;
+      border-radius: 12px;
+      overflow: auto;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    thead {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      position: sticky;
+      top: 0;
+    }
+
+    th {
+      color: white;
+      padding: 16px;
+      text-align: left;
+      font-weight: 700;
+      white-space: nowrap;
+      border-bottom: 2px solid #667eea;
+    }
+
+    td {
+      padding: 14px 16px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    tbody tr:hover {
+      background: #f7fafc;
+    }
+
+    tbody tr:nth-child(odd) {
+      background: #f9fafb;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .status-overdue {
+      background: #fed7d7;
+      color: #c53030;
+    }
+
+    .status-duesoon {
+      background: #feebc8;
+      color: #c05621;
+    }
+
+    .status-upcoming {
+      background: #c6f6d5;
+      color: #22543d;
+    }
+
+    .currency {
+      font-family: 'Courier New', monospace;
+      font-weight: 600;
+      color: #2d3748;
+    }
+
+    .flag-btn {
+      padding: 4px 8px;
+      border: 1px solid #e2e8f0;
+      background: white;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 600;
+      transition: all 0.2s;
+      color: #a0aec0;
+    }
+
+    .flag-btn.flagged {
+      background: #fed7d7;
+      color: #c53030;
+      border-color: #c53030;
+    }
+
+    .flag-btn:hover {
+      border-color: #667eea;
+      color: #667eea;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .export-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .export-modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-header {
+      margin-bottom: 24px;
+    }
+
+    .modal-header h2 {
+      font-size: 24px;
+      margin-bottom: 8px;
+      color: #2d3748;
+    }
+
+    .modal-header p {
+      font-size: 14px;
+      color: #718096;
+    }
+
+    .option-group {
+      margin-bottom: 24px;
+    }
+
+    .option-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: #667eea;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+
+    .option {
+      display: flex;
+      align-items: center;
+      padding: 12px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .option:hover {
+      border-color: #667eea;
+      background: #f7fafc;
+    }
+
+    .option input[type="radio"] {
+      margin-right: 12px;
+      cursor: pointer;
+      width: 18px;
+      height: 18px;
+    }
+
+    .option-text {
+      flex: 1;
+    }
+
+    .option-title {
+      font-weight: 600;
+      color: #2d3748;
+    }
+
+    .option-desc {
+      font-size: 12px;
+      color: #718096;
+      margin-top: 2px;
+    }
+
+    .modal-footer {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .btn-cancel {
+      padding: 10px 24px;
+      border: 1px solid #e2e8f0;
+      background: white;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      color: #4a5568;
+      transition: all 0.3s;
+    }
+
+    .btn-cancel:hover {
+      border-color: #667eea;
+      color: #667eea;
+    }
+
+    .btn-export {
+      padding: 10px 24px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .btn-export:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(102, 126, 234, 0.4);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+    }
+
+    .empty-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    .empty-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 8px;
+    }
+
+    .empty-text {
+      font-size: 14px;
+      color: #718096;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #48bb78;
+      color: white;
+      padding: 16px 24px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      z-index: 2000;
+      animation: slideIn 0.3s ease;
+    }
+
+    .toast.error {
+      background: #f56565;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    .comment-preview {
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 12px;
+      color: #718096;
+      font-style: italic;
+    }
+
+    @media (max-width: 768px) {
+      .header {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .content {
+        padding: 20px;
+      }
+
+      .cards-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .controls {
+        flex-direction: column;
+      }
+
+      .search-box {
+        min-width: auto;
+      }
+
+      table {
+        font-size: 12px;
+      }
+
+      th,
+      td {
+        padding: 10px;
+      }
+    }
+  </style>
 </head>
 <body>
-<div class="login-overlay" id="loginOverlay">
-  <div class="login-box">
-    <div class="login-logo">MARINE<span>TEKNIK</span></div>
-    <div class="login-subtitle">Project Invoice Tracker</div>
-    <input type="email" class="login-input" id="loginEmail" placeholder="Email">
-    <input type="password" class="login-input" id="loginPassword" placeholder="Password">
-    <button class="login-btn" id="loginBtn" onclick="handleLogin()">Sign In</button>
-    <div class="login-error" id="loginError"></div>
-    <div class="login-info">Team access only</div>
-  </div>
-</div>
-<div class="topbar">
-  <div class="topbar-left">
-    <div class="logo">MARINE<span>TEKNIK</span></div>
-    <div class="topbar-badge">Invoice Tracker</div>
-  </div>
-  <div class="topbar-right">
-    <div class="sync-indicator" id="syncIndicator" style="display:none"><div class="sync-dot" id="syncDot"></div><span id="syncLabel">Synced</span></div>
-    <div class="user-badge" id="userBadge" style="display:none">👤 <span id="userEmail"></span></div>
-    <button class="logout-btn" id="logoutBtn" style="display:none" onclick="handleLogout()">Sign Out</button>
-    <span class="last-import" id="lastImportLabel"></span>
-    <button class="btn btn-outline btn-sm" onclick="openImportModal()">⬆ Import</button>
-    <button class="btn btn-primary btn-sm" onclick="openReportModal()">📤 Export</button>
-  </div>
-</div>
-<div class="tabs">
-  <div class="tab active" onclick="switchTab('all',this)">All Projects</div>
-  <div class="tab" onclick="switchTab('contracts',this)">🚩 Contracts</div>
-  <div class="tab" onclick="switchTab('estimation',this)">🚩 Estimation</div>
-  <div class="tab" onclick="switchTab('dashboard',this)">📊 Dashboard</div>
-</div>
-<div class="content">
-  <div class="page active" id="page-tracker">
-    <div class="kpi-row">
-      <div class="kpi-card navy"><div class="kpi-label">Total Projects</div><div class="kpi-value" id="kpiTotal">—</div><div class="kpi-sub">active</div></div>
-      <div class="kpi-card red"><div class="kpi-label">⚠ Overdue</div><div class="kpi-value" id="kpiOverdue" style="color:var(--red)">—</div><div class="kpi-sub">need attention</div></div>
-      <div class="kpi-card orange"><div class="kpi-label">⏰ Due Soon</div><div class="kpi-value" id="kpiDueSoon" style="color:var(--orange)">—</div><div class="kpi-sub">30 days</div></div>
-      <div class="kpi-card green"><div class="kpi-label">Remaining</div><div class="kpi-value" id="kpiRemaining" style="color:var(--green);font-size:18px">—</div><div class="kpi-sub">to invoice</div></div>
-      <div class="kpi-card gold"><div class="kpi-label">🚩 Contracts</div><div class="kpi-value" id="kpiContracts" style="color:var(--accent)">—</div><div class="kpi-sub">flagged</div></div>
-      <div class="kpi-card gold"><div class="kpi-label">🚩 Estimation</div><div class="kpi-value" id="kpiEstimation" style="color:var(--accent)">—</div><div class="kpi-sub">flagged</div></div>
-    </div>
-    <div class="toolbar">
-      <div class="search-box"><span>🔍</span><input type="text" id="searchInput" placeholder="Search..." oninput="renderTable()"></div>
-      <div class="filter-group">
-        <div class="filter-chip red" data-filter="OVERDUE" onclick="toggleFilter(this)">Overdue</div>
-        <div class="filter-chip orange" data-filter="DUE SOON" onclick="toggleFilter(this)">Due Soon</div>
-        <div class="filter-chip green" data-filter="Upcoming" onclick="toggleFilter(this)">Upcoming</div>
-        <div class="filter-chip" data-filter="No Date" onclick="toggleFilter(this)">No Date</div>
+  <div class="container">
+    <div class="header">
+      <div class="header-left">
+        <h1>⚓ MarineTeknik</h1>
+        <p>Project Invoice Tracker</p>
       </div>
-      <div class="pm-filter-wrap">
-        <button class="pm-filter-btn" id="pmFilterBtn" onclick="togglePMDropdown()"><span>👤</span><span id="pmFilterLabel">All PMs</span><span>▼</span></button>
-        <div class="pm-dropdown" id="pmDropdown"></div>
+      <div class="header-right">
+        <button class="btn btn-secondary" onclick="refreshData()">🔄 Refresh</button>
+        <button class="btn btn-primary" onclick="openExportModal()">📊 Export Report</button>
       </div>
-      <div class="spacer"></div>
-      <button class="btn btn-sm btn-outline" style="color:var(--neutral-800);border-color:var(--neutral-300)" onclick="clearAllFlags('both')">Clear All Flags</button>
-      <button class="btn btn-sm btn-outline" style="color:var(--neutral-800);border-color:var(--neutral-300)" onclick="refreshData()">🔄 Refresh</button>
-      <span style="font-size:11px;color:var(--neutral-600)" id="rowCountLabel"></span>
     </div>
-    <div class="table-wrap">
-      <div class="table-scroll">
-        <table id="mainTable">
-          <thead><tr>
-            <th style="width:50px">🚩</th>
-            <th onclick="sortBy('Customer No')">Cust #</th>
-            <th onclick="sortBy('Project Code')">Code</th>
-            <th onclick="sortBy('Customer Name')">Customer</th>
-            <th onclick="sortBy('Ship Name')">Ship</th>
-            <th onclick="sortBy('Project Name')">Project</th>
-            <th onclick="sortBy('Person Responsible')">PM</th>
-            <th onclick="sortBy('Your Reference')">Ref</th>
-            <th onclick="sortBy('PO Number')">PO</th>
-            <th onclick="sortBy('Project Start')">Start</th>
-            <th onclick="sortBy('Project End')">End</th>
-            <th onclick="sortBy('Next Invoice Date')">Next Inv</th>
-            <th onclick="sortBy('invoiceStatus')">Status</th>
-            <th onclick="sortBy('Project Value')">Value</th>
-            <th onclick="sortBy('Invoiced Value')">Invoiced</th>
-            <th onclick="sortBy('Remaining Inv')">Remaining</th>
-            <th onclick="sortBy('% invoiced')">%</th>
-            <th class="col-finance">Finance</th>
-            <th class="col-contracts">Contracts</th>
-            <th class="col-estimation">Estimation</th>
-          </tr></thead>
-          <tbody id="tableBody"></tbody>
+
+    <div class="content">
+      <!-- KPI Cards -->
+      <div class="cards-grid" id="kpiCards">
+        <div class="card">
+          <div class="card-title">Total Projects</div>
+          <div class="card-value" id="kpiTotal">0</div>
+          <div class="card-sub">active</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Contracts Flagged</div>
+          <div class="card-value" id="kpiContracts">0</div>
+          <div class="card-sub">pending review</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Estimation Flagged</div>
+          <div class="card-value" id="kpiEstimation">0</div>
+          <div class="card-sub">pending review</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Total Value</div>
+          <div class="card-value" id="kpiValue">$0</div>
+          <div class="card-sub">all projects</div>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="controls">
+        <div class="search-box">
+          <span>🔍</span>
+          <input type="text" id="searchInput" placeholder="Search by code, customer, or project..." onkeyup="filterTable()">
+        </div>
+        <div class="filter-group">
+          <button class="filter-btn active" data-filter="all" onclick="setFilter(this, 'all')">All</button>
+          <button class="filter-btn" data-filter="contracts" onclick="setFilter(this, 'contracts')">🚩 Contracts</button>
+          <button class="filter-btn" data-filter="estimation" onclick="setFilter(this, 'estimation')">🚩 Estimation</button>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Customer</th>
+              <th>Ship</th>
+              <th>Project Name</th>
+              <th>PM</th>
+              <th>Status</th>
+              <th>Value</th>
+              <th>Invoiced</th>
+              <th>Remaining</th>
+              <th>Contracts</th>
+              <th>Estimation</th>
+              <th>Comments</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr>
+              <td colspan="13" class="empty-state">
+                <div class="empty-icon">📋</div>
+                <div class="empty-title">No data yet</div>
+                <div class="empty-text">Import your Business Central data to get started</div>
+              </td>
+            </tr>
+          </tbody>
         </table>
       </div>
-      <div class="table-footer" id="tableFooter" style="display:none">
-        <div class="tf-item"><div class="tf-label">Value</div><div class="tf-value" id="tfValue">—</div></div>
-        <div class="tf-item"><div class="tf-label">Invoiced</div><div class="tf-value" id="tfInvoiced">—</div></div>
-        <div class="tf-item"><div class="tf-label">Remaining</div><div class="tf-value" id="tfRemaining">—</div></div>
-        <div class="tf-item"><div class="tf-label">%</div><div class="tf-value" id="tfPct">—</div></div>
-      </div>
     </div>
   </div>
-  <div class="page" id="page-dashboard">
-    <div class="dashboard-header">
-      <div><div class="dashboard-title">📊 Dashboard</div><div class="dashboard-subtitle">Overview</div></div>
-      <div class="dashboard-date" id="dashDate"></div>
-    </div>
-    <div class="big-numbers">
-      <div class="big-num-card"><div class="big-num-label">Total Value</div><div class="big-num-value" id="dashTotalValue">$0</div><div class="big-num-sub" id="dashProjectCount">0</div></div>
-      <div class="big-num-card green-accent"><div class="big-num-label">Invoiced</div><div class="big-num-value" id="dashInvoiced">$0</div><div class="big-num-sub" id="dashInvoicedPct">0%</div></div>
-      <div class="big-num-card gold-accent"><div class="big-num-label">Remaining</div><div class="big-num-value" id="dashRemaining">$0</div><div class="big-num-sub">outstanding</div></div>
-      <div class="big-num-card red-accent"><div class="big-num-label">At-Risk</div><div class="big-num-value" id="dashAtRisk">0</div><div class="big-num-sub">overdue+soon</div></div>
-    </div>
-    <div class="dashboard-grid">
-      <div class="dash-card">
-        <div class="dash-card-header"><div class="dash-card-title">Status</div></div>
-        <div class="status-breakdown">
-          <div class="status-item overdue"><div class="status-count" id="statOverdue">0</div><div class="status-label">Overdue</div></div>
-          <div class="status-item duesoon"><div class="status-count" id="statDueSoon">0</div><div class="status-label">Due Soon</div></div>
-          <div class="status-item upcoming"><div class="status-count" id="statUpcoming">0</div><div class="status-label">Upcoming</div></div>
-          <div class="status-item nodate"><div class="status-count" id="statNoDate">0</div><div class="status-label">No Date</div></div>
+
+  <!-- Export Modal -->
+  <div class="export-modal" id="exportModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>📊 Export Report</h2>
+        <p>Choose which flagged projects to include in your Excel report</p>
+      </div>
+
+      <div class="option-group">
+        <label>Report Type</label>
+        <div class="option">
+          <input type="radio" id="opt-contracts" name="reportType" value="contracts" checked>
+          <div class="option-text">
+            <div class="option-title">Contracts Report</div>
+            <div class="option-desc">Export all Contracts-flagged projects</div>
+          </div>
         </div>
-        <div class="chart-container" style="height:200px;margin-top:20px"><canvas id="statusChart"></canvas></div>
+        <div class="option">
+          <input type="radio" id="opt-estimation" name="reportType" value="estimation">
+          <div class="option-text">
+            <div class="option-title">Estimation Report</div>
+            <div class="option-desc">Export all Estimation-flagged projects</div>
+          </div>
+        </div>
       </div>
-      <div class="dash-card">
-        <div class="dash-card-header"><div class="dash-card-title">PM Workload</div></div>
-        <div class="pm-list" id="pmLeaderboard"></div>
-      </div>
-      <div class="dash-card"><div class="dash-card-header"><div class="dash-card-title">Value by Status</div></div><div class="chart-container"><canvas id="valueByStatusChart"></canvas></div></div>
-      <div class="dash-card"><div class="dash-card-header"><div class="dash-card-title">Collection</div></div><div class="chart-container"><canvas id="collectionChart"></canvas></div></div>
-      <div class="dash-card full-width"><div class="dash-card-header"><div class="dash-card-title">Value by PM</div></div><div class="chart-container tall"><canvas id="pmBarChart"></canvas></div></div>
-    </div>
-  </div>
-</div>
-<div class="modal-overlay" id="importModal">
-  <div class="modal" style="width:480px">
-    <div class="modal-title">⬆ Import BC Export</div>
-    <div class="modal-sub">Comments preserved. Orphaned data cleaned up automatically.</div>
-    <div class="import-zone" id="importZone" onclick="document.getElementById('fileInput').click()" ondragover="event.preventDefault();this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')" ondrop="handleDrop(event)">
-      <div class="import-icon">📂</div>
-      <div class="import-title">Click or drag file</div>
-      <div class="import-sub">.xlsx</div>
-      <input type="file" id="fileInput" accept=".xlsx,.xls" style="display:none" onchange="handleFileSelect(event)">
-    </div>
-    <div class="modal-footer"><button class="btn btn-outline" style="color:var(--neutral-800);border-color:var(--neutral-300)" onclick="closeImportModal()">Cancel</button></div>
-  </div>
-</div>
-<div class="modal-overlay" id="commentModal">
-  <div class="modal">
-    <div class="modal-title">💬 Comments</div>
-    <div class="modal-sub">Persist across imports</div>
-    <div class="modal-project"><div class="modal-project-code" id="cmProjectCode"></div><div class="modal-project-name" id="cmProjectName"></div></div>
-    <input type="hidden" id="cmProjectCodeHidden">
-    <div class="comment-group"><div class="comment-label"><div class="comment-label-dot" style="background:#3498db"></div>Finance</div><textarea id="cmFinance"></textarea></div>
-    <div class="comment-group"><div class="comment-label"><div class="comment-label-dot" style="background:#9b59b6"></div>Contracts</div><textarea id="cmContracts"></textarea></div>
-    <div class="comment-group"><div class="comment-label"><div class="comment-label-dot" style="background:#27ae60"></div>Estimation</div><textarea id="cmEstimation"></textarea></div>
-    <div class="modal-footer"><button class="btn btn-outline" style="color:var(--neutral-800);border-color:var(--neutral-300)" onclick="closeCommentModal()">Cancel</button><button class="btn btn-primary" onclick="saveCommentAndClose()">Save</button></div>
-  </div>
-</div>
-<div class="modal-overlay" id="reportModal">
-  <div class="modal" style="width:480px">
-    <div class="modal-title">📊 Export to Excel</div>
-    <div class="modal-sub">Professional formatting applied automatically</div>
-    <div style="margin:20px 0">
-      <div style="font-size:11px;font-weight:600;color:var(--neutral-600);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.05em">Select Projects</div>
-      <div style="display:flex;flex-direction:column;gap:8px">
-        <button class="filter-chip" id="type-all" onclick="selectExportType('all')" style="cursor:pointer;text-align:left;padding:8px 12px">
-          <span style="font-weight:600">All Projects</span>
-          <span style="font-size:9px;color:var(--neutral-600);display:block;margin-top:2px">Complete dataset</span>
-        </button>
-        <button class="filter-chip" id="type-contracts" onclick="selectExportType('contracts')" style="cursor:pointer;text-align:left;padding:8px 12px">
-          <span style="font-weight:600">Contracts Flagged</span>
-          <span style="font-size:9px;color:var(--neutral-600);display:block;margin-top:2px">Only flagged projects</span>
-        </button>
-        <button class="filter-chip" id="type-estimation" onclick="selectExportType('estimation')" style="cursor:pointer;text-align:left;padding:8px 12px">
-          <span style="font-weight:600">Estimation Flagged</span>
-          <span style="font-size:9px;color:var(--neutral-600);display:block;margin-top:2px">Only flagged projects</span>
-        </button>
+
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeExportModal()">Cancel</button>
+        <button class="btn-export" onclick="generateExcel()">Generate & Download Excel</button>
       </div>
     </div>
-    <div class="modal-footer"><button class="btn btn-outline" style="color:var(--neutral-800);border-color:var(--neutral-300)" onclick="closeReportModal()">Cancel</button><button class="btn btn-primary" id="exportBtn" onclick="doExcelExport()" disabled>Download Excel</button></div>
   </div>
-</div>
-<div class="toast" id="toast"></div>
-<script>
-var SUPABASE_URL='https://mpvsentuomxnyijhrwli.supabase.co';
-var SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wdnNlbnR1b214bnlpamhyd2xpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3Njg5MTUsImV4cCI6MjA4OTM0NDkxNX0.yL2YDH-fx12oR03-JFDxj651mWZRQoPywv8ilebzox0';
-var supabaseClient=null;
-try{supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);}catch(e){console.error(e);}
-var projects=[],comments={},flags={},activeTab='all',activeFilters=new Set(),activePM=null,sortCol='invoiceStatus',sortDir='asc',selectedReport=null,currentUser=null;
-var statusChart=null,valueByStatusChart=null,collectionChart=null,pmBarChart=null,isSyncing=false;
 
-function setSyncing(v){isSyncing=v;var d=document.getElementById('syncDot'),l=document.getElementById('syncLabel');if(d&&l){if(v){d.classList.add('syncing');l.textContent='Syncing...';}else{d.classList.remove('syncing');l.textContent='Synced';}}}
+  <script>
+    const SUPABASE_URL = 'https://mpvsentuomxnyijhrwli.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wdnNlbnR1b214bnlpamhyd2xpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3Njg5MTUsImV4cCI6MjA4OTM0NDkxNX0.yL2YDH-fx12oR03-JFDxj651mWZRQoPywv8ilebzox0';
 
-async function checkAuth(){if(!supabaseClient){showLogin();return;}try{var r=await supabaseClient.auth.getSession();if(r&&r.data&&r.data.session){currentUser=r.data.session.user;showApp();await loadAllData();}else{showLogin();}}catch(e){showLogin();}}
+    let supabaseClient;
+    let projects = [];
+    let comments = {};
+    let flags = {};
+    let currentFilter = 'all';
 
-async function handleLogin(){var email=document.getElementById('loginEmail').value.trim().toLowerCase(),pw=document.getElementById('loginPassword').value,err=document.getElementById('loginError'),btn=document.getElementById('loginBtn');err.classList.remove('show');if(!email||!pw){err.textContent='Enter email and password';err.classList.add('show');return;}btn.disabled=true;btn.textContent='...';try{var r=await supabaseClient.auth.signInWithPassword({email:email,password:pw});if(r.error)throw r.error;currentUser=r.data.user;showApp();await loadAllData();}catch(e){err.textContent=e.message||'Failed';err.classList.add('show');btn.disabled=false;btn.textContent='Sign In';}}
+    try {
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    } catch (e) {
+      console.error('Supabase init error:', e);
+    }
 
-function handleLogout(){if(supabaseClient)supabaseClient.auth.signOut();currentUser=null;projects=[];comments={};flags={};try{localStorage.clear();sessionStorage.clear();}catch(e){}showLogin();}
+    async function initApp() {
+      try {
+        const session = await supabaseClient.auth.getSession();
+        if (session?.data?.session) {
+          await loadAllData();
+        } else {
+          showToast('Please log in to continue', 'error');
+        }
+      } catch (e) {
+        console.error('Init error:', e);
+      }
+    }
 
-function showLogin(){document.getElementById('loginOverlay').classList.remove('hidden');document.getElementById('userBadge').style.display='none';document.getElementById('logoutBtn').style.display='none';document.getElementById('syncIndicator').style.display='none';var b=document.getElementById('loginBtn');if(b){b.disabled=false;b.textContent='Sign In';}}
+    async function loadAllData() {
+      try {
+        await loadProjects();
+        await loadComments();
+        await loadFlags();
+        renderTable();
+        updateKPIs();
+      } catch (e) {
+        console.error('Load error:', e);
+        showToast('Failed to load data', 'error');
+      }
+    }
 
-function showApp(){document.getElementById('loginOverlay').classList.add('hidden');document.getElementById('userBadge').style.display='inline-flex';document.getElementById('userEmail').textContent=currentUser?currentUser.email:'';document.getElementById('logoutBtn').style.display='inline';document.getElementById('syncIndicator').style.display='inline-flex';}
+    async function loadProjects() {
+      const { data, error } = await supabaseClient.from('projects').select('*');
+      if (error) throw error;
+      projects = (data || []).map(p => ({
+        'Customer No': p.customer_no || '',
+        'Project Code': p.project_code || '',
+        'Customer Name': p.customer_name || '',
+        'Ship Name': p.ship_name || '',
+        'Project Name': p.project_name || '',
+        'Person Responsible': p.person_responsible || '',
+        'Your Reference': p.your_reference || '',
+        'PO Number': p.po_number || '',
+        'Project Start': p.project_start || '',
+        'Project End': p.project_end || '',
+        'Next Invoice Date': p.next_invoice_date || '',
+        'Project Value': parseFloat(p.project_value) || 0,
+        'Invoiced Value': parseFloat(p.invoiced_value) || 0,
+        '% invoiced': parseFloat(p.percent_invoiced) || 0,
+        'Remaining Inv': parseFloat(p.remaining_inv) || 0,
+        'Status': p.status || 'Open',
+        'invoiceStatus': p.invoice_status || getInvoiceStatus(p.next_invoice_date)
+      }));
+    }
 
-async function loadAllData(){if(isSyncing)return;setSyncing(true);try{await loadProjects();await loadComments();await loadFlags();await loadMetadata();renderKPIs();renderTable();buildPMDropdown();}catch(e){console.error(e);showToast('⚠ Load error');}setSyncing(false);}
+    async function loadComments() {
+      const { data, error } = await supabaseClient.from('comments').select('*');
+      if (error) return;
+      comments = {};
+      (data || []).forEach(c => {
+        if (c.project_code) {
+          comments[c.project_code] = {
+            finance: c.finance || '',
+            contracts: c.contracts || '',
+            estimation: c.estimation || ''
+          };
+        }
+      });
+    }
 
-async function refreshData(){await loadAllData();showToast('✓ Refreshed');}
+    async function loadFlags() {
+      const { data, error } = await supabaseClient.from('flags').select('*');
+      if (error) return;
+      flags = {};
+      (data || []).forEach(f => {
+        if (f.project_code) {
+          flags[f.project_code] = {
+            contracts: f.contracts || false,
+            estimation: f.estimation || false
+          };
+        }
+      });
+    }
 
-async function loadProjects(){var r=await supabaseClient.from('projects').select('*');if(r.error)throw r.error;projects=(r.data||[]).map(function(p){return{'Customer No':p.customer_no||'','Project Code':p.project_code||'','Customer Name':p.customer_name||'','Ship Name':p.ship_name||'','Project Name':p.project_name||'','Person Responsible':p.person_responsible||'','Your Reference':p.your_reference||'','PO Number':p.po_number||'','Project Start':p.project_start||'','Project End':p.project_end||'','Next Invoice Date':p.next_invoice_date||'','Project Value':parseFloat(p.project_value)||0,'Invoiced Value':parseFloat(p.invoiced_value)||0,'% invoiced':parseFloat(p.percent_invoiced)||0,'Remaining Inv':parseFloat(p.remaining_inv)||0,'Status':p.status||'Open','invoiceStatus':p.invoice_status||calcInvoiceStatus(p.next_invoice_date)};});}
+    function getInvoiceStatus(dateStr) {
+      if (!dateStr) return 'No Date';
+      const date = new Date(dateStr);
+      const today = new Date();
+      const diffTime = date - today;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      if (diffDays < 0) return 'OVERDUE';
+      if (diffDays <= 30) return 'DUE SOON';
+      return 'Upcoming';
+    }
 
-async function loadComments(){var r=await supabaseClient.from('comments').select('*');if(r.error){console.error(r.error);return;}comments={};(r.data||[]).forEach(function(c){if(c.project_code)comments[c.project_code]={finance:c.finance||'',contracts:c.contracts||'',estimation:c.estimation||''};});}
+    function getStatusClass(status) {
+      if (status === 'OVERDUE') return 'status-overdue';
+      if (status === 'DUE SOON') return 'status-duesoon';
+      return 'status-upcoming';
+    }
 
-async function loadFlags(){var r=await supabaseClient.from('flags').select('*');if(r.error){console.error(r.error);return;}flags={};(r.data||[]).forEach(function(f){if(f.project_code)flags[f.project_code]={contracts:f.contracts||false,estimation:f.estimation||false};});}
+    function formatCurrency(val) {
+      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val);
+    }
 
-async function loadMetadata(){try{var r=await supabaseClient.from('app_metadata').select('*').eq('key','last_import');if(r.data&&r.data.length>0)document.getElementById('lastImportLabel').textContent='Last: '+r.data[0].value;}catch(e){}}
+    function updateKPIs() {
+      let totalVal = 0, flagC = 0, flagE = 0;
+      projects.forEach(p => {
+        totalVal += p['Project Value'];
+        const code = p['Project Code'];
+        if (flags[code]?.contracts) flagC++;
+        if (flags[code]?.estimation) flagE++;
+      });
+      document.getElementById('kpiTotal').textContent = projects.length;
+      document.getElementById('kpiContracts').textContent = flagC;
+      document.getElementById('kpiEstimation').textContent = flagE;
+      document.getElementById('kpiValue').textContent = formatCurrency(totalVal);
+    }
 
-async function saveProjects(){setSyncing(true);try{await supabaseClient.from('projects').delete().neq('project_code','');var rows=projects.map(function(p){return{project_code:p['Project Code'],customer_no:p['Customer No'],customer_name:p['Customer Name'],ship_name:p['Ship Name'],project_name:p['Project Name'],person_responsible:p['Person Responsible'],your_reference:p['Your Reference'],po_number:p['PO Number'],project_start:p['Project Start']||null,project_end:p['Project End']||null,next_invoice_date:p['Next Invoice Date']||null,project_value:p['Project Value'],invoiced_value:p['Invoiced Value'],percent_invoiced:p['% invoiced'],remaining_inv:p['Remaining Inv'],status:p['Status'],invoice_status:p['invoiceStatus']};});if(rows.length>0){var r=await supabaseClient.from('projects').insert(rows);if(r.error)throw r.error;}}catch(e){console.error(e);showToast('⚠ Save error');}setSyncing(false);}
+    function setFilter(el, filter) {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      el.classList.add('active');
+      currentFilter = filter;
+      filterTable();
+    }
 
-async function cleanupOrphanedData(validProjectCodes){var cleaned=0;try{var commentsResult=await supabaseClient.from('comments').select('project_code');if(commentsResult.data){var orphanedComments=commentsResult.data.filter(function(c){return validProjectCodes.indexOf(c.project_code)===-1;});for(var i=0;i<orphanedComments.length;i++){await supabaseClient.from('comments').delete().eq('project_code',orphanedComments[i].project_code);cleaned++;}}var flagsResult=await supabaseClient.from('flags').select('project_code');if(flagsResult.data){var orphanedFlags=flagsResult.data.filter(function(f){return validProjectCodes.indexOf(f.project_code)===-1;});for(var j=0;j<orphanedFlags.length;j++){await supabaseClient.from('flags').delete().eq('project_code',orphanedFlags[j].project_code);cleaned++;}}}catch(e){console.error('Cleanup error:',e);}return cleaned;}
+    function filterTable() {
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const rows = Array.from(projects);
 
-async function saveComment(code){if(!code){console.error('No code');showToast('⚠ Error');return;}setSyncing(true);var cm=comments[code]||{finance:'',contracts:'',estimation:''};try{var r=await supabaseClient.from('comments').upsert({project_code:code,finance:cm.finance||'',contracts:cm.contracts||'',estimation:cm.estimation||'',updated_at:new Date().toISOString(),updated_by:currentUser?currentUser.email:''},{onConflict:'project_code'});if(r.error){console.error(r.error);showToast('⚠ Save failed');}else{showToast('✓ Saved');}}catch(e){console.error(e);showToast('⚠ Error');}setSyncing(false);}
+      let filtered = rows;
+      if (currentFilter === 'contracts') {
+        filtered = filtered.filter(p => flags[p['Project Code']]?.contracts);
+      } else if (currentFilter === 'estimation') {
+        filtered = filtered.filter(p => flags[p['Project Code']]?.estimation);
+      }
 
-async function saveFlag(code){if(!code)return;setSyncing(true);var fl=flags[code]||{contracts:false,estimation:false};try{await supabaseClient.from('flags').upsert({project_code:code,contracts:fl.contracts,estimation:fl.estimation,updated_at:new Date().toISOString()},{onConflict:'project_code'});}catch(e){console.error(e);}setSyncing(false);}
+      if (search) {
+        filtered = filtered.filter(p =>
+          p['Project Code'].toLowerCase().includes(search) ||
+          p['Customer Name'].toLowerCase().includes(search) ||
+          p['Ship Name'].toLowerCase().includes(search) ||
+          p['Project Name'].toLowerCase().includes(search)
+        );
+      }
 
-async function saveMetadata(k,v){try{await supabaseClient.from('app_metadata').upsert({key:k,value:v,updated_at:new Date().toISOString()},{onConflict:'key'});}catch(e){}}
+      renderTableRows(filtered);
+    }
 
-function openImportModal(){document.getElementById('importModal').classList.add('open');}
-function closeImportModal(){document.getElementById('importModal').classList.remove('open');}
-function handleDrop(e){e.preventDefault();document.getElementById('importZone').classList.remove('dragover');var f=e.dataTransfer.files[0];if(f)processFile(f);}
-function handleFileSelect(e){var f=e.target.files[0];if(f)processFile(f);}
+    function renderTable() {
+      filterTable();
+    }
 
-async function processFile(file){var reader=new FileReader();reader.onload=async function(e){try{var wb=XLSX.read(e.target.result,{type:'array',cellDates:true});var ws=wb.Sheets[wb.SheetNames[0]];var rows=XLSX.utils.sheet_to_json(ws,{defval:''});if(!rows.length){showToast('⚠ Empty');return;}if(!('Project Code' in rows[0])){showToast('⚠ No Project Code');return;}projects=rows.map(function(r){return{'Customer No':String(r['Customer No']||''),'Project Code':String(r['Project Code']||'').trim(),'Customer Name':String(r['Customer Name']||''),'Ship Name':String(r['Ship Name']||''),'Project Name':String(r['Project Name']||''),'Person Responsible':String(r['Person Responsible']||''),'Your Reference':String(r['Your Reference']||''),'PO Number':String(r['PO Number']||''),'Project Start':formatDateVal(r['Project Start']),'Project End':formatDateVal(r['Project End']),'Next Invoice Date':formatDateVal(r['Next Invoice Date']),'Project Value':parseFloat(r['Project Value'])||0,'Invoiced Value':parseFloat(r['Invoiced Value'])||0,'% invoiced':parseFloat(r['% invoiced']||r['% Invoiced'])||0,'Remaining Inv':parseFloat(r['Remaining Inv'])||0,'Status':String(r['Status']||'Open'),'invoiceStatus':calcInvoiceStatus(r['Next Invoice Date'])};});var validCodes=projects.map(function(p){return p['Project Code'];});var now=new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});document.getElementById('lastImportLabel').textContent='Last: '+now;await saveProjects();await saveMetadata('last_import',now);var cleanedCount=await cleanupOrphanedData(validCodes);await loadComments();await loadFlags();renderKPIs();renderTable();buildPMDropdown();closeImportModal();var msg='✓ '+projects.length+' imported';if(cleanedCount>0)msg+=' · '+cleanedCount+' orphaned cleaned';showToast(msg);}catch(err){showToast('⚠ '+err.message);}};reader.readAsArrayBuffer(file);}
+    function renderTableRows(rows) {
+      const tbody = document.getElementById('tableBody');
+      if (!rows.length) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="13" class="empty-state">
+              <div class="empty-icon">📋</div>
+              <div class="empty-title">No matching projects</div>
+              <div class="empty-text">Try adjusting your filters or search</div>
+            </td>
+          </tr>
+        `;
+        return;
+      }
 
-function formatDateVal(v){if(!v||v===''||v==='NaT')return'';if(v instanceof Date){if(isNaN(v.getTime()))return'';return v.toISOString().split('T')[0];}if(typeof v==='string'){if(v.indexOf('NaT')>=0||v.trim()==='')return'';return v.split('T')[0];}if(typeof v==='number'){var d=new Date((v-25569)*86400*1000);return d.toISOString().split('T')[0];}return String(v);}
+      tbody.innerHTML = rows.map(p => {
+        const code = p['Project Code'];
+        const cm = comments[code] || {};
+        const fl = flags[code] || {};
+        const status = p.invoiceStatus;
 
-function calcInvoiceStatus(r){if(!r||r===''||r==='NaT')return'No Date';var d;if(r instanceof Date){d=new Date(r);}else if(typeof r==='string'){d=new Date(r+'T00:00:00');}else if(typeof r==='number'){d=new Date((r-25569)*86400*1000);}else{return'No Date';}if(isNaN(d.getTime()))return'No Date';var today=new Date();today.setHours(0,0,0,0);var invoiceDate=new Date(d);invoiceDate.setHours(0,0,0,0);var timeDiff=invoiceDate.getTime()-today.getTime();var daysDiff=Math.ceil(timeDiff/(1000*60*60*24));if(daysDiff<0)return'OVERDUE';if(daysDiff<=30)return'DUE SOON';return'Upcoming';}
+        return `
+          <tr>
+            <td><strong>${escapeHtml(code)}</strong></td>
+            <td>${escapeHtml(p['Customer Name'])}</td>
+            <td>${escapeHtml(p['Ship Name'])}</td>
+            <td>${escapeHtml(p['Project Name'])}</td>
+            <td>${escapeHtml(p['Person Responsible'])}</td>
+            <td><span class="status-badge ${getStatusClass(status)}">${status}</span></td>
+            <td class="currency">${formatCurrency(p['Project Value'])}</td>
+            <td class="currency">${formatCurrency(p['Invoiced Value'])}</td>
+            <td class="currency">${formatCurrency(p['Remaining Inv'])}</td>
+            <td>
+              <button class="flag-btn ${fl.contracts ? 'flagged' : ''}" onclick="toggleFlag('${escapeHtml(code)}', 'contracts')">
+                ${fl.contracts ? '🚩 Yes' : 'No'}
+              </button>
+            </td>
+            <td>
+              <button class="flag-btn ${fl.estimation ? 'flagged' : ''}" onclick="toggleFlag('${escapeHtml(code)}', 'estimation')">
+                ${fl.estimation ? '🚩 Yes' : 'No'}
+              </button>
+            </td>
+            <td>
+              ${cm.contracts || cm.estimation ? `<span class="comment-preview">💬 ${(cm.contracts || cm.estimation).substring(0, 20)}...</span>` : '<span style="color:#a0aec0">—</span>'}
+            </td>
+            <td>
+              <button class="btn" style="padding:6px 12px;font-size:12px" onclick="editComments('${escapeHtml(code)}')">✏️ Edit</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
 
-function renderKPIs(){var total=projects.length,overdue=0,duesoon=0,rem=0,flagC=0,flagE=0,totVal=0,totInv=0;for(var i=0;i<projects.length;i++){var p=projects[i];if(p.invoiceStatus==='OVERDUE')overdue++;if(p.invoiceStatus==='DUE SOON')duesoon++;rem+=p['Remaining Inv'];totVal+=p['Project Value'];totInv+=p['Invoiced Value'];if(flags[p['Project Code']]&&flags[p['Project Code']].contracts)flagC++;if(flags[p['Project Code']]&&flags[p['Project Code']].estimation)flagE++;}var pct=totVal?(totInv/totVal*100):0;document.getElementById('kpiTotal').textContent=total;document.getElementById('kpiOverdue').textContent=overdue;document.getElementById('kpiDueSoon').textContent=duesoon;document.getElementById('kpiRemaining').textContent=fmt$(rem);document.getElementById('kpiContracts').textContent=flagC;document.getElementById('kpiEstimation').textContent=flagE;document.getElementById('tableFooter').style.display='flex';document.getElementById('tfValue').textContent=fmt$(totVal);document.getElementById('tfInvoiced').textContent=fmt$(totInv);document.getElementById('tfRemaining').textContent=fmt$(rem);document.getElementById('tfPct').textContent=pct.toFixed(1)+'%';}
+    async function toggleFlag(code, type) {
+      if (!flags[code]) flags[code] = { contracts: false, estimation: false };
+      flags[code][type] = !flags[code][type];
 
-function fmt$(v){if(!v&&v!==0)return'—';return'$'+v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
-function fmtDate(s){if(!s)return'—';var d=new Date(s+'T12:00:00');if(isNaN(d.getTime()))return s;return(d.getMonth()+1).toString().padStart(2,'0')+'/'+d.getDate().toString().padStart(2,'0')+'/'+String(d.getFullYear()).slice(2);}
+      await supabaseClient.from('flags').upsert({
+        project_code: code,
+        contracts: flags[code].contracts,
+        estimation: flags[code].estimation,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'project_code' });
 
-function buildPMDropdown(){var m={};for(var i=0;i<projects.length;i++){var pm=projects[i]['Person Responsible']||'(None)';if(!m[pm])m[pm]=0;m[pm]++;}var s=[];for(var k in m)s.push([k,m[k]]);s.sort(function(a,b){return b[1]-a[1];});var h='<div class="pm-dropdown-item '+(!activePM?'selected':'')+'" onclick="selectPM(null)"><span class="check">✓</span><span>All</span><span class="pm-count">'+projects.length+'</span></div>';for(var j=0;j<s.length;j++){var pm=s[j][0],c=s[j][1],sel=activePM===pm?'selected':'';h+='<div class="pm-dropdown-item '+sel+'" onclick="selectPM(\''+escHtml(pm)+'\')"><span class="check">✓</span><span>'+escHtml(pm)+'</span><span class="pm-count">'+c+'</span></div>';}document.getElementById('pmDropdown').innerHTML=h;}
+      updateKPIs();
+      filterTable();
+    }
 
-function togglePMDropdown(){document.getElementById('pmDropdown').classList.toggle('open');}
-function selectPM(pm){activePM=pm;document.getElementById('pmFilterLabel').textContent=pm||'All';document.getElementById('pmFilterBtn').classList.toggle('active',!!pm);document.getElementById('pmDropdown').classList.remove('open');buildPMDropdown();renderTable();}
-document.addEventListener('click',function(e){if(!e.target.closest('.pm-filter-wrap'))document.getElementById('pmDropdown').classList.remove('open');});
+    function editComments(code) {
+      const proj = projects.find(p => p['Project Code'] === code);
+      const cm = comments[code] || {};
+      const input = prompt('Add comments (this will show in the exported report):', cm.contracts || '');
+      if (input !== null) {
+        if (!comments[code]) comments[code] = {};
+        comments[code].contracts = input;
+        filterTable();
+      }
+    }
 
-var STATUS_ORDER={'OVERDUE':0,'DUE SOON':1,'Upcoming':2,'No Date':3};
-var STATUS_BADGE={'OVERDUE':'badge-overdue','DUE SOON':'badge-duesoon','Upcoming':'badge-upcoming','No Date':'badge-nodate'};
-var ROW_CLASS={'OVERDUE':'row-overdue','DUE SOON':'row-due-soon','Upcoming':'row-upcoming','No Date':''};
+    function openExportModal() {
+      document.getElementById('exportModal').classList.add('active');
+    }
 
-function getFilteredProjects(){var list=projects.slice();if(activeTab==='contracts')list=list.filter(function(p){return flags[p['Project Code']]&&flags[p['Project Code']].contracts;});if(activeTab==='estimation')list=list.filter(function(p){return flags[p['Project Code']]&&flags[p['Project Code']].estimation;});if(activeFilters.size>0)list=list.filter(function(p){return activeFilters.has(p.invoiceStatus);});if(activePM)list=list.filter(function(p){return(p['Person Responsible']||'(None)')===activePM;});var q=document.getElementById('searchInput').value.toLowerCase().trim();if(q){list=list.filter(function(p){return p['Project Code'].toLowerCase().indexOf(q)>=0||p['Customer Name'].toLowerCase().indexOf(q)>=0||p['Ship Name'].toLowerCase().indexOf(q)>=0||p['Project Name'].toLowerCase().indexOf(q)>=0||p['Person Responsible'].toLowerCase().indexOf(q)>=0;});}list.sort(function(a,b){var av=a[sortCol],bv=b[sortCol];if(sortCol==='invoiceStatus'){av=STATUS_ORDER[av]!==undefined?STATUS_ORDER[av]:9;bv=STATUS_ORDER[bv]!==undefined?STATUS_ORDER[bv]:9;}if(typeof av==='string')av=av.toLowerCase();if(typeof bv==='string')bv=bv.toLowerCase();if(av<bv)return sortDir==='asc'?-1:1;if(av>bv)return sortDir==='asc'?1:-1;return 0;});return list;}
+    function closeExportModal() {
+      document.getElementById('exportModal').classList.remove('active');
+    }
 
-function renderTable(){var tbody=document.getElementById('tableBody'),list=getFilteredProjects();document.getElementById('rowCountLabel').textContent=list.length;if(!projects.length){tbody.innerHTML='<tr><td colspan="21"><div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">No data</div><button class="btn btn-primary" onclick="openImportModal()">Import</button></div></td></tr>';return;}if(!list.length){tbody.innerHTML='<tr><td colspan="21" style="text-align:center;padding:40px">No matches</td></tr>';return;}var h='';for(var i=0;i<list.length;i++){var p=list[i],code=p['Project Code'],cm=comments[code]||{},fl=flags[code]||{},st=p.invoiceStatus,rowCls=(fl.contracts||fl.estimation)?'row-flagged':(ROW_CLASS[st]||''),fn=cm.finance||'',cn=cm.contracts||'',en=cm.estimation||'',pct=p['% invoiced']||0;h+='<tr class="'+rowCls+'">';h+='<td><button class="flag-toggle '+(fl.contracts?'flagged':'')+'" onclick="toggleFlag(\''+escHtml(code)+'\',\'contracts\')">C</button><button class="flag-toggle '+(fl.estimation?'flagged':'')+'" onclick="toggleFlag(\''+escHtml(code)+'\',\'estimation\')">E</button></td>';h+='<td><span class="cell-code" style="font-size:10px">'+escHtml(p['Customer No'])+'</span></td>';h+='<td><span class="cell-code">'+escHtml(code)+'</span></td>';h+='<td><span class="cell-name">'+escHtml(p['Customer Name'])+'</span></td>';h+='<td><span class="cell-name">'+escHtml(p['Ship Name'])+'</span></td>';h+='<td><span class="cell-name">'+escHtml(p['Project Name'])+'</span></td>';h+='<td style="font-size:11px">'+escHtml(p['Person Responsible'])+'</td>';h+='<td style="font-size:10px">'+escHtml(p['Your Reference'])+'</td>';h+='<td style="font-size:10px">'+escHtml(p['PO Number'])+'</td>';h+='<td class="cell-date">'+fmtDate(p['Project Start'])+'</td>';h+='<td class="cell-date">'+fmtDate(p['Project End'])+'</td>';h+='<td class="cell-date">'+fmtDate(p['Next Invoice Date'])+'</td>';h+='<td><span class="badge '+(STATUS_BADGE[st]||'badge-nodate')+'">'+st+'</span></td>';h+='<td class="cell-num">'+fmt$(p['Project Value'])+'</td>';h+='<td class="cell-num">'+fmt$(p['Invoiced Value'])+'</td>';h+='<td class="cell-num">'+fmt$(p['Remaining Inv'])+'</td>';h+='<td><div style="display:flex;align-items:center;gap:4px"><div class="progress-bar-wrap"><div class="progress-bar" style="width:'+Math.min(100,pct)+'%"></div></div><span style="font-size:10px">'+pct+'%</span></div></td>';h+='<td class="comment-cell col-finance">'+(fn?'<span class="comment-text has-comment" onclick="openCommentModal(\''+escHtml(code)+'\')">'+escHtml(fn)+'</span>':'<button class="add-comment-btn" onclick="openCommentModal(\''+escHtml(code)+'\')">+</button>')+'</td>';h+='<td class="comment-cell col-contracts">'+(cn?'<span class="comment-text has-comment" onclick="openCommentModal(\''+escHtml(code)+'\')">'+escHtml(cn)+'</span>':'<button class="add-comment-btn" onclick="openCommentModal(\''+escHtml(code)+'\')">+</button>')+'</td>';h+='<td class="comment-cell col-estimation">'+(en?'<span class="comment-text has-comment" onclick="openCommentModal(\''+escHtml(code)+'\')">'+escHtml(en)+'</span>':'<button class="add-comment-btn" onclick="openCommentModal(\''+escHtml(code)+'\')">+</button>')+'</td>';h+='</tr>';}tbody.innerHTML=h;}
+    function generateExcel() {
+      const reportType = document.querySelector('input[name="reportType"]:checked').value;
+      let data = projects;
 
-function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
-function sortBy(c){if(sortCol===c)sortDir=sortDir==='asc'?'desc':'asc';else{sortCol=c;sortDir='asc';}renderTable();}
-function toggleFilter(el){var f=el.getAttribute('data-filter');if(activeFilters.has(f)){activeFilters.delete(f);el.classList.remove('active');}else{activeFilters.add(f);el.classList.add('active');}renderTable();}
-function switchTab(t,el){activeTab=t;var tabs=document.querySelectorAll('.tab');for(var i=0;i<tabs.length;i++)tabs[i].classList.remove('active');el.classList.add('active');var pages=document.querySelectorAll('.page');for(var j=0;j<pages.length;j++)pages[j].classList.remove('active');if(t==='dashboard'){document.getElementById('page-dashboard').classList.add('active');renderDashboard();}else{document.getElementById('page-tracker').classList.add('active');renderTable();}}
+      if (reportType === 'contracts') {
+        data = projects.filter(p => flags[p['Project Code']]?.contracts);
+      } else if (reportType === 'estimation') {
+        data = projects.filter(p => flags[p['Project Code']]?.estimation);
+      }
 
-async function toggleFlag(code,type){if(!code)return;if(!flags[code])flags[code]={contracts:false,estimation:false};flags[code][type]=!flags[code][type];renderTable();renderKPIs();await saveFlag(code);}
+      if (!data.length) {
+        showToast('No projects to export', 'error');
+        return;
+      }
 
-async function clearAllFlags(type){var msg=type==='both'?'Clear all flags?':('Clear all '+type+' flags?');if(!confirm(msg))return;for(var i=0;i<projects.length;i++){var code=projects[i]['Project Code'];if(!flags[code])flags[code]={contracts:false,estimation:false};if(type==='both'){flags[code].contracts=false;flags[code].estimation=false;}else{flags[code][type]=false;}}for(var i=0;i<projects.length;i++){await saveFlag(projects[i]['Project Code']);}renderTable();renderKPIs();var toast=type==='both'?'✓ All flags cleared':('✓ '+type+' flags cleared');showToast(toast);}
+      exportToExcel(data, reportType);
+      closeExportModal();
+    }
 
-function openCommentModal(code){if(!code)return;document.getElementById('cmProjectCodeHidden').value=code;var p=null;for(var i=0;i<projects.length;i++){if(projects[i]['Project Code']===code){p=projects[i];break;}}p=p||{};var cm=comments[code]||{};document.getElementById('cmProjectCode').textContent=code;document.getElementById('cmProjectName').textContent=p['Project Name']||'';document.getElementById('cmFinance').value=cm.finance||'';document.getElementById('cmContracts').value=cm.contracts||'';document.getElementById('cmEstimation').value=cm.estimation||'';document.getElementById('commentModal').classList.add('open');}
+    function exportToExcel(data, reportType) {
+      const ws_data = [];
+      ws_data.push(['Code', 'Customer', 'Ship', 'Project', 'PM', 'PO', 'Start', 'End', 'Next Invoice', 'Value', 'Invoiced', 'Remaining', '%', 'Comments']);
 
-function closeCommentModal(){document.getElementById('commentModal').classList.remove('open');document.getElementById('cmProjectCodeHidden').value='';}
+      data.forEach(p => {
+        const code = p['Project Code'];
+        const cm = comments[code] || {};
+        ws_data.push([
+          p['Project Code'],
+          p['Customer Name'],
+          p['Ship Name'],
+          p['Project Name'],
+          p['Person Responsible'],
+          p['PO Number'],
+          p['Project Start'],
+          p['Project End'],
+          p['Next Invoice Date'],
+          p['Project Value'],
+          p['Invoiced Value'],
+          p['Remaining Inv'],
+          p['% invoiced'],
+          cm.contracts || cm.estimation || ''
+        ]);
+      });
 
-async function saveCommentAndClose(){var code=document.getElementById('cmProjectCodeHidden').value;if(!code){showToast('⚠ No project');return;}comments[code]={finance:document.getElementById('cmFinance').value.trim(),contracts:document.getElementById('cmContracts').value.trim(),estimation:document.getElementById('cmEstimation').value.trim()};renderTable();closeCommentModal();await saveComment(code);}
+      const ws = XLSX.utils.aoa_to_sheet(ws_data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Report');
 
-function renderDashboard(){if(!projects.length)return;document.getElementById('dashDate').textContent=new Date().toLocaleDateString();var totVal=0,totInv=0,totRem=0,overdue=0,duesoon=0,upcoming=0,nodate=0;for(var i=0;i<projects.length;i++){var p=projects[i];totVal+=p['Project Value'];totInv+=p['Invoiced Value'];totRem+=p['Remaining Inv'];if(p.invoiceStatus==='OVERDUE')overdue++;else if(p.invoiceStatus==='DUE SOON')duesoon++;else if(p.invoiceStatus==='Upcoming')upcoming++;else nodate++;}var pct=totVal?(totInv/totVal*100):0;document.getElementById('dashTotalValue').textContent=fmt$(totVal);document.getElementById('dashProjectCount').textContent=projects.length;document.getElementById('dashInvoiced').textContent=fmt$(totInv);document.getElementById('dashInvoicedPct').textContent=pct.toFixed(1)+'%';document.getElementById('dashRemaining').textContent=fmt$(totRem);document.getElementById('dashAtRisk').textContent=overdue+duesoon;document.getElementById('statOverdue').textContent=overdue;document.getElementById('statDueSoon').textContent=duesoon;document.getElementById('statUpcoming').textContent=upcoming;document.getElementById('statNoDate').textContent=nodate;renderCharts(overdue,duesoon,upcoming,nodate,totInv,totRem);}
+      const fileName = `MarineTeknik_${reportType}_${new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }).replace(/\//g, '-')}.xlsx`;
+      XLSX.writeFile(wb, fileName);
 
-function renderCharts(ov,ds,up,nd,inv,rem){var c1=document.getElementById('statusChart');if(c1){if(statusChart)statusChart.destroy();statusChart=new Chart(c1.getContext('2d'),{type:'doughnut',data:{labels:['Overdue','Due Soon','Upcoming','No Date'],datasets:[{data:[ov,ds,up,nd],backgroundColor:['#C0392B','#D35400','#1E8449','#95a5a6'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'right',labels:{font:{size:11}}}}}});}var c2=document.getElementById('valueByStatusChart');if(c2){if(valueByStatusChart)valueByStatusChart.destroy();var ov$=0,ds$=0,up$=0,nd$=0;for(var i=0;i<projects.length;i++){var p=projects[i];if(p.invoiceStatus==='OVERDUE')ov$+=p['Remaining Inv'];else if(p.invoiceStatus==='DUE SOON')ds$+=p['Remaining Inv'];else if(p.invoiceStatus==='Upcoming')up$+=p['Remaining Inv'];else nd$+=p['Remaining Inv'];}valueByStatusChart=new Chart(c2.getContext('2d'),{type:'bar',data:{labels:['Overdue','Due Soon','Upcoming','No Date'],datasets:[{data:[ov$,ds$,up$,nd$],backgroundColor:['#C0392B','#D35400','#1E8449','#95a5a6'],borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{callback:function(v){return'$'+(v/1000).toFixed(0)+'K';}}},x:{grid:{display:false}}}}});}var c3=document.getElementById('collectionChart');if(c3){if(collectionChart)collectionChart.destroy();collectionChart=new Chart(c3.getContext('2d'),{type:'doughnut',data:{labels:['Invoiced','Remaining'],datasets:[{data:[inv,rem],backgroundColor:['#1E8449','#C9A84C'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'70%',plugins:{legend:{position:'bottom'}}}});}renderPMLeaderboard();renderPMBarChart();}
+      showToast(`✓ ${reportType.charAt(0).toUpperCase() + reportType.slice(1)} report exported`);
+    }
 
-function renderPMLeaderboard(){var m={};for(var i=0;i<projects.length;i++){var p=projects[i],pm=p['Person Responsible']||'(None)';if(!m[pm])m[pm]={count:0,value:0};m[pm].count++;m[pm].value+=p['Project Value'];}var s=[];for(var k in m)s.push([k,m[k]]);s.sort(function(a,b){return b[1].value-a[1].value;});var max=s.length?s[0][1].value:1,h='';for(var j=0;j<Math.min(8,s.length);j++){var pm=s[j][0],d=s[j][1],w=(d.value/max)*100;h+='<div class="pm-row"><div class="pm-rank '+(j===0?'gold':'')+'">'+(j+1)+'</div><div class="pm-name">'+escHtml(pm)+'</div><div class="pm-stat"><strong>'+d.count+'</strong></div><div class="pm-stat"><strong>'+fmt$(d.value)+'</strong></div><div class="pm-progress-wrap"><div class="pm-progress" style="width:'+w+'%"></div></div></div>';}document.getElementById('pmLeaderboard').innerHTML=h||'No data';}
+    function escapeHtml(text) {
+      const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+      return text.replace(/[&<>"']/g, m => map[m]);
+    }
 
-function renderPMBarChart(){var c=document.getElementById('pmBarChart');if(!c)return;if(pmBarChart)pmBarChart.destroy();var m={};for(var i=0;i<projects.length;i++){var p=projects[i],pm=p['Person Responsible']||'(None)';if(!m[pm])m[pm]={inv:0,rem:0};m[pm].inv+=p['Invoiced Value'];m[pm].rem+=p['Remaining Inv'];}var s=[];for(var k in m)s.push([k,m[k]]);s.sort(function(a,b){return(b[1].inv+b[1].rem)-(a[1].inv+a[1].rem);});var labels=[],invD=[],remD=[];for(var j=0;j<s.length;j++){labels.push(s[j][0]);invD.push(s[j][1].inv);remD.push(s[j][1].rem);}pmBarChart=new Chart(c.getContext('2d'),{type:'bar',data:{labels:labels,datasets:[{label:'Invoiced',data:invD,backgroundColor:'#1E8449',borderRadius:4},{label:'Remaining',data:remD,backgroundColor:'#C9A84C',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,beginAtZero:true,ticks:{callback:function(v){if(v>=1e6)return'$'+(v/1e6).toFixed(1)+'M';return'$'+(v/1000).toFixed(0)+'K';}}}}}});}
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.className = `toast ${type === 'error' ? 'error' : ''}`;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
 
-function openReportModal(){document.getElementById('reportDate').textContent=new Date().toLocaleDateString();exportType=null;var btns=document.querySelectorAll('#reportModal .filter-chip');for(var i=0;i<btns.length;i++)btns[i].classList.remove('active');document.getElementById('exportBtn').disabled=true;document.getElementById('reportModal').classList.add('open');}
-function closeReportModal(){document.getElementById('reportModal').classList.remove('open');}
-var exportType=null;
-function selectExportType(t){exportType=t;var btns=document.querySelectorAll('#reportModal .filter-chip');for(var i=0;i<btns.length;i++){if(btns[i].id==='type-'+t)btns[i].classList.add('active');else btns[i].classList.remove('active');}document.getElementById('exportBtn').disabled=!exportType;}
-function doExcelExport(){if(!exportType)return;var data,typeLabel='All';if(exportType==='contracts'){data=projects.filter(function(p){return flags[p['Project Code']]&&flags[p['Project Code']].contracts;});typeLabel='Contracts';}else if(exportType==='estimation'){data=projects.filter(function(p){return flags[p['Project Code']]&&flags[p['Project Code']].estimation;});typeLabel='Estimation';}else{data=projects.slice();}if(!data.length){showToast('⚠ No data to export');return;}try{exportToExcelWithXLSX(data,comments,exportType,'MarineTeknik_Report');closeReportModal();showToast('✓ Excel exported successfully');}catch(e){console.error(e);showToast('⚠ Export failed: '+e.message);}}
+    function refreshData() {
+      loadAllData();
+      showToast('✓ Data refreshed');
+    }
 
-function exportToExcelWithXLSX(data,commentData,reportType,filename){var columns=['Cust#','Code','Customer','PM','Ref','PO','Start','End','Next Inv','Value','Invoiced','%','Remaining','Finance','Contracts','Estimation'];var rows=[columns];var totVal=0,totInv=0,totRem=0;data.forEach(function(project){var code=project['Project Code'];var cm=commentData[code]||{};var val=parseFloat(project['Project Value'])||0;var inv=parseFloat(project['Invoiced Value'])||0;var rem=parseFloat(project['Remaining Inv'])||0;var pct=parseFloat(project['% invoiced'])||0;totVal+=val;totInv+=inv;totRem+=rem;rows.push([project['Customer No'],code,project['Customer Name'],project['Person Responsible'],project['Your Reference'],project['PO Number'],project['Project Start']||'',project['Project End']||'',project['Next Invoice Date']||'',val,inv,pct/100,rem,cm.finance||'',cm.contracts||'',cm.estimation||'']);});var ws=XLSX.utils.aoa_to_sheet(rows);ws['!cols']=[{wch:8},{wch:12},{wch:20},{wch:15},{wch:10},{wch:12},{wch:12},{wch:12},{wch:12},{wch:14},{wch:14},{wch:10},{wch:14},{wch:18},{wch:18},{wch:18}];var headerFill={fgColor:{rgb:'0F3460'},patternType:'solid'};var headerFont={bold:true,color:{rgb:'FFFFFF'},sz:11,name:'Calibri'};var headerAlign={horizontal:'center',vertical:'center',wrapText:true};var bodyFont={name:'Calibri',sz:10};var borders={top:{style:'thin'},left:{style:'thin'},bottom:{style:'thin'},right:{style:'thin'}};var lightGray={fgColor:{rgb:'F5F5F4'},patternType:'solid'};var lightRed={fgColor:{rgb:'FCCCCC'},patternType:'solid'};var lightGreen={fgColor:{rgb:'C6EFCE'},patternType:'solid'};for(var c=0;c<columns.length;c++){var cellRef=XLSX.utils.encode_col(c)+'1';ws[cellRef].s={fill:headerFill,font:headerFont,alignment:headerAlign,border:borders};}for(var r=0;r<data.length;r++){var rowIndex=r+2;var remaining=parseFloat(data[r]['Remaining Inv'])||0;var projValue=parseFloat(data[r]['Project Value'])||0;var isGreen=remaining===0&&projValue>0;var isRed=remaining>0;for(var c=0;c<columns.length;c++){var cellRef=XLSX.utils.encode_col(c)+rowIndex;var cell=ws[cellRef];if(!cell.s)cell.s={};cell.s.border=borders;cell.s.font=bodyFont;if(isRed){cell.s.fill=lightRed;}else if(isGreen){cell.s.fill=lightGreen;}else if(r%2===0){cell.s.fill=lightGray;}var colKey=columns[c];if(colKey==='Value'||colKey==='Invoiced'||colKey==='Remaining'){cell.s.numFmt='$#,##0.00';if(!cell.s.alignment)cell.s.alignment={};cell.s.alignment.horizontal='right';}else if(colKey==='%'){cell.s.numFmt='0%';if(!cell.s.alignment)cell.s.alignment={};cell.s.alignment.horizontal='right';}else if(colKey==='Start'||colKey==='End'||colKey==='Next Inv'){cell.s.numFmt='mm/dd/yyyy';if(!cell.s.alignment)cell.s.alignment={};cell.s.alignment.horizontal='center';}else if(colKey==='Code'){if(!cell.s.font)cell.s.font={};cell.s.font.bold=true;cell.s.font.color={rgb:'0F3460'};if(!cell.s.alignment)cell.s.alignment={};cell.s.alignment.horizontal='center';}}}ws['!ref']=XLSX.utils.encode_range({s:{c:0,r:0},e:{c:columns.length-1,r:data.length}});var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Report');var timestamp=new Date().toLocaleDateString('en-US',{month:'2-digit',day:'2-digit',year:'numeric'}).replace(/\//g,'-');var finalFilename=filename+'_'+reportType+'_'+timestamp+'.xlsx';XLSX.writeFile(wb,finalFilename);}
-
-
-
-var toastTimer;
-function showToast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(function(){t.classList.remove('show');},3000);}
-
-var overlays=document.querySelectorAll('.modal-overlay');for(var k=0;k<overlays.length;k++){(function(o){o.addEventListener('click',function(e){if(e.target===o)o.classList.remove('open');});})(overlays[k]);}
-document.addEventListener('keydown',function(e){if(e.key==='Escape'){var m=document.querySelectorAll('.modal-overlay');for(var i=0;i<m.length;i++)m[i].classList.remove('open');}});
-
-checkAuth();
-</script>
+    // Initialize on load
+    window.addEventListener('load', initApp);
+  </script>
 </body>
 </html>
