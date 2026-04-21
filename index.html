@@ -1470,14 +1470,9 @@
     }
 
     function escapeHtml(text) {
-      const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
-      return String(text).replace(/[&<>"']/g, m => map[m]);
-    }
-    function escapeHtml(text) {
   const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
   return String(text).replace(/[&<>"']/g, m => map[m]);
 }
-← RIGHT HERE, PASTE THE NEW FUNCTION BELOW THIS LINE
 
 function copyTableToClipboard() {
   const table = document.querySelector('table');
