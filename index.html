@@ -1536,11 +1536,27 @@
               format: 'a4'
             });
             
+            // Get today's date
+            const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
+            
+            // Add header with PM name or title and date
+            const pmName = currentPM || 'All Project Managers';
+            const headerText = currentPM ? `MarineTeknik Project Tracker - ${pmName}` : `MarineTeknik Project Tracker`;
+            
+            pdf.setFontSize(14);
+            pdf.setFont(undefined, 'bold');
+            pdf.text(headerText, 10, 8);
+            
+            pdf.setFontSize(10);
+            pdf.setFont(undefined, 'normal');
+            pdf.text(`Date: ${today}`, 10, 15);
+            
+            // Add the table image
             const imgWidth = 290;
             const imgHeight = (canvas.height * imgWidth) / canvas.width;
             
-            pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
-            const fileName = `MarineTeknik_Invoice_Tracker_${new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }).replace(/\//g, '-')}.pdf`;
+            pdf.addImage(imgData, 'PNG', 10, 22, imgWidth, imgHeight);
+            const fileName = `MarineTeknik_${pmName.replace(/\s+/g, '_')}_${today.replace(/\//g, '-')}.pdf`;
             pdf.save(fileName);
             showToast('✓ Table exported as PDF');
           }).catch(err => {
