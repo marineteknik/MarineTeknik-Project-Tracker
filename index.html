@@ -742,6 +742,7 @@
       <button class="dropdown-btn" id="pmBtn" onclick="togglePMDropdown()">👤 All PMs <span>▼</span></button>
       <div class="dropdown-menu" id="pmMenu"></div>
     </div>
+    <button class="btn" style="padding:10px 20px;background:#0052a3;color:white;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:13px;margin-left:auto" onclick="openEmailTemplateModal()">✉️ Email Template</button>
   </div>
 </div>
 
@@ -882,6 +883,32 @@
       </div>
       <div class="modal-footer">
         <button class="btn-cancel" onclick="closeImportModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Email Template Modal -->
+  <div class="modal" id="emailTemplateModal">
+    <div class="modal-content" style="max-width: 700px;">
+      <div class="modal-header">
+        <h2>✉️ Email Template</h2>
+        <p>Copy the template below and send to Project Managers</p>
+      </div>
+      <div class="option-group">
+        <label style="color:#0052a3;font-weight:700">📧 Email Body</label>
+        <textarea id="emailTemplateText" style="width:100%;padding:12px;border:2px solid #0052a3;border-radius:6px;font-size:13px;font-family:inherit;resize:vertical;min-height:200px;outline:none;background:#f7fafc" readonly>Action Required: Update Needed on Open Projects
+
+Good day,
+
+Please find attached a list of your open projects that require updates.
+
+Kindly review each project along with the notes provided by Finance and provide the necessary updates at your earliest convenience. Your assistance is greatly appreciated and will help the Finance team move forward efficiently.
+
+Thank you in advance.</textarea>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeEmailTemplateModal()">Cancel</button>
+        <button class="btn-export" onclick="copyEmailTemplate()">📋 Copy Template</button>
       </div>
     </div>
   </div>
@@ -1087,9 +1114,13 @@
     }
 
     function setFilter(el, filter) {
-      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-      el.classList.add('active');
-      currentFilter = filter;
+      el.classList.toggle('active');
+      
+      // Collect all active filters
+      const activeFilters = Array.from(document.querySelectorAll('.filter-btn.active'))
+        .map(b => b.dataset.filter);
+      
+      currentFilter = activeFilters.length > 0 ? activeFilters : ['all'];
       filterTable();
     }
 
@@ -1107,13 +1138,24 @@
       const search = document.getElementById('searchInput').value.toLowerCase();
       let filtered = projects.slice();
 
-      // Apply status filter
-      if (currentFilter === 'overdue') filtered = filtered.filter(p => p.invoiceStatus === 'OVERDUE');
-      else if (currentFilter === 'duesoon') filtered = filtered.filter(p => p.invoiceStatus === 'DUE SOON');
-      else if (currentFilter === 'upcoming') filtered = filtered.filter(p => p.invoiceStatus === 'Upcoming');
-      else if (currentFilter === 'nodate') filtered = filtered.filter(p => p.invoiceStatus === 'No Date');
-      else if (currentFilter === 'contracts') filtered = filtered.filter(p => flags[p['Project Code']]?.contracts);
-      else if (currentFilter === 'estimation') filtered = filtered.filter(p => flags[p['Project Code']]?.estimation);
+      // Apply status filter - handle multiple selections
+      if (!Array.isArray(currentFilter)) {
+        currentFilter = [currentFilter];
+      }
+      
+      if (currentFilter.length > 0 && !currentFilter.includes('all')) {
+        filtered = filtered.filter(p => {
+          return currentFilter.some(filter => {
+            if (filter === 'overdue') return p.invoiceStatus === 'OVERDUE';
+            if (filter === 'duesoon') return p.invoiceStatus === 'DUE SOON';
+            if (filter === 'upcoming') return p.invoiceStatus === 'Upcoming';
+            if (filter === 'nodate') return p.invoiceStatus === 'No Date';
+            if (filter === 'contracts') return flags[p['Project Code']]?.contracts;
+            if (filter === 'estimation') return flags[p['Project Code']]?.estimation;
+            return true;
+          });
+        });
+      }
 
       // Apply PM filter
       if (currentPM) {
@@ -1626,6 +1668,25 @@
     }
 
     window.addEventListener('load', initApp);
+
+    function openEmailTemplateModal() {
+      document.getElementById('emailTemplateModal').classList.add('active');
+    }
+
+    function closeEmailTemplateModal() {
+      document.getElementById('emailTemplateModal').classList.remove('active');
+    }
+
+    function copyEmailTemplate() {
+      const templateText = document.getElementById('emailTemplateText').value;
+      navigator.clipboard.writeText(templateText).then(() => {
+        showToast('✓ Email template copied to clipboard');
+        closeEmailTemplateModal();
+      }).catch(err => {
+        showToast('Error copying template', 'error');
+        console.error(err);
+      });
+    }
   </script>
 </body>
 </html>
