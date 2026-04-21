@@ -719,29 +719,30 @@
         </div>
       </div>
 
-      <div class="controls">
-        <div class="controls-row">
-          <div class="search-box">
-            <span>🔍</span>
-            <input type="text" id="searchInput" placeholder="Search by code, customer, ship, or project..." onkeyup="filterTable()">
-          </div>
-        </div>
-        <div class="controls-row" style="margin-top:14px">
-          <div class="filter-group">
-            <button class="filter-btn active" data-filter="all" onclick="setFilter(this, 'all')">All</button>
-            <button class="filter-btn" data-filter="overdue" onclick="setFilter(this, 'overdue')">⚠️ Overdue</button>
-            <button class="filter-btn" data-filter="duesoon" onclick="setFilter(this, 'duesoon')">⏰ Due Soon</button>
-            <button class="filter-btn" data-filter="upcoming" onclick="setFilter(this, 'upcoming')">✅ Upcoming</button>
-            <button class="filter-btn" data-filter="nodate" onclick="setFilter(this, 'nodate')">❓ No Due Date</button>
-            <button class="filter-btn" data-filter="contracts" onclick="setFilter(this, 'contracts')">🚩 Contracts</button>
-            <button class="filter-btn" data-filter="estimation" onclick="setFilter(this, 'estimation')">🚩 Estimation</button>
-          </div>
-          <div class="dropdown-wrapper">
-            <button class="dropdown-btn" id="pmBtn" onclick="togglePMDropdown()">👤 All PMs <span>▼</span></button>
-            <div class="dropdown-menu" id="pmMenu"></div>
-          </div>
-        </div>
-      </div>
+<div class="controls">
+  <div class="controls-row">
+    <div class="search-box">
+      <span>🔍</span>
+      <input type="text" id="searchInput" placeholder="Search by code, customer, ship, or project..." onkeyup="filterTable()">
+    </div>
+    <button class="btn" style="padding:10px 20px;background:#0052a3;color:white;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:13px;margin-left:12px" onclick="copyTableToClipboard()">📋 Copy Table</button>
+  </div>
+  <div class="controls-row" style="margin-top:14px">
+    <div class="filter-group">
+      <button class="filter-btn active" data-filter="all" onclick="setFilter(this, 'all')">All</button>
+      <button class="filter-btn" data-filter="overdue" onclick="setFilter(this, 'overdue')">⚠️ Overdue</button>
+      <button class="filter-btn" data-filter="duesoon" onclick="setFilter(this, 'duesoon')">⏰ Due Soon</button>
+      <button class="filter-btn" data-filter="upcoming" onclick="setFilter(this, 'upcoming')">✅ Upcoming</button>
+      <button class="filter-btn" data-filter="nodate" onclick="setFilter(this, 'nodate')">❓ No Due Date</button>
+      <button class="filter-btn" data-filter="contracts" onclick="setFilter(this, 'contracts')">🚩 Contracts</button>
+      <button class="filter-btn" data-filter="estimation" onclick="setFilter(this, 'estimation')">🚩 Estimation</button>
+    </div>
+    <div class="dropdown-wrapper">
+      <button class="dropdown-btn" id="pmBtn" onclick="togglePMDropdown()">👤 All PMs <span>▼</span></button>
+      <div class="dropdown-menu" id="pmMenu"></div>
+    </div>
+  </div>
+</div>
 
       <div class="table-container">
         <div class="table-scroll">
@@ -1472,6 +1473,35 @@
       const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
       return String(text).replace(/[&<>"']/g, m => map[m]);
     }
+    function escapeHtml(text) {
+  const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+  return String(text).replace(/[&<>"']/g, m => map[m]);
+}
+← RIGHT HERE, PASTE THE NEW FUNCTION BELOW THIS LINE
+
+function copyTableToClipboard() {
+  const table = document.querySelector('table');
+  if (!table) {
+    showToast('No table data to copy', 'error');
+    return;
+  }
+
+  let tableText = '';
+  const rows = table.querySelectorAll('tr');
+  
+  rows.forEach(row => {
+    const cells = row.querySelectorAll('th, td');
+    const rowData = Array.from(cells).map(cell => cell.textContent.trim()).join('\t');
+    tableText += rowData + '\n';
+  });
+
+  navigator.clipboard.writeText(tableText).then(() => {
+    showToast('✓ Table copied to clipboard');
+  }).catch(err => {
+    showToast('Error copying table', 'error');
+    console.error(err);
+  });
+}
 
     function showToast(message, type = 'success') {
       const toast = document.createElement('div');
