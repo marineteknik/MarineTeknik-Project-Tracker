@@ -972,22 +972,35 @@ Thank you in advance.</textarea>
     }
 
     function updateLastUpdatedTimestamp() {
-      const lastUpdated = localStorage.getItem('marineteknik_last_updated');
-      const element = document.getElementById('lastUpdated');
-      
-      if (lastUpdated) {
-        const date = new Date(lastUpdated);
-        const formatted = date.toLocaleString('en-US', { 
-          month: 'short', 
-          day: 'numeric', 
-          year: 'numeric', 
-          hour: '2-digit', 
-          minute: '2-digit',
-          hour12: true 
-        });
-        element.textContent = formatted;
-      } else {
-        element.textContent = '—';
+      // Get the most recent updated_at from projects in Supabase
+      try {
+        if (projects && projects.length > 0) {
+          supabaseClient.from('projects')
+            .select('updated_at')
+            .order('updated_at', { ascending: false })
+            .limit(1)
+            .then(({ data, error }) => {
+              if (!error && data && data[0] && data[0].updated_at) {
+                const date = new Date(data[0].updated_at);
+                const formatted = date.toLocaleString('en-US', { 
+                  month: 'short', 
+                  day: 'numeric', 
+                  year: 'numeric', 
+                  hour: '2-digit', 
+                  minute: '2-digit',
+                  hour12: true 
+                });
+                document.getElementById('lastUpdated').textContent = formatted;
+              } else {
+                document.getElementById('lastUpdated').textContent = '—';
+              }
+            });
+        } else {
+          document.getElementById('lastUpdated').textContent = '—';
+        }
+      } catch (e) {
+        console.error('Timestamp update error:', e);
+        document.getElementById('lastUpdated').textContent = '—';
       }
     }
 
@@ -1347,13 +1360,11 @@ Thank you in advance.</textarea>
           .update({ updated_at: now })
           .eq('project_code', code);
           
-        localStorage.setItem('marineteknik_last_updated', now);
       } catch (e) {
         console.error('Flag update error:', e);
       }
-      updateKPIs();
-      filterTable();
-      updateLastUpdatedTimestamp();
+      
+      await loadAllData(); // Reload all data from Supabase
     }
 
     function switchTab(tab) {
@@ -1588,8 +1599,13 @@ Thank you in advance.</textarea>
             }));
             
             if (insertData.length > 0) {
-              await supabaseClient.from('projects').insert(insertData);
-              showToast('✓ ' + projects.length + ' projects imported to Supabase');
+              const { error } = await supabaseClient.from('projects').insert(insertData);
+              if (error) {
+                console.error('Supabase error:', error);
+                showToast('Error: ' + error.message, 'error');
+                return;
+              }
+              showToast('✓ ' + projects.length + ' projects imported');
             }
           } catch (supabaseError) {
             console.error('Supabase save error:', supabaseError);
@@ -1605,10 +1621,7 @@ Thank you in advance.</textarea>
           const allBtn = document.querySelector('[data-filter="all"]');
           if (allBtn) allBtn.classList.add('active');
           
-          filterTable();
-          updateKPIs();
-          buildPMDropdown();
-          updateLastUpdatedTimestamp();
+          await loadAllData(); // Reload from Supabase
           event.target.value = '';
         } catch (err) {
           console.error('Error:', err);
@@ -1620,20 +1633,7 @@ Thank you in advance.</textarea>
 
     function refreshData() {
       loadAllData();
-      
-      // Update Supabase with current data
-      try {
-        const now = new Date().toISOString();
-        projects.forEach(async (p) => {
-          await supabaseClient.from('projects')
-            .update({ updated_at: now })
-            .eq('project_code', p['Project Code']);
-        });
-      } catch (e) {
-        console.error('Refresh error:', e);
-      }
-      
-      showToast('✓ Data refreshed');
+      showToast('✓ Data refreshed from Supabase');
     }
 
     function escapeHtml(text) {
@@ -1794,14 +1794,14 @@ Thank you in advance.</textarea>
           .update({ updated_at: now })
           .eq('project_code', code);
           
-        localStorage.setItem('marineteknik_last_updated', now);
       } catch (e) {
         console.error('Comment save error:', e);
+        showToast('Error saving to Supabase', 'error');
+        return;
       }
 
       closeCommentModal();
-      filterTable();
-      updateLastUpdatedTimestamp();
+      await loadAllData(); // Reload all data from Supabase
       showToast('✓ Notes saved');
     }
 
