@@ -974,30 +974,31 @@ Thank you in advance.</textarea>
     function updateLastUpdatedTimestamp() {
       // Get the most recent updated_at from projects in Supabase
       try {
-        if (projects && projects.length > 0) {
-          supabaseClient.from('projects')
-            .select('updated_at')
-            .order('updated_at', { ascending: false })
-            .limit(1)
-            .then(({ data, error }) => {
-              if (!error && data && data[0] && data[0].updated_at) {
-                const date = new Date(data[0].updated_at);
-                const formatted = date.toLocaleString('en-US', { 
-                  month: 'short', 
-                  day: 'numeric', 
-                  year: 'numeric', 
-                  hour: '2-digit', 
-                  minute: '2-digit',
-                  hour12: true 
-                });
-                document.getElementById('lastUpdated').textContent = formatted;
-              } else {
-                document.getElementById('lastUpdated').textContent = '—';
-              }
-            });
-        } else {
-          document.getElementById('lastUpdated').textContent = '—';
-        }
+        supabaseClient.from('projects')
+          .select('updated_at')
+          .order('updated_at', { ascending: false })
+          .limit(1)
+          .then(({ data, error }) => {
+            const element = document.getElementById('lastUpdated');
+            if (!error && data && data.length > 0 && data[0].updated_at) {
+              const date = new Date(data[0].updated_at);
+              const formatted = date.toLocaleString('en-US', { 
+                month: 'short', 
+                day: 'numeric', 
+                year: 'numeric', 
+                hour: '2-digit', 
+                minute: '2-digit',
+                hour12: true 
+              });
+              element.textContent = formatted;
+            } else {
+              element.textContent = '—';
+            }
+          })
+          .catch(err => {
+            console.error('Timestamp fetch error:', err);
+            document.getElementById('lastUpdated').textContent = '—';
+          });
       } catch (e) {
         console.error('Timestamp update error:', e);
         document.getElementById('lastUpdated').textContent = '—';
@@ -1576,7 +1577,7 @@ Thank you in advance.</textarea>
             // Delete existing projects
             await supabaseClient.from('projects').delete().neq('project_code', '');
             
-            // Insert new projects
+            // Insert new projects with timestamp
             const insertData = projects.map(p => ({
               project_code: p['Project Code'],
               customer_no: p['Customer No'],
@@ -1601,27 +1602,28 @@ Thank you in advance.</textarea>
             if (insertData.length > 0) {
               const { error } = await supabaseClient.from('projects').insert(insertData);
               if (error) {
-                console.error('Supabase error:', error);
-                showToast('Error: ' + error.message, 'error');
+                console.error('Supabase insert error:', error);
+                showToast('Error saving to Supabase: ' + error.message, 'error');
                 return;
               }
-              showToast('✓ ' + projects.length + ' projects imported');
             }
           } catch (supabaseError) {
-            console.error('Supabase save error:', supabaseError);
-            showToast('Error: Could not save to Supabase. Check your connection.', 'error');
+            console.error('Supabase error:', supabaseError);
+            showToast('Error: Could not save to Supabase', 'error');
             return;
           }
 
           closeImportModal();
           
-          // Reset filters and render
+          // Reset filters
           currentFilter = ['all'];
           document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
           const allBtn = document.querySelector('[data-filter="all"]');
           if (allBtn) allBtn.classList.add('active');
           
-          await loadAllData(); // Reload from Supabase
+          // Reload all data from Supabase
+          await loadAllData();
+          showToast('✓ ' + projects.length + ' projects imported');
           event.target.value = '';
         } catch (err) {
           console.error('Error:', err);
