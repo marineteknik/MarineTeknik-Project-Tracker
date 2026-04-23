@@ -1577,6 +1577,30 @@ Thank you in advance.</textarea>
             // Delete existing projects
             await supabaseClient.from('projects').delete().neq('project_code', '');
             
+            // Convert date strings to proper format for Supabase
+            const formatDateForSupabase = (dateStr) => {
+              if (!dateStr) return null;
+              
+              let date;
+              if (typeof dateStr === 'string') {
+                if (dateStr.includes('-')) {
+                  date = new Date(dateStr + 'T00:00:00');
+                } else if (dateStr.includes('/')) {
+                  const [m, d, y] = dateStr.split('/');
+                  date = new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
+                } else {
+                  return null;
+                }
+              } else if (typeof dateStr === 'number') {
+                date = new Date((dateStr - 25569) * 86400 * 1000);
+              } else {
+                return null;
+              }
+              
+              if (isNaN(date.getTime())) return null;
+              return date.toISOString().split('T')[0]; // Return YYYY-MM-DD format
+            };
+            
             // Insert new projects with timestamp
             const insertData = projects.map(p => ({
               project_code: p['Project Code'],
@@ -1587,9 +1611,9 @@ Thank you in advance.</textarea>
               person_responsible: p['Person Responsible'],
               your_reference: p['Your Reference'],
               po_number: p['PO Number'],
-              project_start: p['Project Start'] || null,
-              project_end: p['Project End'] || null,
-              next_invoice_date: p['Next Invoice Date'] || null,
+              project_start: formatDateForSupabase(p['Project Start']),
+              project_end: formatDateForSupabase(p['Project End']),
+              next_invoice_date: formatDateForSupabase(p['Next Invoice Date']),
               project_value: p['Project Value'],
               invoiced_value: p['Invoiced Value'],
               percent_invoiced: p['% invoiced'],
@@ -1603,7 +1627,8 @@ Thank you in advance.</textarea>
               const { error } = await supabaseClient.from('projects').insert(insertData);
               if (error) {
                 console.error('Supabase insert error:', error);
-                showToast('Error saving to Supabase: ' + error.message, 'error');
+                console.error('Problem data:', insertData[0]);
+                showToast('Error: ' + error.message, 'error');
                 return;
               }
             }
