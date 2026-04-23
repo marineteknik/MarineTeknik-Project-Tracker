@@ -669,6 +669,7 @@
     <div class="header-left">
       <h1>⚓ MarineTeknik</h1>
       <p>Project Invoice Tracker</p>
+      <p style="font-size: 11px; opacity: 0.8; margin-top: 8px;">Last Updated: <span id="lastUpdated">—</span></p>
     </div>
     <div class="header-right">
       <button class="btn btn-secondary" onclick="refreshData()">🔄 Refresh</button>
@@ -935,18 +936,23 @@ Thank you in advance.</textarea>
 
     async function initApp() {
       try {
-        const session = await supabaseClient.auth.getSession();
-        if (session?.data?.session) {
+        // Try to get session first
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        
+        if (session) {
+          // User is logged in
+          console.log('User authenticated');
           await loadAllData();
           buildPMDropdown();
         } else {
-          // Load from localStorage even without auth
+          // No session, try to authenticate with anonymous key
+          // Load from localStorage if available
           await loadAllData();
           buildPMDropdown();
         }
       } catch (e) {
         console.error('Init error:', e);
-        // Attempt to load from localStorage on auth error
+        // Attempt to load from localStorage on any error
         await loadAllData();
         buildPMDropdown();
       }
@@ -959,50 +965,77 @@ Thank you in advance.</textarea>
         await loadFlags();
         filterTable();
         updateKPIs();
+        updateLastUpdatedTimestamp();
       } catch (e) {
         console.error('Load error:', e);
       }
     }
 
+    function updateLastUpdatedTimestamp() {
+      const lastUpdated = localStorage.getItem('marineteknik_last_updated');
+      const element = document.getElementById('lastUpdated');
+      
+      if (lastUpdated) {
+        const date = new Date(lastUpdated);
+        const formatted = date.toLocaleString('en-US', { 
+          month: 'short', 
+          day: 'numeric', 
+          year: 'numeric', 
+          hour: '2-digit', 
+          minute: '2-digit',
+          hour12: true 
+        });
+        element.textContent = formatted;
+      } else {
+        element.textContent = '—';
+      }
+    }
+
     async function loadProjects() {
-      // Try localStorage first
+      try {
+        // Try Supabase first
+        const { data, error } = await supabaseClient.from('projects').select('*');
+        if (!error && data && data.length > 0) {
+          projects = data.map(p => ({
+            'Customer No': p.customer_no || '',
+            'Project Code': p.project_code || '',
+            'Customer Name': p.customer_name || '',
+            'Ship Name': p.ship_name || '',
+            'Project Name': p.project_name || '',
+            'Person Responsible': p.person_responsible || '',
+            'Your Reference': p.your_reference || '',
+            'PO Number': p.po_number || '',
+            'Project Start': p.project_start || '',
+            'Project End': p.project_end || '',
+            'Next Invoice Date': p.next_invoice_date || '',
+            'Project Value': parseFloat(p.project_value) || 0,
+            'Invoiced Value': parseFloat(p.invoiced_value) || 0,
+            '% invoiced': parseFloat(p.percent_invoiced) || 0,
+            'Remaining Inv': parseFloat(p.remaining_inv) || 0,
+            'Status': p.status || 'Open',
+            'invoiceStatus': p.invoice_status || getInvoiceStatus(p.next_invoice_date)
+          }));
+          console.log('Loaded projects from Supabase:', projects.length);
+          return;
+        }
+      } catch (e) {
+        console.error('Supabase load error:', e);
+      }
+      
+      // Fall back to localStorage if Supabase is empty or fails
       const stored = localStorage.getItem('marineteknik_projects');
       if (stored) {
         try {
           projects = JSON.parse(stored);
+          console.log('Loaded projects from localStorage:', projects.length);
           return;
         } catch (e) {
           console.error('Error parsing stored projects:', e);
         }
       }
       
-      // Fall back to Supabase
-      try {
-        const { data, error } = await supabaseClient.from('projects').select('*');
-        if (error) throw error;
-        projects = (data || []).map(p => ({
-          'Customer No': p.customer_no || '',
-          'Project Code': p.project_code || '',
-          'Customer Name': p.customer_name || '',
-          'Ship Name': p.ship_name || '',
-          'Project Name': p.project_name || '',
-          'Person Responsible': p.person_responsible || '',
-          'Your Reference': p.your_reference || '',
-          'PO Number': p.po_number || '',
-          'Project Start': p.project_start || '',
-          'Project End': p.project_end || '',
-          'Next Invoice Date': p.next_invoice_date || '',
-          'Project Value': parseFloat(p.project_value) || 0,
-          'Invoiced Value': parseFloat(p.invoiced_value) || 0,
-          '% invoiced': parseFloat(p.percent_invoiced) || 0,
-          'Remaining Inv': parseFloat(p.remaining_inv) || 0,
-          'Status': p.status || 'Open',
-          'invoiceStatus': p.invoice_status || getInvoiceStatus(p.next_invoice_date)
-        }));
-      } catch (e) {
-        console.error('Supabase load error:', e);
-        projects = [];
-      }
+      // No data found anywhere
+      projects = [];
     }
 
     async function loadComments() {
@@ -1018,6 +1051,7 @@ Thank you in advance.</textarea>
             };
           }
         });
+        console.log('Loaded comments from Supabase');
       } catch (e) {
         console.error('Comments load error:', e);
         comments = {};
@@ -1036,6 +1070,7 @@ Thank you in advance.</textarea>
             };
           }
         });
+        console.log('Loaded flags from Supabase');
       } catch (e) {
         console.error('Flags load error:', e);
         flags = {};
@@ -1296,18 +1331,29 @@ Thank you in advance.</textarea>
     async function toggleFlag(code, type) {
       if (!flags[code]) flags[code] = { contracts: false, estimation: false };
       flags[code][type] = !flags[code][type];
+      
+      const now = new Date().toISOString();
+      
       try {
         await supabaseClient.from('flags').upsert({
           project_code: code,
           contracts: flags[code].contracts,
           estimation: flags[code].estimation,
-          updated_at: new Date().toISOString()
+          updated_at: now
         }, { onConflict: 'project_code' });
+        
+        // Update the project's updated_at timestamp
+        await supabaseClient.from('projects')
+          .update({ updated_at: now })
+          .eq('project_code', code);
+          
+        localStorage.setItem('marineteknik_last_updated', now);
       } catch (e) {
         console.error('Flag update error:', e);
       }
       updateKPIs();
       filterTable();
+      updateLastUpdatedTimestamp();
     }
 
     function switchTab(tab) {
@@ -1512,12 +1558,14 @@ Thank you in advance.</textarea>
             'invoiceStatus': getInvoiceStatus(r['Next Invoice Date'])
           }));
 
-          // Save to localStorage for persistence
-          localStorage.setItem('marineteknik_projects', JSON.stringify(projects));
-
-          // Also try to save to Supabase (non-blocking)
+          // Save to Supabase
+          const now = new Date().toISOString();
+          
           try {
+            // Delete existing projects
             await supabaseClient.from('projects').delete().neq('project_code', '');
+            
+            // Insert new projects
             const insertData = projects.map(p => ({
               project_code: p['Project Code'],
               customer_no: p['Customer No'],
@@ -1535,14 +1583,18 @@ Thank you in advance.</textarea>
               percent_invoiced: p['% invoiced'],
               remaining_inv: p['Remaining Inv'],
               status: p['Status'],
-              invoice_status: p['invoiceStatus']
+              invoice_status: p['invoiceStatus'],
+              updated_at: now
             }));
             
             if (insertData.length > 0) {
               await supabaseClient.from('projects').insert(insertData);
+              showToast('✓ ' + projects.length + ' projects imported to Supabase');
             }
           } catch (supabaseError) {
             console.error('Supabase save error:', supabaseError);
+            showToast('Error: Could not save to Supabase. Check your connection.', 'error');
+            return;
           }
 
           closeImportModal();
@@ -1556,7 +1608,7 @@ Thank you in advance.</textarea>
           filterTable();
           updateKPIs();
           buildPMDropdown();
-          showToast(projects.length + ' projects imported');
+          updateLastUpdatedTimestamp();
           event.target.value = '';
         } catch (err) {
           console.error('Error:', err);
@@ -1568,6 +1620,19 @@ Thank you in advance.</textarea>
 
     function refreshData() {
       loadAllData();
+      
+      // Update Supabase with current data
+      try {
+        const now = new Date().toISOString();
+        projects.forEach(async (p) => {
+          await supabaseClient.from('projects')
+            .update({ updated_at: now })
+            .eq('project_code', p['Project Code']);
+        });
+      } catch (e) {
+        console.error('Refresh error:', e);
+      }
+      
       showToast('✓ Data refreshed');
     }
 
@@ -1713,20 +1778,30 @@ Thank you in advance.</textarea>
       if (!comments[code]) comments[code] = {};
       comments[code].finance = document.getElementById('financeComment').value;
 
+      const now = new Date().toISOString();
+      
       try {
         await supabaseClient.from('comments').upsert({
           project_code: code,
           finance: comments[code].finance,
           contracts: comments[code].contracts || '',
           estimation: comments[code].estimation || '',
-          updated_at: new Date().toISOString()
+          updated_at: now
         }, { onConflict: 'project_code' });
+        
+        // Update the project's updated_at timestamp
+        await supabaseClient.from('projects')
+          .update({ updated_at: now })
+          .eq('project_code', code);
+          
+        localStorage.setItem('marineteknik_last_updated', now);
       } catch (e) {
         console.error('Comment save error:', e);
       }
 
       closeCommentModal();
       filterTable();
+      updateLastUpdatedTimestamp();
       showToast('✓ Notes saved');
     }
 
