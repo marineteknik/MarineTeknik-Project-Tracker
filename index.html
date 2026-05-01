@@ -727,7 +727,6 @@
       <input type="text" id="searchInput" placeholder="Search by code, customer, ship, or project..." onkeyup="filterTable()">
     </div>
     <button class="btn" style="padding:10px 20px;background:#0052a3;color:white;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:13px;margin-left:12px" onclick="copyTableToClipboard()">📋 Copy Table</button>
-    <button class="btn" style="padding:10px 20px;background:#0052a3;color:white;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:13px;margin-left:8px" onclick="exportTableAsPDF()">📥 Export PDF</button>
   </div>
   <div class="controls-row" style="margin-top:14px">
     <div class="filter-group">
@@ -848,7 +847,14 @@
       <div class="option-group">
         <label>Report Type</label>
         <div class="option">
-          <input type="radio" id="opt-contracts" name="reportType" value="contracts" checked>
+          <input type="radio" id="opt-all" name="reportType" value="all" checked>
+          <div class="option-text">
+            <div class="option-title">All Projects</div>
+            <div class="option-desc">Export complete project list</div>
+          </div>
+        </div>
+        <div class="option">
+          <input type="radio" id="opt-contracts" name="reportType" value="contracts">
           <div class="option-text">
             <div class="option-title">Contracts Report</div>
             <div class="option-desc">Export all Contracts-flagged projects</div>
@@ -1480,9 +1486,10 @@ Thank you in advance.</textarea>
       } else if (reportType === 'estimation') {
         data = projects.filter(p => flags[p['Project Code']]?.estimation);
       }
+      // 'all' uses the full projects array, no filtering needed
 
       if (!data.length) {
-        showToast('No projects flagged for ' + reportType, 'error');
+        showToast('No projects to export', 'error');
         return;
       }
 
@@ -1528,10 +1535,11 @@ Thank you in advance.</textarea>
 
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, 'Report');
-      const fileName = `MarineTeknik_${reportType}_${new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }).replace(/\//g, '-')}.xlsx`;
+      const reportLabel = reportType === 'all' ? 'all_projects' : reportType;
+      const fileName = `MarineTeknik_${reportLabel}_${new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }).replace(/\//g, '-')}.xlsx`;
       XLSX.writeFile(wb, fileName);
       closeExportModal();
-      showToast(`✓ ${reportType.charAt(0).toUpperCase() + reportType.slice(1)} report exported`);
+      showToast(`✓ Report exported`);
     }
 
     async function handleImport(event) {
@@ -1697,69 +1705,6 @@ Thank you in advance.</textarea>
         });
       };
       document.head.appendChild(script);
-    }
-
-    function exportTableAsPDF() {
-      const table = document.querySelector('table');
-      if (!table) {
-        showToast('No table data to export', 'error');
-        return;
-      }
-
-      // Load html2pdf library
-      const script1 = document.createElement('script');
-      script1.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-      
-      const script2 = document.createElement('script');
-      script2.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
-      
-      script1.onload = function() {
-        script2.onload = function() {
-          const { jsPDF } = window.jspdf;
-          
-          html2canvas(table, { 
-            backgroundColor: '#ffffff',
-            scale: 2,
-            useCORS: true
-          }).then(canvas => {
-            const imgData = canvas.toDataURL('image/png');
-            const pdf = new jsPDF({
-              orientation: 'landscape',
-              unit: 'mm',
-              format: 'a4'
-            });
-            
-            // Get today's date
-            const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
-            
-            // Add header with PM name or title and date
-            const pmName = currentPM || 'All Project Managers';
-            const headerText = currentPM ? `MarineTeknik Project Tracker - ${pmName}` : `MarineTeknik Project Tracker`;
-            
-            pdf.setFontSize(14);
-            pdf.setFont(undefined, 'bold');
-            pdf.text(headerText, 10, 8);
-            
-            pdf.setFontSize(10);
-            pdf.setFont(undefined, 'normal');
-            pdf.text(`Date: ${today}`, 10, 15);
-            
-            // Add the table image
-            const imgWidth = 290;
-            const imgHeight = (canvas.height * imgWidth) / canvas.width;
-            
-            pdf.addImage(imgData, 'PNG', 10, 22, imgWidth, imgHeight);
-            const fileName = `MarineTeknik_${pmName.replace(/\s+/g, '_')}_${today.replace(/\//g, '-')}.pdf`;
-            pdf.save(fileName);
-            showToast('✓ Table exported as PDF');
-          }).catch(err => {
-            showToast('Error exporting PDF', 'error');
-            console.error(err);
-          });
-        };
-        document.head.appendChild(script2);
-      };
-      document.head.appendChild(script1);
     }
 
     function showToast(message, type = 'success') {
