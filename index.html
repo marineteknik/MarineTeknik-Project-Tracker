@@ -672,7 +672,7 @@
       <p style="font-size: 11px; opacity: 0.8; margin-top: 8px;">Last Updated: <span id="lastUpdated">—</span></p>
     </div>
     <div class="header-right">
-      <button class="btn btn-secondary" onclick="refreshData()">🔄 Refresh</button>
+      <button class="btn btn-secondary" onclick="clearAllData()">🗑️ Clear</button>
       <button class="btn btn-primary" onclick="openImportModal()">⬆️ Import</button>
       <button class="btn btn-primary" onclick="openExportModal()">📊 Export</button>
     </div>
@@ -1486,25 +1486,25 @@ Thank you in advance.</textarea>
       } else if (reportType === 'estimation') {
         data = projects.filter(p => flags[p['Project Code']]?.estimation);
       }
-      // 'all' uses the full projects array, no filtering needed
 
       if (!data.length) {
         showToast('No projects to export', 'error');
         return;
       }
 
-      // Use exact same column headers as import plus Finance comments
-      const ws_data = [['Customer No', 'Project Code', 'Customer Name', 'Ship Name', 'Project Name', 'Person Responsible', 'Your Reference', 'PO Number', 'Project Start', 'Project End', 'Next Invoice Date', 'Project Value', 'Invoiced Value', '% invoiced', 'Remaining Inv', 'Status', 'Finance']];
+      // Create workbook with blank row 1, headers in row 2
+      const ws_data = [
+        [], // Blank row 1
+        ['Customer No', 'Project Code', 'Person Responsible', 'Your Reference', 'PO Number', 'Project Start', 'Project End', 'Next Invoice Date', 'Project Value', 'Invoiced Value', '% invoiced', 'Remaining Inv', 'Status', 'Finance', 'Comments']
+      ];
 
+      // Add data rows starting from row 3
       data.forEach(p => {
         const code = p['Project Code'];
         const cm = comments[code] || {};
         ws_data.push([
           p['Customer No'],
           code,
-          p['Customer Name'],
-          p['Ship Name'],
-          p['Project Name'],
           p['Person Responsible'],
           p['Your Reference'],
           p['PO Number'],
@@ -1516,20 +1516,39 @@ Thank you in advance.</textarea>
           p['% invoiced'],
           p['Remaining Inv'],
           p['Status'],
-          cm.finance || ''
+          cm.finance || '',
+          ''
         ]);
       });
 
       const ws = XLSX.utils.aoa_to_sheet(ws_data);
-      ws['!cols'] = Array(17).fill({ wch: 15 });
+      
+      // Set column widths (matching reference files)
+      ws['!cols'] = [
+        { wch: 16.08 },  // A: Customer No
+        { wch: 15.83 },  // B: Project Code
+        { wch: 21.75 },  // C: Person Responsible
+        { wch: 32.83 },  // D: Your Reference
+        { wch: 15.0 },   // E: PO Number
+        { wch: 15.83 },  // F: Project Start
+        { wch: 14.83 },  // G: Project End
+        { wch: 20.25 },  // H: Next Invoice Date
+        { wch: 16.33 },  // I: Project Value
+        { wch: 17.58 },  // J: Invoiced Value
+        { wch: 14.25 },  // K: % invoiced
+        { wch: 17.25 },  // L: Remaining Inv
+        { wch: 10.33 },  // M: Status
+        { wch: 73.75 },  // N: Finance (wide for notes)
+        { wch: 67.08 }   // O: Comments (wide for comments)
+      ];
 
-      // Style header
-      for (let c = 0; c < 17; c++) {
-        const cellRef = XLSX.utils.encode_col(c) + '1';
+      // Style header row (row 2) - bold with background
+      for (let c = 0; c < 15; c++) {
+        const cellRef = XLSX.utils.encode_col(c) + '2';
         ws[cellRef].s = {
-          fill: { fgColor: { rgb: '667eea' } },
-          font: { bold: true, color: { rgb: 'FFFFFF' } },
-          alignment: { horizontal: 'center' }
+          fill: { fgColor: { rgb: 'D3D3D3' } },
+          font: { bold: true, color: { rgb: '000000' }, size: 12 },
+          alignment: { horizontal: 'center', vertical: 'center' }
         };
       }
 
@@ -1666,9 +1685,39 @@ Thank you in advance.</textarea>
       reader.readAsArrayBuffer(file);
     }
 
-    function refreshData() {
-      loadAllData();
-      showToast('✓ Data refreshed from Supabase');
+    async function clearAllData() {
+      if (!confirm('Are you sure you want to clear all data? This cannot be undone.')) {
+        return;
+      }
+      
+      try {
+        // Clear Supabase
+        await supabaseClient.from('projects').delete().neq('project_code', '');
+        await supabaseClient.from('comments').delete().neq('project_code', '');
+        await supabaseClient.from('flags').delete().neq('project_code', '');
+        
+        // Clear local state
+        projects = [];
+        comments = {};
+        flags = {};
+        currentFilter = ['all'];
+        currentPM = null;
+        
+        // Clear filters UI
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        const allBtn = document.querySelector('[data-filter="all"]');
+        if (allBtn) allBtn.classList.add('active');
+        
+        // Re-render
+        filterTable();
+        updateKPIs();
+        buildPMDropdown();
+        
+        showToast('✓ All data cleared');
+      } catch (e) {
+        console.error('Clear error:', e);
+        showToast('Error clearing data', 'error');
+      }
     }
 
     function escapeHtml(text) {
