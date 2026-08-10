@@ -8,34 +8,34 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap');
 
     :root {
-      --navy-900: #0a1d30;
-      --navy-800: #0f2a47;
-      --navy-700: #163a5c;
-      --navy-600: #1f4d78;
-      --brass: #b8902e;
-      --brass-light: #d4af5a;
-      --brass-dark: #8f6f22;
-      --bg: #f3f5f7;
+      --navy-900: #1e1b4b;
+      --navy-800: #3730a3;
+      --navy-700: #4f46e5;
+      --navy-600: #6d5bf0;
+      --brass: #f59e0b;
+      --brass-light: #fbbf24;
+      --brass-dark: #b45309;
+      --bg: #f5f6fc;
       --surface: #ffffff;
-      --ink: #1b2733;
-      --ink-soft: #34424f;
-      --ink-muted: #64748b;
-      --border: #e3e7ec;
-      --overdue: #a8342a;
-      --overdue-bg: #fbeae8;
-      --duesoon: #9a5f0c;
-      --duesoon-bg: #fbf1df;
-      --upcoming: #1f6b45;
-      --upcoming-bg: #e6f4ec;
-      --nodate: #5b6b7c;
-      --nodate-bg: #edf0f3;
-      --radius: 10px;
-      --shadow-sm: 0 1px 2px rgba(10, 29, 48, 0.06), 0 1px 3px rgba(10, 29, 48, 0.08);
-      --shadow-md: 0 4px 12px rgba(10, 29, 48, 0.10);
-      --shadow-lg: 0 12px 32px rgba(10, 29, 48, 0.16);
+      --ink: #211d4e;
+      --ink-soft: #423f6e;
+      --ink-muted: #6b7280;
+      --border: #e8e9f5;
+      --overdue: #dc2626;
+      --overdue-bg: #fee2e2;
+      --duesoon: #d97706;
+      --duesoon-bg: #fef3c7;
+      --upcoming: #059669;
+      --upcoming-bg: #d1fae5;
+      --nodate: #6b7280;
+      --nodate-bg: #eef0f7;
+      --radius: 16px;
+      --shadow-sm: 0 1px 2px rgba(79, 70, 229, 0.06), 0 2px 6px rgba(79, 70, 229, 0.06);
+      --shadow-md: 0 6px 16px rgba(79, 70, 229, 0.12);
+      --shadow-lg: 0 16px 40px rgba(30, 27, 75, 0.18);
     }
 
     * {
@@ -58,22 +58,14 @@
     }
 
     .header {
-      background:
-        repeating-linear-gradient(
-          90deg,
-          rgba(212, 175, 90, 0.07) 0px,
-          rgba(212, 175, 90, 0.07) 1px,
-          transparent 1px,
-          transparent 64px
-        ),
-        linear-gradient(150deg, var(--navy-900) 0%, var(--navy-800) 55%, var(--navy-700) 100%);
+      background: linear-gradient(120deg, var(--navy-900) 0%, var(--navy-800) 50%, var(--navy-700) 100%);
       color: #f4f6f8;
-      padding: 26px 24px 22px;
+      padding: 26px 24px 24px;
       box-shadow: var(--shadow-md);
       position: sticky;
       top: 0;
       z-index: 100;
-      border-bottom: 3px solid var(--brass);
+      border-radius: 0 0 22px 22px;
     }
 
     .header-content {
@@ -85,21 +77,21 @@
     }
 
     .header-left h1 {
-      font-family: 'Fraunces', serif;
-      font-size: 26px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 24px;
       margin-bottom: 3px;
-      font-weight: 600;
-      letter-spacing: 0.2px;
+      font-weight: 700;
+      letter-spacing: 0.1px;
       color: #ffffff;
     }
 
     .header-left p {
-      font-size: 12px;
-      opacity: 0.75;
+      font-size: 11.5px;
+      opacity: 0.8;
       letter-spacing: 0.6px;
       text-transform: uppercase;
       font-weight: 600;
-      color: var(--brass-light);
+      color: #c7c3ff;
     }
 
     .header-right {
@@ -110,7 +102,7 @@
     .btn {
       padding: 9px 18px;
       border: none;
-      border-radius: 7px;
+      border-radius: 999px;
       font-size: 13px;
       font-weight: 600;
       cursor: pointer;
@@ -122,24 +114,23 @@
     }
 
     .btn-primary {
-      background: var(--brass);
-      color: var(--navy-900);
+      background: linear-gradient(120deg, var(--brass) 0%, var(--brass-light) 100%);
+      color: #3d2a00;
     }
 
     .btn-primary:hover {
-      background: var(--brass-light);
       transform: translateY(-1px);
-      box-shadow: var(--shadow-sm);
+      box-shadow: 0 6px 14px rgba(245, 158, 11, 0.35);
     }
 
     .btn-secondary {
-      background: rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.10);
       color: #eef1f4;
-      border: 1px solid rgba(255, 255, 255, 0.18);
+      border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
     .btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.18);
     }
 
     .tabs {
@@ -170,8 +161,8 @@
     }
 
     .tab.active {
-      color: var(--navy-800);
-      border-bottom-color: var(--brass);
+      color: var(--navy-700);
+      border-bottom-color: var(--navy-700);
     }
 
     .content {
@@ -200,7 +191,6 @@
       padding: 18px 20px;
       border-radius: var(--radius);
       border: 1px solid var(--border);
-      border-top: 3px solid var(--navy-800);
       box-shadow: var(--shadow-sm);
       transition: all 0.2s ease;
     }
@@ -208,6 +198,17 @@
     .card:hover {
       transform: translateY(-2px);
       box-shadow: var(--shadow-md);
+    }
+
+    .kpi-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      margin-bottom: 10px;
     }
 
     .card-title {
@@ -220,10 +221,10 @@
     }
 
     .card-value {
-      font-family: 'Fraunces', serif;
-      font-size: 26px;
-      font-weight: 600;
-      color: var(--navy-900);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 25px;
+      font-weight: 700;
+      color: var(--ink);
     }
 
     .card-sub {
@@ -256,8 +257,8 @@
       align-items: center;
       gap: 10px;
       background: var(--bg);
-      padding: 9px 14px;
-      border-radius: 7px;
+      padding: 9px 16px;
+      border-radius: 999px;
       border: 1px solid var(--border);
     }
 
@@ -278,10 +279,10 @@
     }
 
     .filter-btn {
-      padding: 7px 13px;
+      padding: 7px 14px;
       border: 1px solid var(--border);
       background: var(--surface);
-      border-radius: 6px;
+      border-radius: 999px;
       font-size: 11.5px;
       font-weight: 600;
       cursor: pointer;
@@ -292,8 +293,8 @@
 
     .filter-btn:hover,
     .filter-btn.active {
-      border-color: var(--navy-800);
-      background: var(--navy-800);
+      border-color: var(--navy-700);
+      background: var(--navy-700);
       color: white;
     }
 
@@ -303,10 +304,10 @@
     }
 
     .dropdown-btn {
-      padding: 7px 13px;
+      padding: 7px 14px;
       border: 1px solid var(--border);
       background: var(--surface);
-      border-radius: 6px;
+      border-radius: 999px;
       font-size: 11.5px;
       font-weight: 600;
       cursor: pointer;
@@ -319,8 +320,8 @@
 
     .dropdown-btn:hover,
     .dropdown-btn.active {
-      border-color: var(--navy-800);
-      color: var(--navy-800);
+      border-color: var(--navy-700);
+      color: var(--navy-700);
     }
 
     .dropdown-menu {
@@ -330,12 +331,13 @@
       left: 0;
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 8px;
+      border-radius: 14px;
       box-shadow: var(--shadow-lg);
       z-index: 50;
       min-width: 200px;
       max-height: 300px;
       overflow-y: auto;
+      padding: 6px;
     }
 
     .dropdown-menu.active {
@@ -343,8 +345,8 @@
     }
 
     .dropdown-item {
-      padding: 9px 14px;
-      border-bottom: 1px solid var(--bg);
+      padding: 9px 12px;
+      border-radius: 8px;
       cursor: pointer;
       font-size: 12px;
       transition: all 0.2s;
@@ -356,12 +358,12 @@
 
     .dropdown-item:hover {
       background: var(--bg);
-      color: var(--navy-800);
+      color: var(--navy-700);
     }
 
     .dropdown-item.selected {
-      background: #f3ead6;
-      color: var(--brass-dark);
+      background: #eeecff;
+      color: var(--navy-700);
       font-weight: 600;
     }
 
@@ -375,6 +377,7 @@
 
     .table-scroll {
       overflow-x: auto;
+      position: relative;
     }
 
     table {
@@ -387,6 +390,7 @@
       background: var(--navy-800);
       position: sticky;
       top: 0;
+      z-index: 3;
     }
 
     th {
@@ -422,10 +426,48 @@
       background: #fbfbfc;
     }
 
+    /* Sticky right-pinned columns — Finance Notes + Edit always stay
+       visible regardless of horizontal scroll position. */
+    th.col-notes, td.col-notes {
+      position: sticky;
+      right: 64px;
+      width: 230px;
+      min-width: 230px;
+      max-width: 230px;
+    }
+
+    th.col-edit, td.col-edit {
+      position: sticky;
+      right: 0;
+      width: 64px;
+      min-width: 64px;
+    }
+
+    th.col-notes, th.col-edit {
+      z-index: 4;
+      box-shadow: -2px 0 4px rgba(30, 27, 75, 0.06);
+    }
+
+    td.col-notes, td.col-edit {
+      z-index: 2;
+      background: var(--surface);
+      box-shadow: -2px 0 4px rgba(30, 27, 75, 0.05);
+    }
+
+    tbody tr:nth-child(odd) td.col-notes,
+    tbody tr:nth-child(odd) td.col-edit {
+      background: #fbfbfc;
+    }
+
+    tbody tr:hover td.col-notes,
+    tbody tr:hover td.col-edit {
+      background: #f6f8fa;
+    }
+
     .status-badge {
       display: inline-block;
       padding: 3px 10px;
-      border-radius: 4px;
+      border-radius: 999px;
       font-size: 10px;
       font-weight: 700;
       text-transform: uppercase;
@@ -465,7 +507,7 @@
       padding: 4px 8px;
       border: 1px solid var(--border);
       background: var(--surface);
-      border-radius: 4px;
+      border-radius: 6px;
       cursor: pointer;
       font-size: 10px;
       font-weight: 600;
@@ -481,8 +523,8 @@
     }
 
     .flag-btn:hover {
-      border-color: var(--navy-800);
-      color: var(--navy-800);
+      border-color: var(--navy-700);
+      color: var(--navy-700);
     }
 
     .dashboard-grid {
@@ -501,11 +543,11 @@
     }
 
     .chart-title {
-      font-family: 'Fraunces', serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 15px;
-      font-weight: 600;
+      font-weight: 700;
       margin-bottom: 14px;
-      color: var(--navy-900);
+      color: var(--ink);
     }
 
     .chart-container {
@@ -542,19 +584,17 @@
       right: 20px;
       background: var(--navy-900);
       color: white;
-      padding: 13px 20px;
-      border-radius: 8px;
+      padding: 13px 22px;
+      border-radius: 999px;
       box-shadow: var(--shadow-lg);
       z-index: 2000;
       animation: slideIn 0.3s ease;
       font-size: 13px;
       font-weight: 600;
-      border-left: 3px solid var(--brass);
     }
 
     .toast.error {
       background: var(--overdue);
-      border-left-color: #7a231c;
     }
 
     @keyframes slideIn {
@@ -584,20 +624,19 @@
 
     .modal-content {
       background: var(--surface);
-      border-radius: 14px;
+      border-radius: 20px;
       padding: 34px;
       max-width: 500px;
       width: 90%;
       box-shadow: var(--shadow-lg);
-      border-top: 3px solid var(--brass);
     }
 
     .modal-header h2 {
-      font-family: 'Fraunces', serif;
-      font-size: 21px;
-      font-weight: 600;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
       margin-bottom: 6px;
-      color: var(--navy-900);
+      color: var(--ink);
     }
 
     .modal-header p {
@@ -614,7 +653,7 @@
       display: block;
       font-size: 10.5px;
       font-weight: 700;
-      color: var(--navy-800);
+      color: var(--navy-700);
       text-transform: uppercase;
       letter-spacing: 0.6px;
       margin-bottom: 10px;
@@ -625,7 +664,7 @@
       align-items: center;
       padding: 12px;
       border: 1px solid var(--border);
-      border-radius: 8px;
+      border-radius: 12px;
       margin-bottom: 8px;
       cursor: pointer;
       transition: all 0.2s;
@@ -641,7 +680,7 @@
       cursor: pointer;
       width: 16px;
       height: 16px;
-      accent-color: var(--navy-800);
+      accent-color: var(--navy-700);
     }
 
     .option-text {
@@ -670,10 +709,10 @@
     }
 
     .btn-cancel {
-      padding: 9px 18px;
+      padding: 9px 20px;
       border: 1px solid var(--border);
       background: var(--surface);
-      border-radius: 7px;
+      border-radius: 999px;
       cursor: pointer;
       font-weight: 600;
       color: var(--ink-soft);
@@ -683,15 +722,15 @@
 
     .btn-cancel:hover {
       border-color: var(--navy-700);
-      color: var(--navy-800);
+      color: var(--navy-700);
     }
 
     .btn-export {
-      padding: 9px 18px;
-      background: var(--navy-800);
+      padding: 9px 20px;
+      background: linear-gradient(120deg, var(--navy-800), var(--navy-700));
       color: white;
       border: none;
-      border-radius: 7px;
+      border-radius: 999px;
       cursor: pointer;
       font-weight: 600;
       transition: all 0.2s;
@@ -699,7 +738,6 @@
     }
 
     .btn-export:hover {
-      background: var(--navy-700);
       transform: translateY(-1px);
       box-shadow: var(--shadow-sm);
     }
@@ -763,33 +801,39 @@
     <div class="page active" id="page-tracker">
       <div class="cards-grid" id="kpiCards">
         <div class="card">
+          <div class="kpi-icon" style="background:#e6e4ff;color:#4f46e5;">◆</div>
           <div class="card-title">Total Projects</div>
           <div class="card-value" id="kpiTotal">0</div>
           <div class="card-sub">active</div>
         </div>
-        <div class="card" style="border-top-color:#a8342a">
+        <div class="card">
+          <div class="kpi-icon" style="background:#fee2e2;color:#dc2626;">!</div>
           <div class="card-title">Overdue</div>
-          <div class="card-value" id="kpiOverdue" style="color:#a8342a">0</div>
+          <div class="card-value" id="kpiOverdue" style="color:#dc2626">0</div>
           <div class="card-sub">need attention</div>
         </div>
-        <div class="card" style="border-top-color:#9a5f0c">
+        <div class="card">
+          <div class="kpi-icon" style="background:#fef3c7;color:#d97706;">◔</div>
           <div class="card-title">Due Soon</div>
-          <div class="card-value" id="kpiDueSoon" style="color:#9a5f0c">0</div>
+          <div class="card-value" id="kpiDueSoon" style="color:#d97706">0</div>
           <div class="card-sub">within 30 days</div>
         </div>
-        <div class="card" style="border-top-color:#b8902e">
+        <div class="card">
+          <div class="kpi-icon" style="background:#fef0d6;color:#b45309;">$</div>
           <div class="card-title">Total Value</div>
           <div class="card-value" id="kpiValue">$0</div>
           <div class="card-sub">all projects</div>
         </div>
         <div class="card">
+          <div class="kpi-icon" style="background:#dbeafe;color:#2563eb;">🚩</div>
           <div class="card-title">Contracts</div>
-          <div class="card-value" id="kpiContracts" style="color:#163a5c">0</div>
+          <div class="card-value" id="kpiContracts" style="color:#2563eb">0</div>
           <div class="card-sub">flagged</div>
         </div>
         <div class="card">
+          <div class="kpi-icon" style="background:#d1fae5;color:#059669;">🚩</div>
           <div class="card-title">Estimation</div>
-          <div class="card-value" id="kpiEstimation" style="color:#163a5c">0</div>
+          <div class="card-value" id="kpiEstimation" style="color:#059669">0</div>
           <div class="card-sub">flagged</div>
         </div>
       </div>
@@ -839,8 +883,8 @@
                 <th onclick="sortBy('% invoiced')">%</th>
                 <th>Contracts</th>
                 <th>Estimation</th>
-                <th>Finance Notes</th>
-                <th>Edit</th>
+                <th class="col-notes">Finance Notes</th>
+                <th class="col-edit">Edit</th>
               </tr>
             </thead>
             <tbody id="tableBody">
@@ -1394,8 +1438,8 @@ Thank you in advance.</textarea>
             <td style="text-align:right">${(p['% invoiced'] || 0).toFixed(1)}%</td>
             <td><button class="flag-btn ${fl.contracts ? 'flagged' : ''}" onclick="toggleFlag('${code}', 'contracts')">${fl.contracts ? '🚩' : '—'}</button></td>
             <td><button class="flag-btn ${fl.estimation ? 'flagged' : ''}" onclick="toggleFlag('${code}', 'estimation')">${fl.estimation ? '🚩' : '—'}</button></td>
-            <td style="text-align:left;padding:8px;font-size:12px;color:#2d3748;max-width:300px;white-space:pre-wrap;word-break:break-word;background:${cm.finance ? '#f0f4f8' : 'transparent'}">${cm.finance ? escapeHtml(cm.finance) : '—'}</td>
-            <td><button class="btn" style="padding:6px 12px;font-size:11px;cursor:pointer" onclick="openCommentModal('${escapeHtml(code)}')">${cm.finance ? '✏️' : '➕'}</button></td>
+            <td class="col-notes" style="text-align:left;padding:8px 12px;font-size:12px;color:var(--ink-soft);white-space:pre-wrap;word-break:break-word;background:${cm.finance ? '#eef1ff' : 'var(--surface)'}">${cm.finance ? escapeHtml(cm.finance) : '—'}</td>
+            <td class="col-edit"><button class="btn" style="padding:6px 12px;font-size:11px;cursor:pointer;background:var(--navy-700);color:#fff;border-radius:999px;" onclick="openCommentModal('${escapeHtml(code)}')">${cm.finance ? '✏️' : '➕'}</button></td>
           </tr>
         `;
       }).join('');
@@ -1478,7 +1522,7 @@ Thank you in advance.</textarea>
           labels: Object.keys(statusCounts),
           datasets: [{
             data: Object.values(statusCounts),
-            backgroundColor: ['#c53030', '#c05621', '#22543d', '#a0aec0'],
+            backgroundColor: ['#dc2626', '#d97706', '#059669', '#9ca3af'],
             borderWidth: 0
           }]
         },
@@ -1493,7 +1537,7 @@ Thank you in advance.</textarea>
           labels: Object.keys(statusValues),
           datasets: [{
             data: Object.values(statusValues),
-            backgroundColor: ['#c53030', '#c05621', '#22543d', '#a0aec0'],
+            backgroundColor: ['#dc2626', '#d97706', '#059669', '#9ca3af'],
             borderRadius: 6
           }]
         },
@@ -1508,7 +1552,7 @@ Thank you in advance.</textarea>
           labels: ['Invoiced', 'Remaining'],
           datasets: [{
             data: [totInv, totRem],
-            backgroundColor: ['#22543d', '#fac858'],
+            backgroundColor: ['#4f46e5', '#f59e0b'],
             borderWidth: 0
           }]
         },
@@ -1525,7 +1569,7 @@ Thank you in advance.</textarea>
           datasets: [{
             label: 'Project Value',
             data: pmLabels.map(pm => pmValues[pm]),
-            backgroundColor: '#0052a3',
+            backgroundColor: '#4f46e5',
             borderRadius: 6
           }]
         },
