@@ -8,6 +8,36 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap');
+
+    :root {
+      --navy-900: #0a1d30;
+      --navy-800: #0f2a47;
+      --navy-700: #163a5c;
+      --navy-600: #1f4d78;
+      --brass: #b8902e;
+      --brass-light: #d4af5a;
+      --brass-dark: #8f6f22;
+      --bg: #f3f5f7;
+      --surface: #ffffff;
+      --ink: #1b2733;
+      --ink-soft: #34424f;
+      --ink-muted: #64748b;
+      --border: #e3e7ec;
+      --overdue: #a8342a;
+      --overdue-bg: #fbeae8;
+      --duesoon: #9a5f0c;
+      --duesoon-bg: #fbf1df;
+      --upcoming: #1f6b45;
+      --upcoming-bg: #e6f4ec;
+      --nodate: #5b6b7c;
+      --nodate-bg: #edf0f3;
+      --radius: 10px;
+      --shadow-sm: 0 1px 2px rgba(10, 29, 48, 0.06), 0 1px 3px rgba(10, 29, 48, 0.08);
+      --shadow-md: 0 4px 12px rgba(10, 29, 48, 0.10);
+      --shadow-lg: 0 12px 32px rgba(10, 29, 48, 0.16);
+    }
+
     * {
       margin: 0;
       padding: 0;
@@ -15,10 +45,11 @@
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      background: #f0f4f8;
-      color: #2d3748;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
       min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
     }
 
     .container {
@@ -27,13 +58,22 @@
     }
 
     .header {
-  background: linear-gradient(135deg, #003d82 0%, #0052a3 100%);
-  color: white;
-      padding: 30px 20px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      background:
+        repeating-linear-gradient(
+          90deg,
+          rgba(212, 175, 90, 0.07) 0px,
+          rgba(212, 175, 90, 0.07) 1px,
+          transparent 1px,
+          transparent 64px
+        ),
+        linear-gradient(150deg, var(--navy-900) 0%, var(--navy-800) 55%, var(--navy-700) 100%);
+      color: #f4f6f8;
+      padding: 26px 24px 22px;
+      box-shadow: var(--shadow-md);
       position: sticky;
       top: 0;
       z-index: 100;
+      border-bottom: 3px solid var(--brass);
     }
 
     .header-content {
@@ -45,87 +85,97 @@
     }
 
     .header-left h1 {
-      font-size: 28px;
-      margin-bottom: 4px;
-      font-weight: 700;
+      font-family: 'Fraunces', serif;
+      font-size: 26px;
+      margin-bottom: 3px;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+      color: #ffffff;
     }
 
     .header-left p {
-      font-size: 13px;
-      opacity: 0.9;
+      font-size: 12px;
+      opacity: 0.75;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      font-weight: 600;
+      color: var(--brass-light);
     }
 
     .header-right {
       display: flex;
-      gap: 12px;
+      gap: 10px;
     }
 
     .btn {
-      padding: 10px 20px;
+      padding: 9px 18px;
       border: none;
-      border-radius: 8px;
-      font-size: 14px;
+      border-radius: 7px;
+      font-size: 13px;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: all 0.2s ease;
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 7px;
+      letter-spacing: 0.1px;
     }
 
     .btn-primary {
-      background: white;
-      color: #0052a3;
+      background: var(--brass);
+      color: var(--navy-900);
     }
 
     .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      background: var(--brass-light);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-sm);
     }
 
     .btn-secondary {
-      background: rgba(255, 255, 255, 0.2);
-      color: white;
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.08);
+      color: #eef1f4;
+      border: 1px solid rgba(255, 255, 255, 0.18);
     }
 
     .btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.16);
     }
 
     .tabs {
-      background: white;
-      border-bottom: 2px solid #e2e8f0;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
       display: flex;
       gap: 0;
-      padding: 0 20px;
+      padding: 0 24px;
       max-width: 1600px;
       margin: 0 auto;
     }
 
     .tab {
-      padding: 14px 20px;
+      padding: 13px 18px;
       border: none;
       background: none;
       cursor: pointer;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 600;
-      color: #718096;
-      border-bottom: 3px solid transparent;
-      transition: all 0.3s;
+      color: var(--ink-muted);
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+      letter-spacing: 0.2px;
     }
 
     .tab:hover {
-      color: #0052a3;
+      color: var(--navy-700);
     }
 
     .tab.active {
-      color: #0052a3;
-      border-bottom-color: #0052a3;
+      color: var(--navy-800);
+      border-bottom-color: var(--brass);
     }
 
     .content {
-      padding: 30px 20px;
+      padding: 26px 24px;
       max-width: 1600px;
       margin: 0 auto;
     }
@@ -141,50 +191,54 @@
     .cards-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 16px;
-      margin-bottom: 30px;
+      gap: 14px;
+      margin-bottom: 24px;
     }
 
     .card {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-      transition: all 0.3s ease;
+      background: var(--surface);
+      padding: 18px 20px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--navy-800);
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s ease;
     }
 
     .card:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+      box-shadow: var(--shadow-md);
     }
 
     .card-title {
-      font-size: 11px;
+      font-size: 10.5px;
       text-transform: uppercase;
-      color: #0052a3;
+      color: var(--ink-muted);
       font-weight: 700;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.7px;
       margin-bottom: 8px;
     }
 
     .card-value {
-      font-size: 28px;
-      font-weight: 700;
-      color: #2d3748;
+      font-family: 'Fraunces', serif;
+      font-size: 26px;
+      font-weight: 600;
+      color: var(--navy-900);
     }
 
     .card-sub {
       font-size: 11px;
-      color: #718096;
+      color: var(--ink-muted);
       margin-top: 4px;
     }
 
     .controls {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      background: var(--surface);
+      padding: 16px 18px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      margin-bottom: 18px;
+      box-shadow: var(--shadow-sm);
     }
 
     .controls-row {
@@ -201,10 +255,10 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      background: #f7fafc;
-      padding: 10px 14px;
-      border-radius: 8px;
-      border: 1px solid #e2e8f0;
+      background: var(--bg);
+      padding: 9px 14px;
+      border-radius: 7px;
+      border: 1px solid var(--border);
     }
 
     .search-box input {
@@ -213,30 +267,33 @@
       background: transparent;
       font-size: 13px;
       outline: none;
+      font-family: 'Inter', sans-serif;
+      color: var(--ink);
     }
 
     .filter-group {
       display: flex;
-      gap: 8px;
+      gap: 7px;
       flex-wrap: wrap;
     }
 
     .filter-btn {
-      padding: 8px 14px;
-      border: 2px solid #e2e8f0;
-      background: white;
+      padding: 7px 13px;
+      border: 1px solid var(--border);
+      background: var(--surface);
       border-radius: 6px;
-      font-size: 12px;
+      font-size: 11.5px;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.3s ease;
-      color: #4a5568;
+      transition: all 0.2s ease;
+      color: var(--ink-soft);
+      letter-spacing: 0.1px;
     }
 
     .filter-btn:hover,
     .filter-btn.active {
-      border-color: #0052a3;
-      background: #0052a3;
+      border-color: var(--navy-800);
+      background: var(--navy-800);
       color: white;
     }
 
@@ -246,15 +303,15 @@
     }
 
     .dropdown-btn {
-      padding: 8px 14px;
-      border: 2px solid #e2e8f0;
-      background: white;
+      padding: 7px 13px;
+      border: 1px solid var(--border);
+      background: var(--surface);
       border-radius: 6px;
-      font-size: 12px;
+      font-size: 11.5px;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.3s ease;
-      color: #4a5568;
+      transition: all 0.2s ease;
+      color: var(--ink-soft);
       display: flex;
       align-items: center;
       gap: 6px;
@@ -262,8 +319,8 @@
 
     .dropdown-btn:hover,
     .dropdown-btn.active {
-      border-color: #0052a3;
-      color: #0052a3;
+      border-color: var(--navy-800);
+      color: var(--navy-800);
     }
 
     .dropdown-menu {
@@ -271,10 +328,10 @@
       position: absolute;
       top: calc(100% + 4px);
       left: 0;
-      background: white;
-      border: 1px solid #e2e8f0;
+      background: var(--surface);
+      border: 1px solid var(--border);
       border-radius: 8px;
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+      box-shadow: var(--shadow-lg);
       z-index: 50;
       min-width: 200px;
       max-height: 300px;
@@ -286,32 +343,34 @@
     }
 
     .dropdown-item {
-      padding: 10px 14px;
-      border-bottom: 1px solid #f0f4f8;
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--bg);
       cursor: pointer;
       font-size: 12px;
       transition: all 0.2s;
       display: flex;
       align-items: center;
       gap: 8px;
+      color: var(--ink-soft);
     }
 
     .dropdown-item:hover {
-      background: #f7fafc;
-      color: #0052a3;
+      background: var(--bg);
+      color: var(--navy-800);
     }
 
     .dropdown-item.selected {
-      background: #eef2ff;
-      color: #0052a3;
+      background: #f3ead6;
+      color: var(--brass-dark);
       font-weight: 600;
     }
 
     .table-container {
-      background: white;
-      border-radius: 12px;
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
       overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      box-shadow: var(--shadow-sm);
     }
 
     .table-scroll {
@@ -325,44 +384,48 @@
     }
 
     thead {
-      background: linear-gradient(135deg, #0052a3 0%, #003d82 100%);
+      background: var(--navy-800);
       position: sticky;
       top: 0;
     }
 
     th {
-      color: white;
-      padding: 14px;
+      color: #eef1f4;
+      padding: 12px 14px;
       text-align: center;
-      font-weight: 700;
+      font-weight: 600;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
       white-space: nowrap;
-      border-bottom: 2px solid #0052a3;
+      border-bottom: 2px solid var(--brass);
       cursor: pointer;
       user-select: none;
     }
 
     th:hover {
-      background: rgba(0, 0, 0, 0.1);
+      background: var(--navy-700);
     }
 
     td {
-      padding: 12px 14px;
-      border-bottom: 1px solid #e2e8f0;
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--border);
       text-align: center;
+      color: var(--ink-soft);
     }
 
     tbody tr:hover {
-      background: #f7fafc;
+      background: #f6f8fa;
     }
 
     tbody tr:nth-child(odd) {
-      background: #f9fafb;
+      background: #fbfbfc;
     }
 
     .status-badge {
       display: inline-block;
-      padding: 4px 10px;
-      border-radius: 20px;
+      padding: 3px 10px;
+      border-radius: 4px;
       font-size: 10px;
       font-weight: 700;
       text-transform: uppercase;
@@ -371,75 +434,78 @@
     }
 
     .status-overdue {
-      background: #fed7d7;
-      color: #c53030;
+      background: var(--overdue-bg);
+      color: var(--overdue);
     }
 
     .status-duesoon {
-      background: #feebc8;
-      color: #c05621;
+      background: var(--duesoon-bg);
+      color: var(--duesoon);
     }
 
     .status-upcoming {
-      background: #c6f6d5;
-      color: #22543d;
+      background: var(--upcoming-bg);
+      color: var(--upcoming);
     }
 
     .status-nodate {
-      background: #e2e8f0;
-      color: #4a5568;
+      background: var(--nodate-bg);
+      color: var(--nodate);
     }
 
     .currency {
-      font-family: 'Courier New', monospace;
-      font-weight: 600;
-      color: #2d3748;
+      font-family: 'IBM Plex Mono', 'Courier New', monospace;
+      font-weight: 500;
+      font-size: 11.5px;
+      color: var(--ink-soft);
       text-align: right;
     }
 
     .flag-btn {
       padding: 4px 8px;
-      border: 1px solid #e2e8f0;
-      background: white;
+      border: 1px solid var(--border);
+      background: var(--surface);
       border-radius: 4px;
       cursor: pointer;
       font-size: 10px;
       font-weight: 600;
       transition: all 0.2s;
-      color: #a0aec0;
+      color: #b6bec6;
       width: 32px;
     }
 
     .flag-btn.flagged {
-      background: #fed7d7;
-      color: #c53030;
-      border-color: #c53030;
+      background: var(--overdue-bg);
+      color: var(--overdue);
+      border-color: var(--overdue);
     }
 
     .flag-btn:hover {
-      border-color: #0052a3;
-      color: #0052a3;
+      border-color: var(--navy-800);
+      color: var(--navy-800);
     }
 
     .dashboard-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-      gap: 20px;
-      margin-bottom: 20px;
+      gap: 18px;
+      margin-bottom: 18px;
     }
 
     .chart-card {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      background: var(--surface);
+      padding: 18px 20px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
     }
 
     .chart-title {
-      font-size: 14px;
-      font-weight: 700;
-      margin-bottom: 16px;
-      color: #2d3748;
+      font-family: 'Fraunces', serif;
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 14px;
+      color: var(--navy-900);
     }
 
     .chart-container {
@@ -453,39 +519,42 @@
     }
 
     .empty-icon {
-      font-size: 48px;
-      margin-bottom: 16px;
+      font-size: 40px;
+      margin-bottom: 14px;
+      opacity: 0.5;
     }
 
     .empty-title {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 600;
-      color: #2d3748;
-      margin-bottom: 8px;
+      color: var(--ink);
+      margin-bottom: 6px;
     }
 
     .empty-text {
       font-size: 13px;
-      color: #718096;
+      color: var(--ink-muted);
     }
 
     .toast {
       position: fixed;
       bottom: 20px;
       right: 20px;
-      background: #48bb78;
+      background: var(--navy-900);
       color: white;
-      padding: 14px 20px;
+      padding: 13px 20px;
       border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      box-shadow: var(--shadow-lg);
       z-index: 2000;
       animation: slideIn 0.3s ease;
       font-size: 13px;
       font-weight: 600;
+      border-left: 3px solid var(--brass);
     }
 
     .toast.error {
-      background: #f56565;
+      background: var(--overdue);
+      border-left-color: #7a231c;
     }
 
     @keyframes slideIn {
@@ -514,37 +583,40 @@
     }
 
     .modal-content {
-      background: white;
-      border-radius: 16px;
-      padding: 40px;
+      background: var(--surface);
+      border-radius: 14px;
+      padding: 34px;
       max-width: 500px;
       width: 90%;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      box-shadow: var(--shadow-lg);
+      border-top: 3px solid var(--brass);
     }
 
     .modal-header h2 {
-      font-size: 22px;
-      margin-bottom: 8px;
-      color: #2d3748;
+      font-family: 'Fraunces', serif;
+      font-size: 21px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--navy-900);
     }
 
     .modal-header p {
       font-size: 13px;
-      color: #718096;
-      margin-bottom: 20px;
+      color: var(--ink-muted);
+      margin-bottom: 18px;
     }
 
     .option-group {
-      margin-bottom: 20px;
+      margin-bottom: 18px;
     }
 
     .option-group label {
       display: block;
-      font-size: 11px;
+      font-size: 10.5px;
       font-weight: 700;
-      color: #0052a3;
+      color: var(--navy-800);
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.6px;
       margin-bottom: 10px;
     }
 
@@ -552,16 +624,16 @@
       display: flex;
       align-items: center;
       padding: 12px;
-      border: 2px solid #e2e8f0;
+      border: 1px solid var(--border);
       border-radius: 8px;
       margin-bottom: 8px;
       cursor: pointer;
-      transition: all 0.3s;
+      transition: all 0.2s;
     }
 
     .option:hover {
-      border-color: #0052a3;
-      background: #f7fafc;
+      border-color: var(--navy-700);
+      background: var(--bg);
     }
 
     .option input[type="radio"] {
@@ -569,6 +641,7 @@
       cursor: pointer;
       width: 16px;
       height: 16px;
+      accent-color: var(--navy-800);
     }
 
     .option-text {
@@ -577,13 +650,13 @@
 
     .option-title {
       font-weight: 600;
-      color: #2d3748;
+      color: var(--ink);
       font-size: 13px;
     }
 
     .option-desc {
       font-size: 11px;
-      color: #718096;
+      color: var(--ink-muted);
       margin-top: 2px;
     }
 
@@ -591,43 +664,44 @@
       display: flex;
       gap: 12px;
       justify-content: flex-end;
-      margin-top: 30px;
-      padding-top: 20px;
-      border-top: 1px solid #e2e8f0;
+      margin-top: 26px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
     }
 
     .btn-cancel {
-      padding: 10px 20px;
-      border: 1px solid #e2e8f0;
-      background: white;
-      border-radius: 8px;
+      padding: 9px 18px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 7px;
       cursor: pointer;
       font-weight: 600;
-      color: #4a5568;
-      transition: all 0.3s;
+      color: var(--ink-soft);
+      transition: all 0.2s;
       font-size: 13px;
     }
 
     .btn-cancel:hover {
-      border-color: #0052a3;
-      color: #0052a3;
+      border-color: var(--navy-700);
+      color: var(--navy-800);
     }
 
     .btn-export {
-      padding: 10px 20px;
-      background: linear-gradient(135deg, #0052a3 0%, #003d82 100%);
+      padding: 9px 18px;
+      background: var(--navy-800);
       color: white;
       border: none;
-      border-radius: 8px;
+      border-radius: 7px;
       cursor: pointer;
       font-weight: 600;
-      transition: all 0.3s;
+      transition: all 0.2s;
       font-size: 13px;
     }
 
     .btn-export:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 16px rgba(102, 126, 234, 0.4);
+      background: var(--navy-700);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-sm);
     }
 
     @media (max-width: 768px) {
@@ -669,19 +743,19 @@
     <div class="header-left">
       <h1>⚓ MarineTeknik</h1>
       <p>Project Invoice Tracker</p>
-      <p style="font-size: 11px; opacity: 0.8; margin-top: 8px;">Last Updated: <span id="lastUpdated">—</span></p>
+      <p style="font-size: 11px; opacity: 0.7; margin-top: 8px; text-transform:none; letter-spacing:normal; font-weight:400;">Last Updated: <span id="lastUpdated">—</span></p>
     </div>
     <div class="header-right">
-      <button class="btn btn-secondary" onclick="clearAllData()">🗑️ Clear</button>
-      <button class="btn btn-primary" onclick="openImportModal()">⬆️ Import</button>
-      <button class="btn btn-primary" onclick="openExportModal()">📊 Export</button>
+      <button class="btn btn-secondary" onclick="clearAllData()">Clear</button>
+      <button class="btn btn-secondary" onclick="openImportModal()">Import</button>
+      <button class="btn btn-primary" onclick="openExportModal()">Export</button>
     </div>
   </div>
 </div>
 
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('tracker')">📋 Tracker</button>
-    <button class="tab" onclick="switchTab('dashboard')">📊 Dashboard</button>
+    <button class="tab active" onclick="switchTab('tracker')">Tracker</button>
+    <button class="tab" onclick="switchTab('dashboard')">Dashboard</button>
   </div>
 
   <div class="content">
@@ -693,29 +767,29 @@
           <div class="card-value" id="kpiTotal">0</div>
           <div class="card-sub">active</div>
         </div>
-        <div class="card">
-          <div class="card-title">⚠️ Overdue</div>
-          <div class="card-value" id="kpiOverdue" style="color:#c53030">0</div>
+        <div class="card" style="border-top-color:#a8342a">
+          <div class="card-title">Overdue</div>
+          <div class="card-value" id="kpiOverdue" style="color:#a8342a">0</div>
           <div class="card-sub">need attention</div>
         </div>
-        <div class="card">
-          <div class="card-title">⏰ Due Soon</div>
-          <div class="card-value" id="kpiDueSoon" style="color:#c05621">0</div>
+        <div class="card" style="border-top-color:#9a5f0c">
+          <div class="card-title">Due Soon</div>
+          <div class="card-value" id="kpiDueSoon" style="color:#9a5f0c">0</div>
           <div class="card-sub">within 30 days</div>
         </div>
-        <div class="card">
-          <div class="card-title">💰 Total Value</div>
+        <div class="card" style="border-top-color:#b8902e">
+          <div class="card-title">Total Value</div>
           <div class="card-value" id="kpiValue">$0</div>
           <div class="card-sub">all projects</div>
         </div>
         <div class="card">
-          <div class="card-title">🚩 Contracts</div>
-          <div class="card-value" id="kpiContracts" style="color:#0052a3">0</div>
+          <div class="card-title">Contracts</div>
+          <div class="card-value" id="kpiContracts" style="color:#163a5c">0</div>
           <div class="card-sub">flagged</div>
         </div>
         <div class="card">
-          <div class="card-title">🚩 Estimation</div>
-          <div class="card-value" id="kpiEstimation" style="color:#0052a3">0</div>
+          <div class="card-title">Estimation</div>
+          <div class="card-value" id="kpiEstimation" style="color:#163a5c">0</div>
           <div class="card-sub">flagged</div>
         </div>
       </div>
@@ -723,26 +797,26 @@
 <div class="controls">
   <div class="controls-row">
     <div class="search-box">
-      <span>🔍</span>
-      <input type="text" id="searchInput" placeholder="Search by code, customer, ship, or project..." onkeyup="filterTable()">
+      <span style="color:var(--ink-muted);font-size:13px">Search</span>
+      <input type="text" id="searchInput" placeholder="Code, customer, ship, or project name..." onkeyup="filterTable()">
     </div>
-    <button class="btn" style="padding:10px 20px;background:#0052a3;color:white;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:13px;margin-left:12px" onclick="copyTableToClipboard()">📋 Copy Table</button>
+    <button class="btn" style="padding:9px 16px;background:var(--navy-800);color:white;border:none;border-radius:7px;font-weight:600;cursor:pointer;font-size:12.5px;margin-left:12px" onclick="copyTableToClipboard()">Copy Table</button>
   </div>
-  <div class="controls-row" style="margin-top:14px">
+  <div class="controls-row" style="margin-top:12px">
     <div class="filter-group">
       <button class="filter-btn active" data-filter="all" onclick="setFilter(event, 'all')">All</button>
-      <button class="filter-btn" data-filter="overdue" onclick="setFilter(event, 'overdue')">⚠️ Overdue</button>
-      <button class="filter-btn" data-filter="duesoon" onclick="setFilter(event, 'duesoon')">⏰ Due Soon</button>
-      <button class="filter-btn" data-filter="upcoming" onclick="setFilter(event, 'upcoming')">✅ Upcoming</button>
-      <button class="filter-btn" data-filter="nodate" onclick="setFilter(event, 'nodate')">❓ No Due Date</button>
+      <button class="filter-btn" data-filter="overdue" onclick="setFilter(event, 'overdue')">Overdue</button>
+      <button class="filter-btn" data-filter="duesoon" onclick="setFilter(event, 'duesoon')">Due Soon</button>
+      <button class="filter-btn" data-filter="upcoming" onclick="setFilter(event, 'upcoming')">Upcoming</button>
+      <button class="filter-btn" data-filter="nodate" onclick="setFilter(event, 'nodate')">No Due Date</button>
       <button class="filter-btn" data-filter="contracts" onclick="setFilter(event, 'contracts')">🚩 Contracts</button>
       <button class="filter-btn" data-filter="estimation" onclick="setFilter(event, 'estimation')">🚩 Estimation</button>
     </div>
     <div class="dropdown-wrapper">
-      <button class="dropdown-btn" id="pmBtn" onclick="togglePMDropdown()">👤 All PMs <span>▼</span></button>
+      <button class="dropdown-btn" id="pmBtn" onclick="togglePMDropdown()">All PMs <span>▾</span></button>
       <div class="dropdown-menu" id="pmMenu"></div>
     </div>
-    <button class="btn" style="padding:10px 20px;background:#0052a3;color:white;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:13px;margin-left:auto" onclick="openEmailTemplateModal()">✉️ Email Template</button>
+    <button class="btn" style="padding:9px 16px;background:var(--navy-800);color:white;border:none;border-radius:7px;font-weight:600;cursor:pointer;font-size:12.5px;margin-left:auto" onclick="openEmailTemplateModal()">Email Template</button>
   </div>
 </div>
 
@@ -772,7 +846,6 @@
             <tbody id="tableBody">
               <tr>
                 <td colspan="19" class="empty-state">
-                  <div class="empty-icon">📋</div>
                   <div class="empty-title">No data yet</div>
                   <div class="empty-text">Import your Business Central data to get started</div>
                 </td>
@@ -818,15 +891,15 @@
   <div class="modal" id="commentModal">
     <div class="modal-content">
       <div class="modal-header">
-        <h2>💬 Latest Update</h2>
+        <h2>Latest Update</h2>
         <p id="commentProjectInfo"></p>
       </div>
       <input type="hidden" id="commentProjectCode">
       <div class="option-group">
-        <label style="color:#0052a3;font-weight:700">📝 Your Notes</label>
-        <textarea id="financeComment" style="width:100%;padding:10px;border:2px solid #0052a3;border-radius:6px;font-size:13px;font-family:inherit;resize:vertical;min-height:120px;outline:none;background:#f7fafc" placeholder="Record the latest update..."></textarea>
-        <div id="commentDisplay" style="margin-top:12px;padding:12px;background:#f0f4f8;border-radius:6px;border-left:4px solid #0052a3;display:none;">
-          <div style="font-size:11px;color:#0052a3;font-weight:700;margin-bottom:8px">📌 Last Saved:</div>
+        <label style="color:var(--navy-800);font-weight:700">Your Notes</label>
+        <textarea id="financeComment" style="width:100%;padding:10px;border:1.5px solid var(--navy-700);border-radius:7px;font-size:13px;font-family:inherit;resize:vertical;min-height:120px;outline:none;background:var(--bg)" placeholder="Record the latest update..."></textarea>
+        <div id="commentDisplay" style="margin-top:12px;padding:12px;background:var(--bg);border-radius:7px;border-left:3px solid var(--brass);display:none;">
+          <div style="font-size:11px;color:var(--navy-800);font-weight:700;margin-bottom:8px">Last Saved</div>
           <div id="commentText" style="font-size:13px;color:#2d3748;line-height:1.5;white-space:pre-wrap;word-break:break-word;"></div>
         </div>
       </div>
@@ -841,7 +914,7 @@
   <div class="modal" id="exportModal">
     <div class="modal-content">
       <div class="modal-header">
-        <h2>📊 Export Report</h2>
+        <h2>Export Report</h2>
         <p>Select which report to export</p>
       </div>
       <div class="option-group">
@@ -879,13 +952,12 @@
   <div class="modal" id="importModal">
     <div class="modal-content">
       <div class="modal-header">
-        <h2>⬆️ Import Data</h2>
+        <h2>Import Data</h2>
         <p>Upload your Business Central export (.xlsx)</p>
       </div>
-      <div style="margin:20px 0;padding:30px;border:2px dashed #e2e8f0;border-radius:8px;text-align:center;cursor:pointer" onclick="document.getElementById('fileInput').click()">
-        <div style="font-size:32px;margin-bottom:10px">📂</div>
-        <div style="font-weight:600;color:#2d3748">Click to select file</div>
-        <div style="font-size:12px;color:#718096;margin-top:4px">.xlsx format</div>
+      <div style="margin:18px 0;padding:28px;border:1.5px dashed var(--navy-700);border-radius:8px;text-align:center;cursor:pointer;background:var(--bg)" onclick="document.getElementById('fileInput').click()">
+        <div style="font-weight:600;color:var(--navy-900);font-size:14px">Click to select file</div>
+        <div style="font-size:12px;color:var(--ink-muted);margin-top:4px">.xlsx format</div>
         <input type="file" id="fileInput" accept=".xlsx,.xls" style="display:none" onchange="handleImport(event)">
       </div>
       <div class="modal-footer">
@@ -898,12 +970,12 @@
   <div class="modal" id="emailTemplateModal">
     <div class="modal-content" style="max-width: 700px;">
       <div class="modal-header">
-        <h2>✉️ Email Template</h2>
+        <h2>Email Template</h2>
         <p>Copy the template below and send to Project Managers</p>
       </div>
       <div class="option-group">
-        <label style="color:#0052a3;font-weight:700">📧 Email Body</label>
-        <textarea id="emailTemplateText" style="width:100%;padding:12px;border:2px solid #0052a3;border-radius:6px;font-size:13px;font-family:inherit;resize:vertical;min-height:200px;outline:none;background:#f7fafc" readonly>Action Required: Update Needed on Open Projects
+        <label style="color:var(--navy-800);font-weight:700">Email Body</label>
+        <textarea id="emailTemplateText" style="width:100%;padding:12px;border:1.5px solid var(--navy-700);border-radius:7px;font-size:13px;font-family:inherit;resize:vertical;min-height:200px;outline:none;background:var(--bg)" readonly>Action Required: Update Needed on Open Projects
 
 Good day,
 
@@ -915,7 +987,7 @@ Thank you in advance.</textarea>
       </div>
       <div class="modal-footer">
         <button class="btn-cancel" onclick="closeEmailTemplateModal()">Cancel</button>
-        <button class="btn-export" onclick="copyEmailTemplate()">📋 Copy Template</button>
+        <button class="btn-export" onclick="copyEmailTemplate()">Copy Template</button>
       </div>
     </div>
   </div>
@@ -1181,18 +1253,18 @@ Thank you in advance.</textarea>
       const menu = document.getElementById('pmMenu');
       menu.innerHTML = `
         <div class="dropdown-item ${!currentPM ? 'selected' : ''}" onclick="selectPM(null)">
-          <span style="color:#0052a3">✓</span> All (${projects.length})
+          <span style="color:#b8902e">✓</span> All (${projects.length})
         </div>
       ` + sorted.map(([pm, count]) => `
         <div class="dropdown-item ${currentPM === pm ? 'selected' : ''}" onclick="selectPM('${pm.replace(/'/g, "\\'")}')">
-          <span style="color:#0052a3">✓</span> ${pm} (${count})
+          <span style="color:#b8902e">✓</span> ${pm} (${count})
         </div>
       `).join('');
     }
 
     function selectPM(pm) {
       currentPM = pm;
-      document.getElementById('pmBtn').textContent = (pm || 'All PMs') + ' ▼';
+      document.getElementById('pmBtn').textContent = (pm || 'All PMs') + ' ▾';
       document.getElementById('pmMenu').classList.remove('active');
       filterTable();
       buildPMDropdown();
