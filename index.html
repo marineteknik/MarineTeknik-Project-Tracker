@@ -994,32 +994,53 @@
 
   <!-- Export Modal -->
   <div class="modal" id="exportModal">
-    <div class="modal-content">
+    <div class="modal-content" style="max-width: 560px;">
       <div class="modal-header">
         <h2>Export Report</h2>
-        <p>Select which report to export</p>
+        <p>Choose what to include, then pick a format. Leave everything unchecked to include all projects.</p>
       </div>
       <div class="option-group">
-        <label>Report Type</label>
+        <label>Include</label>
         <div class="option">
-          <input type="radio" id="opt-all" name="reportType" value="all" checked>
+          <input type="checkbox" id="flt-contracts" name="reportFilter" value="contracts">
           <div class="option-text">
-            <div class="option-title">All Projects</div>
-            <div class="option-desc">Export complete project list</div>
+            <div class="option-title">🚩 Contracts — Flagged</div>
+            <div class="option-desc">Projects flagged for Contracts follow-up</div>
           </div>
         </div>
         <div class="option">
-          <input type="radio" id="opt-contracts" name="reportType" value="contracts">
+          <input type="checkbox" id="flt-estimation" name="reportFilter" value="estimation">
           <div class="option-text">
-            <div class="option-title">Contracts Report</div>
-            <div class="option-desc">Export all Contracts-flagged projects</div>
+            <div class="option-title">🚩 Estimation — Flagged</div>
+            <div class="option-desc">Projects flagged for Estimation follow-up</div>
           </div>
         </div>
         <div class="option">
-          <input type="radio" id="opt-estimation" name="reportType" value="estimation">
+          <input type="checkbox" id="flt-overdue" name="reportFilter" value="overdue">
           <div class="option-text">
-            <div class="option-title">Estimation Report</div>
-            <div class="option-desc">Export all Estimation-flagged projects</div>
+            <div class="option-title">Overdue</div>
+            <div class="option-desc">Next invoice date has passed</div>
+          </div>
+        </div>
+        <div class="option">
+          <input type="checkbox" id="flt-duesoon" name="reportFilter" value="duesoon">
+          <div class="option-text">
+            <div class="option-title">Due Soon</div>
+            <div class="option-desc">Next invoice date within 30 days</div>
+          </div>
+        </div>
+        <div class="option">
+          <input type="checkbox" id="flt-upcoming" name="reportFilter" value="upcoming">
+          <div class="option-text">
+            <div class="option-title">Upcoming</div>
+            <div class="option-desc">Next invoice date more than 30 days out</div>
+          </div>
+        </div>
+        <div class="option">
+          <input type="checkbox" id="flt-nodate" name="reportFilter" value="nodate">
+          <div class="option-text">
+            <div class="option-title">No Due Date</div>
+            <div class="option-desc">Projects with no next invoice date set</div>
           </div>
         </div>
       </div>
@@ -1036,7 +1057,7 @@
           <input type="radio" id="fmt-pdf" name="exportFormat" value="pdf">
           <div class="option-text">
             <div class="option-title">PDF Document (.pdf)</div>
-            <div class="option-desc">Formatted report, ready to email or print</div>
+            <div class="option-desc">Formatted management report, ready to email</div>
           </div>
         </div>
       </div>
@@ -1690,18 +1711,60 @@ Thank you in advance.</textarea>
       document.getElementById('importModal').classList.remove('active');
     }
 
-    function generateExcel() {
-      const reportType = document.querySelector('input[name="reportType"]:checked').value;
-      let data = projects;
+    // Shared filter definitions used by both Excel and PDF export
+    const REPORT_FILTER_LABELS = {
+      contracts: 'Contracts — Flagged',
+      estimation: 'Estimation — Flagged',
+      overdue: 'Overdue',
+      duesoon: 'Due Soon (Next 30 Days)',
+      upcoming: 'Upcoming',
+      nodate: 'No Due Date'
+    };
 
-      if (reportType === 'contracts') {
-        data = projects.filter(p => flags[p['Project Code']]?.contracts);
-      } else if (reportType === 'estimation') {
-        data = projects.filter(p => flags[p['Project Code']]?.estimation);
+    function matchesReportFilter(p, key) {
+      if (key === 'contracts') return !!flags[p['Project Code']]?.contracts;
+      if (key === 'estimation') return !!flags[p['Project Code']]?.estimation;
+      if (key === 'overdue') return p.invoiceStatus === 'OVERDUE';
+      if (key === 'duesoon') return p.invoiceStatus === 'DUE SOON';
+      if (key === 'upcoming') return p.invoiceStatus === 'Upcoming';
+      if (key === 'nodate') return p.invoiceStatus === 'No Date';
+      return false;
+    }
+
+    function getSelectedReportFilters() {
+      return Array.from(document.querySelectorAll('input[name="reportFilter"]:checked')).map(el => el.value);
+    }
+
+    // Builds one section per selected filter (each with its own data set).
+    // No filters selected = a single "All Projects" section.
+    function getReportSections() {
+      const selected = getSelectedReportFilters();
+      if (!selected.length) {
+        return [{ key: 'all', label: 'All Projects', data: projects.slice() }];
       }
+      return selected.map(key => ({
+        key,
+        label: REPORT_FILTER_LABELS[key],
+        data: projects.filter(p => matchesReportFilter(p, key))
+      }));
+    }
+
+    function reportFileLabel(sections) {
+      if (sections.length === 1) return sections[0].key === 'all' ? 'all_projects' : sections[0].key;
+      return 'custom_report';
+    }
+
+    function generateExcel() {
+      const sections = getReportSections();
+      // Union of all rows across selected sections, deduplicated by project code
+      const seen = new Set();
+      const data = [];
+      sections.forEach(s => s.data.forEach(p => {
+        if (!seen.has(p['Project Code'])) { seen.add(p['Project Code']); data.push(p); }
+      }));
 
       if (!data.length) {
-        showToast('No projects to export', 'error');
+        showToast('No projects match the selected filters', 'error');
         return;
       }
 
@@ -1767,7 +1830,7 @@ Thank you in advance.</textarea>
 
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, 'Report');
-      const reportLabel = reportType === 'all' ? 'all_projects' : reportType;
+      const reportLabel = reportFileLabel(sections);
       const fileName = `MarineTeknik_${reportLabel}_${new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }).replace(/\//g, '-')}.xlsx`;
       XLSX.writeFile(wb, fileName);
       closeExportModal();
@@ -1783,18 +1846,21 @@ Thank you in advance.</textarea>
       }
     }
 
+    // --- Professional PDF report -------------------------------------
+    // Cover header with company identity + generation info, a portfolio
+    // summary strip (KPI-style totals), then one clearly labeled,
+    // subtotaled section per selected filter — laid out like a
+    // management/finance report rather than a raw data dump.
+
+    function pdfSum(data, field) {
+      return data.reduce((sum, p) => sum + (parseFloat(p[field]) || 0), 0);
+    }
+
     function generatePDF() {
-      const reportType = document.querySelector('input[name="reportType"]:checked').value;
-      let data = projects;
-
-      if (reportType === 'contracts') {
-        data = projects.filter(p => flags[p['Project Code']]?.contracts);
-      } else if (reportType === 'estimation') {
-        data = projects.filter(p => flags[p['Project Code']]?.estimation);
-      }
-
-      if (!data.length) {
-        showToast('No projects to export', 'error');
+      const sections = getReportSections();
+      const anyData = sections.some(s => s.data.length);
+      if (!anyData) {
+        showToast('No projects match the selected filters', 'error');
         return;
       }
 
@@ -1802,70 +1868,161 @@ Thank you in advance.</textarea>
       const doc = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'a4' });
       const pageWidth = doc.internal.pageSize.getWidth();
       const pageHeight = doc.internal.pageSize.getHeight();
+      const marginX = 32;
 
-      const reportLabels = { all: 'All Projects', contracts: 'Contracts — Flagged Projects', estimation: 'Estimation — Flagged Projects' };
-      const title = `MarineTeknik  |  ${reportLabels[reportType]}`;
+      const NAVY = [7, 42, 74];
+      const BLUE = [22, 104, 193];
+      const BRASS = [245, 158, 11];
+      const INK = [33, 29, 78];
+      const MUTED = [110, 118, 130];
+      const LIGHT = [244, 246, 250];
+
       const generatedOn = new Date().toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+      const scopeLabel = sections.length === 1 ? sections[0].label : sections.map(s => s.label).join('  •  ');
 
-      // Header bar
-      doc.setFillColor(7, 42, 74);
-      doc.rect(0, 0, pageWidth, 52, 'F');
+      // ---- Cover header ----
+      doc.setFillColor(...NAVY);
+      doc.rect(0, 0, pageWidth, 78, 'F');
+      doc.setFillColor(...BRASS);
+      doc.rect(0, 78, pageWidth, 3, 'F');
+
       doc.setTextColor(255, 255, 255);
-      doc.setFontSize(16);
       doc.setFont('helvetica', 'bold');
-      doc.text(title, 28, 30);
-      doc.setFontSize(9);
+      doc.setFontSize(20);
+      doc.text('MarineTeknik', marginX, 34);
       doc.setFont('helvetica', 'normal');
-      doc.text(`Generated ${generatedOn}  |  ${data.length} project${data.length === 1 ? '' : 's'}`, 28, 44);
+      doc.setFontSize(10.5);
+      doc.setTextColor(200, 220, 240);
+      doc.text('Project Invoice Tracker  —  Management Report', marginX, 50);
 
-      const tableColumns = ['Code', 'Project', 'PM', 'PO Number', 'Value', 'Invoiced', 'Remaining', '% Inv', 'Finance Notes'];
-      const tableRows = data.map(p => {
-        const code = p['Project Code'];
-        const cm = comments[code] || {};
-        return [
-          code,
-          p['Project Name'] || '',
-          p['Person Responsible'] || '',
-          p['PO Number'] || '',
-          formatCurrency(p['Project Value']),
-          formatCurrency(p['Invoiced Value']),
-          formatCurrency(p['Remaining Inv']),
-          (p['% invoiced'] || 0).toFixed(1) + '%',
-          cm.finance || ''
-        ];
+      doc.setFontSize(9);
+      doc.setTextColor(220, 230, 245);
+      const rightX = pageWidth - marginX;
+      doc.text(`Generated: ${generatedOn}`, rightX, 30, { align: 'right' });
+      doc.text(`Scope: ${scopeLabel}`, rightX, 44, { align: 'right' });
+      doc.text('Confidential — Internal Use', rightX, 58, { align: 'right' });
+
+      // ---- Portfolio summary strip ----
+      const allRowsMap = new Map();
+      sections.forEach(s => s.data.forEach(p => allRowsMap.set(p['Project Code'], p)));
+      const allRows = Array.from(allRowsMap.values());
+
+      const summaryY = 96;
+      const stats = [
+        { label: 'PROJECTS INCLUDED', value: String(allRows.length) },
+        { label: 'TOTAL VALUE', value: formatCurrency(pdfSum(allRows, 'Project Value')) },
+        { label: 'INVOICED TO DATE', value: formatCurrency(pdfSum(allRows, 'Invoiced Value')) },
+        { label: 'REMAINING TO INVOICE', value: formatCurrency(pdfSum(allRows, 'Remaining Inv')) }
+      ];
+      const boxW = (pageWidth - marginX * 2 - 3 * 10) / 4;
+      stats.forEach((s, i) => {
+        const x = marginX + i * (boxW + 10);
+        doc.setFillColor(...LIGHT);
+        doc.roundedRect(x, summaryY, boxW, 44, 4, 4, 'F');
+        doc.setDrawColor(...BLUE);
+        doc.setLineWidth(1.4);
+        doc.line(x, summaryY, x, summaryY + 44);
+        doc.setFontSize(7.5);
+        doc.setTextColor(...MUTED);
+        doc.setFont('helvetica', 'bold');
+        doc.text(s.label, x + 10, summaryY + 15);
+        doc.setFontSize(13.5);
+        doc.setTextColor(...INK);
+        doc.text(s.value, x + 10, summaryY + 33);
       });
 
-      doc.autoTable({
-        head: [tableColumns],
-        body: tableRows,
-        startY: 64,
-        styles: { font: 'helvetica', fontSize: 8, cellPadding: 5, overflow: 'linebreak', valign: 'middle' },
-        headStyles: { fillColor: [22, 104, 193], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'center' },
-        alternateRowStyles: { fillColor: [245, 246, 252] },
-        columnStyles: {
-          0: { cellWidth: 62 },
-          1: { cellWidth: 140 },
-          2: { cellWidth: 85 },
-          3: { cellWidth: 70 },
-          4: { cellWidth: 62, halign: 'right' },
-          5: { cellWidth: 62, halign: 'right' },
-          6: { cellWidth: 62, halign: 'right' },
-          7: { cellWidth: 42, halign: 'right' },
-          8: { cellWidth: 'auto' }
-        },
-        margin: { left: 28, right: 28, top: 64 }
+      let cursorY = summaryY + 44 + 22;
+
+      // ---- One section per selected filter ----
+      sections.forEach((section, idx) => {
+        if (!section.data.length) return;
+
+        // Start a new page if a section header would land too close to the bottom
+        if (cursorY > pageHeight - 120) {
+          doc.addPage();
+          cursorY = 36;
+        }
+
+        // Section heading
+        doc.setFillColor(...BLUE);
+        doc.rect(marginX, cursorY, 4, 16, 'F');
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.setTextColor(...INK);
+        doc.text(section.label, marginX + 12, cursorY + 12);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        doc.setTextColor(...MUTED);
+        doc.text(`${section.data.length} project${section.data.length === 1 ? '' : 's'}`, marginX + 12 + doc.getTextWidth(section.label) + 14, cursorY + 12);
+        cursorY += 24;
+
+        const tableColumns = ['Code', 'Project', 'PM', 'PO Number', 'Value', 'Invoiced', 'Remaining', '% Inv', 'Finance Notes'];
+        const tableRows = section.data.map(p => {
+          const code = p['Project Code'];
+          const cm = comments[code] || {};
+          return [
+            code,
+            p['Project Name'] || '',
+            p['Person Responsible'] || '',
+            p['PO Number'] || '',
+            formatCurrency(p['Project Value']),
+            formatCurrency(p['Invoiced Value']),
+            formatCurrency(p['Remaining Inv']),
+            (p['% invoiced'] || 0).toFixed(1) + '%',
+            cm.finance || ''
+          ];
+        });
+
+        // Subtotal row
+        tableRows.push([
+          { content: 'Subtotal', colSpan: 4, styles: { fontStyle: 'bold', halign: 'right', fillColor: [230, 235, 244] } },
+          { content: formatCurrency(pdfSum(section.data, 'Project Value')), styles: { fontStyle: 'bold', halign: 'right', fillColor: [230, 235, 244] } },
+          { content: formatCurrency(pdfSum(section.data, 'Invoiced Value')), styles: { fontStyle: 'bold', halign: 'right', fillColor: [230, 235, 244] } },
+          { content: formatCurrency(pdfSum(section.data, 'Remaining Inv')), styles: { fontStyle: 'bold', halign: 'right', fillColor: [230, 235, 244] } },
+          { content: '', styles: { fillColor: [230, 235, 244] } },
+          { content: '', styles: { fillColor: [230, 235, 244] } }
+        ]);
+
+        doc.autoTable({
+          head: [tableColumns],
+          body: tableRows,
+          startY: cursorY,
+          styles: { font: 'helvetica', fontSize: 8, cellPadding: 5, overflow: 'linebreak', valign: 'middle', textColor: INK },
+          headStyles: { fillColor: BLUE, textColor: [255, 255, 255], fontStyle: 'bold', halign: 'center' },
+          alternateRowStyles: { fillColor: LIGHT },
+          columnStyles: {
+            0: { cellWidth: 60 },
+            1: { cellWidth: 135 },
+            2: { cellWidth: 82 },
+            3: { cellWidth: 68 },
+            4: { cellWidth: 62, halign: 'right' },
+            5: { cellWidth: 62, halign: 'right' },
+            6: { cellWidth: 62, halign: 'right' },
+            7: { cellWidth: 40, halign: 'right' },
+            8: { cellWidth: 'auto' }
+          },
+          margin: { left: marginX, right: marginX }
+        });
+
+        cursorY = doc.lastAutoTable.finalY + 26;
       });
 
-      // Footer page numbers, added after all pages are laid out
+      // ---- Footer: page numbers + disclaimer, applied to every page ----
       const totalPages = doc.internal.getNumberOfPages();
       for (let i = 1; i <= totalPages; i++) {
         doc.setPage(i);
-        doc.setFontSize(8);
-        doc.setTextColor(140);
-        doc.text(`Page ${i} of ${totalPages}`, pageWidth - 90, pageHeight - 16);
+        doc.setDrawColor(225, 228, 235);
+        doc.setLineWidth(0.75);
+        doc.line(marginX, pageHeight - 34, pageWidth - marginX, pageHeight - 34);
+        doc.setFont('helvetica', 'italic');
+        doc.setFontSize(7.5);
+        doc.setTextColor(...MUTED);
+        doc.text('Generated automatically from the MarineTeknik Project Invoice Tracker. Figures reflect data as of the generation date above.', marginX, pageHeight - 20);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Page ${i} of ${totalPages}`, pageWidth - marginX, pageHeight - 20, { align: 'right' });
       }
 
-      const reportLabel = reportType === 'all' ? 'all_projects' : reportType;
+      const reportLabel = reportFileLabel(sections);
       const fileName = `MarineTeknik_${reportLabel}_${new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }).replace(/\//g, '-')}.pdf`;
       doc.save(fileName);
       closeExportModal();
