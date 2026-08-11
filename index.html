@@ -7,14 +7,16 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap');
 
     :root {
-      --navy-900: #1e1b4b;
-      --navy-800: #3730a3;
-      --navy-700: #4f46e5;
-      --navy-600: #6d5bf0;
+      --navy-900: #072a4a;
+      --navy-800: #0a4d8c;
+      --navy-700: #1668c1;
+      --navy-600: #2f8ae0;
       --brass: #f59e0b;
       --brass-light: #fbbf24;
       --brass-dark: #b45309;
@@ -53,7 +55,7 @@
     }
 
     .container {
-      max-width: 1600px;
+      max-width: 100%;
       margin: 0 auto;
     }
 
@@ -69,7 +71,7 @@
     }
 
     .header-content {
-      max-width: 1600px;
+      max-width: 100%;
       margin: 0 auto;
       display: flex;
       justify-content: space-between;
@@ -91,7 +93,7 @@
       letter-spacing: 0.6px;
       text-transform: uppercase;
       font-weight: 600;
-      color: #c7c3ff;
+      color: #a9d4ff;
     }
 
     .header-right {
@@ -139,7 +141,7 @@
       display: flex;
       gap: 0;
       padding: 0 24px;
-      max-width: 1600px;
+      max-width: 100%;
       margin: 0 auto;
     }
 
@@ -167,7 +169,7 @@
 
     .content {
       padding: 26px 24px;
-      max-width: 1600px;
+      max-width: 100%;
       margin: 0 auto;
     }
 
@@ -362,7 +364,7 @@
     }
 
     .dropdown-item.selected {
-      background: #eeecff;
+      background: #e3f0ff;
       color: var(--navy-700);
       font-weight: 600;
     }
@@ -375,16 +377,63 @@
       box-shadow: var(--shadow-sm);
     }
 
-    .table-scroll {
-      overflow-x: auto;
+    /* Dual-table layout: a small fixed frozen table (Code/Project/PM)
+       sits beside a normally horizontally-scrolling table for
+       everything else. Rows are height-synced by JS after each
+       render. This avoids position:sticky-in-table browser bugs
+       entirely rather than fighting them. */
+    .table-split {
+      display: flex;
+      align-items: flex-start;
+    }
+
+    .table-frozen {
+      flex: 0 0 auto;
+      overflow: hidden;
+      border-right: 2px solid var(--navy-700);
+      box-shadow: 3px 0 8px rgba(7, 42, 74, 0.10);
       position: relative;
+      z-index: 2;
+    }
+
+    .table-frozen table {
+      width: 392px;
+    }
+
+    .table-scroll {
+      flex: 1 1 auto;
+      overflow-x: auto;
+      min-width: 0;
     }
 
     table {
-      width: 100%;
-      border-collapse: collapse;
+      border-collapse: separate;
+      border-spacing: 0;
       font-size: 12px;
+      table-layout: fixed;
     }
+
+    .table-scroll table {
+      width: 100%;
+    }
+
+    .table-scroll th:nth-child(1), .table-scroll td:nth-child(1)  { width: 110px; }  /* PO */
+    .table-scroll th:nth-child(2), .table-scroll td:nth-child(2)  { width: 80px; }   /* Start */
+    .table-scroll th:nth-child(3), .table-scroll td:nth-child(3)  { width: 80px; }   /* End */
+    .table-scroll th:nth-child(4), .table-scroll td:nth-child(4)  { width: 80px; }   /* Next Inv */
+    .table-scroll th:nth-child(5), .table-scroll td:nth-child(5)  { width: 92px; }   /* Status */
+    .table-scroll th:nth-child(6), .table-scroll td:nth-child(6)  { width: 105px; }  /* Value */
+    .table-scroll th:nth-child(7), .table-scroll td:nth-child(7)  { width: 105px; }  /* Invoiced */
+    .table-scroll th:nth-child(8), .table-scroll td:nth-child(8)  { width: 105px; }  /* Remaining */
+    .table-scroll th:nth-child(9), .table-scroll td:nth-child(9)  { width: 60px; }   /* % */
+    .table-scroll th:nth-child(10), .table-scroll td:nth-child(10) { width: 76px; }  /* Contracts */
+    .table-scroll th:nth-child(11), .table-scroll td:nth-child(11) { width: 76px; }  /* Estimation */
+    .table-scroll th:nth-child(12), .table-scroll td:nth-child(12) { width: 260px; } /* Finance Notes */
+    .table-scroll th:nth-child(13), .table-scroll td:nth-child(13) { width: 70px; }  /* Edit */
+
+    .table-frozen th:nth-child(1), .table-frozen td:nth-child(1) { width: 92px; }   /* Code */
+    .table-frozen th:nth-child(2), .table-frozen td:nth-child(2) { width: 190px; }  /* Project */
+    .table-frozen th:nth-child(3), .table-frozen td:nth-child(3) { width: 110px; }  /* PM */
 
     thead {
       background: var(--navy-800);
@@ -405,6 +454,8 @@
       border-bottom: 2px solid var(--brass);
       cursor: pointer;
       user-select: none;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     th:hover {
@@ -416,52 +467,26 @@
       border-bottom: 1px solid var(--border);
       text-align: center;
       color: var(--ink-soft);
+      overflow: hidden;
+      box-sizing: border-box;
+    }
+
+    .table-frozen td {
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      text-align: left;
     }
 
     tbody tr:hover {
       background: #f6f8fa;
     }
 
+    tbody tr.row-hover {
+      background: #f6f8fa;
+    }
+
     tbody tr:nth-child(odd) {
       background: #fbfbfc;
-    }
-
-    /* Sticky right-pinned columns — Finance Notes + Edit always stay
-       visible regardless of horizontal scroll position. */
-    th.col-notes, td.col-notes {
-      position: sticky;
-      right: 64px;
-      width: 230px;
-      min-width: 230px;
-      max-width: 230px;
-    }
-
-    th.col-edit, td.col-edit {
-      position: sticky;
-      right: 0;
-      width: 64px;
-      min-width: 64px;
-    }
-
-    th.col-notes, th.col-edit {
-      z-index: 4;
-      box-shadow: -2px 0 4px rgba(30, 27, 75, 0.06);
-    }
-
-    td.col-notes, td.col-edit {
-      z-index: 2;
-      background: var(--surface);
-      box-shadow: -2px 0 4px rgba(30, 27, 75, 0.05);
-    }
-
-    tbody tr:nth-child(odd) td.col-notes,
-    tbody tr:nth-child(odd) td.col-edit {
-      background: #fbfbfc;
-    }
-
-    tbody tr:hover td.col-notes,
-    tbody tr:hover td.col-edit {
-      background: #f6f8fa;
     }
 
     .status-badge {
@@ -801,7 +826,7 @@
     <div class="page active" id="page-tracker">
       <div class="cards-grid" id="kpiCards">
         <div class="card">
-          <div class="kpi-icon" style="background:#e6e4ff;color:#4f46e5;">◆</div>
+          <div class="kpi-icon" style="background:#dbeaff;color:#1668c1;">◆</div>
           <div class="card-title">Total Projects</div>
           <div class="card-value" id="kpiTotal">0</div>
           <div class="card-sub">active</div>
@@ -865,37 +890,50 @@
 </div>
 
       <div class="table-container">
-        <div class="table-scroll">
-          <table>
-            <thead>
-              <tr>
-                <th onclick="sortBy('Project Code')">Code</th>
-                <th onclick="sortBy('Project Name')">Project</th>
-                <th onclick="sortBy('Person Responsible')">PM</th>
-                <th onclick="sortBy('PO Number')">PO</th>
-                <th onclick="sortBy('Project Start')">Start</th>
-                <th onclick="sortBy('Project End')">End</th>
-                <th onclick="sortBy('Next Invoice Date')">Next Inv</th>
-                <th onclick="sortBy('invoiceStatus')">Status</th>
-                <th onclick="sortBy('Project Value')">Value</th>
-                <th onclick="sortBy('Invoiced Value')">Invoiced</th>
-                <th onclick="sortBy('Remaining Inv')">Remaining</th>
-                <th onclick="sortBy('% invoiced')">%</th>
-                <th>Contracts</th>
-                <th>Estimation</th>
-                <th class="col-notes">Finance Notes</th>
-                <th class="col-edit">Edit</th>
-              </tr>
-            </thead>
-            <tbody id="tableBody">
-              <tr>
-                <td colspan="19" class="empty-state">
-                  <div class="empty-title">No data yet</div>
-                  <div class="empty-text">Import your Business Central data to get started</div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="table-split">
+          <div class="table-frozen">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:92px" onclick="sortBy('Project Code')">Code</th>
+                  <th style="width:190px" onclick="sortBy('Project Name')">Project</th>
+                  <th style="width:110px" onclick="sortBy('Person Responsible')">PM</th>
+                </tr>
+              </thead>
+              <tbody id="tableBodyFrozen">
+                <tr><td colspan="3" class="empty-state"></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th onclick="sortBy('PO Number')">PO</th>
+                  <th onclick="sortBy('Project Start')">Start</th>
+                  <th onclick="sortBy('Project End')">End</th>
+                  <th onclick="sortBy('Next Invoice Date')">Next Inv</th>
+                  <th onclick="sortBy('invoiceStatus')">Status</th>
+                  <th onclick="sortBy('Project Value')">Value</th>
+                  <th onclick="sortBy('Invoiced Value')">Invoiced</th>
+                  <th onclick="sortBy('Remaining Inv')">Remaining</th>
+                  <th onclick="sortBy('% invoiced')">%</th>
+                  <th>Contracts</th>
+                  <th>Estimation</th>
+                  <th>Finance Notes</th>
+                  <th>Edit</th>
+                </tr>
+              </thead>
+              <tbody id="tableBody">
+                <tr>
+                  <td colspan="13" class="empty-state">
+                    <div class="empty-title">No data yet</div>
+                    <div class="empty-text">Import your Business Central data to get started</div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -985,9 +1023,26 @@
           </div>
         </div>
       </div>
+      <div class="option-group">
+        <label>Format</label>
+        <div class="option">
+          <input type="radio" id="fmt-excel" name="exportFormat" value="excel" checked>
+          <div class="option-text">
+            <div class="option-title">Excel Spreadsheet (.xlsx)</div>
+            <div class="option-desc">Editable, matches Business Central layout</div>
+          </div>
+        </div>
+        <div class="option">
+          <input type="radio" id="fmt-pdf" name="exportFormat" value="pdf">
+          <div class="option-text">
+            <div class="option-title">PDF Document (.pdf)</div>
+            <div class="option-desc">Formatted report, ready to email or print</div>
+          </div>
+        </div>
+      </div>
       <div class="modal-footer">
         <button class="btn-cancel" onclick="closeExportModal()">Cancel</button>
-        <button class="btn-export" onclick="generateExcel()">Download Excel</button>
+        <button class="btn-export" onclick="handleExport()">Download Report</button>
       </div>
     </div>
   </div>
@@ -1412,21 +1467,32 @@ Thank you in advance.</textarea>
 
     function renderTableRows(rows) {
       const tbody = document.getElementById('tableBody');
+      const tbodyFrozen = document.getElementById('tableBodyFrozen');
+
       if (!rows.length) {
-        tbody.innerHTML = '<tr><td colspan="16" class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">No matching projects</div></td></tr>';
+        tbody.innerHTML = '<tr><td colspan="13" class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">No matching projects</div></td></tr>';
+        tbodyFrozen.innerHTML = '<tr><td colspan="3" class="empty-state"></td></tr>';
         return;
       }
 
-      tbody.innerHTML = rows.map(p => {
+      tbodyFrozen.innerHTML = rows.map((p, i) => {
+        const code = p['Project Code'];
+        return `
+          <tr data-row="${i}">
+            <td><strong>${escapeHtml(code)}</strong></td>
+            <td>${escapeHtml(p['Project Name'])}</td>
+            <td>${escapeHtml(p['Person Responsible'])}</td>
+          </tr>
+        `;
+      }).join('');
+
+      tbody.innerHTML = rows.map((p, i) => {
         const code = p['Project Code'];
         const cm = comments[code] || {};
         const fl = flags[code] || {};
         const status = p.invoiceStatus;
         return `
-          <tr>
-            <td><strong>${escapeHtml(code)}</strong></td>
-            <td>${escapeHtml(p['Project Name'])}</td>
-            <td>${escapeHtml(p['Person Responsible'])}</td>
+          <tr data-row="${i}">
             <td>${escapeHtml(p['PO Number'])}</td>
             <td>${formatDate(p['Project Start'])}</td>
             <td>${formatDate(p['Project End'])}</td>
@@ -1438,11 +1504,42 @@ Thank you in advance.</textarea>
             <td style="text-align:right">${(p['% invoiced'] || 0).toFixed(1)}%</td>
             <td><button class="flag-btn ${fl.contracts ? 'flagged' : ''}" onclick="toggleFlag('${code}', 'contracts')">${fl.contracts ? '🚩' : '—'}</button></td>
             <td><button class="flag-btn ${fl.estimation ? 'flagged' : ''}" onclick="toggleFlag('${code}', 'estimation')">${fl.estimation ? '🚩' : '—'}</button></td>
-            <td class="col-notes" style="text-align:left;padding:8px 12px;font-size:12px;color:var(--ink-soft);white-space:pre-wrap;word-break:break-word;background:${cm.finance ? '#eef1ff' : 'var(--surface)'}">${cm.finance ? escapeHtml(cm.finance) : '—'}</td>
-            <td class="col-edit"><button class="btn" style="padding:6px 12px;font-size:11px;cursor:pointer;background:var(--navy-700);color:#fff;border-radius:999px;" onclick="openCommentModal('${escapeHtml(code)}')">${cm.finance ? '✏️' : '➕'}</button></td>
+            <td style="text-align:left;padding:8px 12px;font-size:12px;color:var(--ink-soft);white-space:pre-wrap;word-break:break-word;background:${cm.finance ? '#eef1ff' : 'transparent'}">${cm.finance ? escapeHtml(cm.finance) : '—'}</td>
+            <td><button class="btn" style="padding:6px 12px;font-size:11px;cursor:pointer;background:var(--navy-700);color:#fff;border-radius:999px;" onclick="openCommentModal('${escapeHtml(code)}')">${cm.finance ? '✏️' : '➕'}</button></td>
           </tr>
         `;
       }).join('');
+
+      syncFrozenTable();
+    }
+
+    // Keeps the frozen (Code/Project/PM) table's row heights matching
+    // the scrolling table's row heights — needed because Finance Notes
+    // can wrap to multiple lines, changing that row's height.
+    function syncFrozenTable() {
+      const scrollRows = document.querySelectorAll('#tableBody tr[data-row]');
+      const frozenRows = document.querySelectorAll('#tableBodyFrozen tr[data-row]');
+
+      scrollRows.forEach(r => { r.style.height = 'auto'; });
+      frozenRows.forEach(r => { r.style.height = 'auto'; });
+
+      scrollRows.forEach((scrollRow, i) => {
+        const frozenRow = frozenRows[i];
+        if (!frozenRow) return;
+        const h = Math.max(scrollRow.offsetHeight, frozenRow.offsetHeight);
+        scrollRow.style.height = h + 'px';
+        frozenRow.style.height = h + 'px';
+      });
+
+      // Sync hover highlighting between the two tables
+      frozenRows.forEach((frozenRow, i) => {
+        const scrollRow = scrollRows[i];
+        if (!scrollRow) return;
+        frozenRow.onmouseenter = () => { frozenRow.classList.add('row-hover'); scrollRow.classList.add('row-hover'); };
+        frozenRow.onmouseleave = () => { frozenRow.classList.remove('row-hover'); scrollRow.classList.remove('row-hover'); };
+        scrollRow.onmouseenter = () => { frozenRow.classList.add('row-hover'); scrollRow.classList.add('row-hover'); };
+        scrollRow.onmouseleave = () => { frozenRow.classList.remove('row-hover'); scrollRow.classList.remove('row-hover'); };
+      });
     }
 
     function updateKPIs() {
@@ -1552,7 +1649,7 @@ Thank you in advance.</textarea>
           labels: ['Invoiced', 'Remaining'],
           datasets: [{
             data: [totInv, totRem],
-            backgroundColor: ['#4f46e5', '#f59e0b'],
+            backgroundColor: ['#1668c1', '#f59e0b'],
             borderWidth: 0
           }]
         },
@@ -1569,7 +1666,7 @@ Thank you in advance.</textarea>
           datasets: [{
             label: 'Project Value',
             data: pmLabels.map(pm => pmValues[pm]),
-            backgroundColor: '#4f46e5',
+            backgroundColor: '#1668c1',
             borderRadius: 6
           }]
         },
@@ -1675,6 +1772,104 @@ Thank you in advance.</textarea>
       XLSX.writeFile(wb, fileName);
       closeExportModal();
       showToast(`✓ Report exported`);
+    }
+
+    function handleExport() {
+      const format = document.querySelector('input[name="exportFormat"]:checked').value;
+      if (format === 'pdf') {
+        generatePDF();
+      } else {
+        generateExcel();
+      }
+    }
+
+    function generatePDF() {
+      const reportType = document.querySelector('input[name="reportType"]:checked').value;
+      let data = projects;
+
+      if (reportType === 'contracts') {
+        data = projects.filter(p => flags[p['Project Code']]?.contracts);
+      } else if (reportType === 'estimation') {
+        data = projects.filter(p => flags[p['Project Code']]?.estimation);
+      }
+
+      if (!data.length) {
+        showToast('No projects to export', 'error');
+        return;
+      }
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'a4' });
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+
+      const reportLabels = { all: 'All Projects', contracts: 'Contracts — Flagged Projects', estimation: 'Estimation — Flagged Projects' };
+      const title = `MarineTeknik  |  ${reportLabels[reportType]}`;
+      const generatedOn = new Date().toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+      // Header bar
+      doc.setFillColor(7, 42, 74);
+      doc.rect(0, 0, pageWidth, 52, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(16);
+      doc.setFont('helvetica', 'bold');
+      doc.text(title, 28, 30);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Generated ${generatedOn}  |  ${data.length} project${data.length === 1 ? '' : 's'}`, 28, 44);
+
+      const tableColumns = ['Code', 'Project', 'PM', 'PO Number', 'Value', 'Invoiced', 'Remaining', '% Inv', 'Finance Notes'];
+      const tableRows = data.map(p => {
+        const code = p['Project Code'];
+        const cm = comments[code] || {};
+        return [
+          code,
+          p['Project Name'] || '',
+          p['Person Responsible'] || '',
+          p['PO Number'] || '',
+          formatCurrency(p['Project Value']),
+          formatCurrency(p['Invoiced Value']),
+          formatCurrency(p['Remaining Inv']),
+          (p['% invoiced'] || 0).toFixed(1) + '%',
+          cm.finance || ''
+        ];
+      });
+
+      doc.autoTable({
+        head: [tableColumns],
+        body: tableRows,
+        startY: 64,
+        styles: { font: 'helvetica', fontSize: 8, cellPadding: 5, overflow: 'linebreak', valign: 'middle' },
+        headStyles: { fillColor: [22, 104, 193], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'center' },
+        alternateRowStyles: { fillColor: [245, 246, 252] },
+        columnStyles: {
+          0: { cellWidth: 62 },
+          1: { cellWidth: 140 },
+          2: { cellWidth: 85 },
+          3: { cellWidth: 70 },
+          4: { cellWidth: 62, halign: 'right' },
+          5: { cellWidth: 62, halign: 'right' },
+          6: { cellWidth: 62, halign: 'right' },
+          7: { cellWidth: 42, halign: 'right' },
+          8: { cellWidth: 'auto' }
+        },
+        margin: { left: 28, right: 28, top: 64 }
+      });
+
+      // Footer page numbers, added after all pages are laid out
+      const totalPages = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= totalPages; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setTextColor(140);
+        doc.text(`Page ${i} of ${totalPages}`, pageWidth - 90, pageHeight - 16);
+      }
+
+      const reportLabel = reportType === 'all' ? 'all_projects' : reportType;
+      const fileName = `MarineTeknik_${reportLabel}_${new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }).replace(/\//g, '-')}.pdf`;
+      doc.save(fileName);
+      closeExportModal();
+      showToast('✓ PDF report exported');
     }
 
     async function handleImport(event) {
