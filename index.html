@@ -418,18 +418,19 @@
     }
 
     .table-scroll th:nth-child(1), .table-scroll td:nth-child(1)  { width: 110px; }  /* PO */
-    .table-scroll th:nth-child(2), .table-scroll td:nth-child(2)  { width: 80px; }   /* Start */
-    .table-scroll th:nth-child(3), .table-scroll td:nth-child(3)  { width: 80px; }   /* End */
-    .table-scroll th:nth-child(4), .table-scroll td:nth-child(4)  { width: 80px; }   /* Next Inv */
-    .table-scroll th:nth-child(5), .table-scroll td:nth-child(5)  { width: 92px; }   /* Status */
-    .table-scroll th:nth-child(6), .table-scroll td:nth-child(6)  { width: 105px; }  /* Value */
-    .table-scroll th:nth-child(7), .table-scroll td:nth-child(7)  { width: 105px; }  /* Invoiced */
-    .table-scroll th:nth-child(8), .table-scroll td:nth-child(8)  { width: 105px; }  /* Remaining */
-    .table-scroll th:nth-child(9), .table-scroll td:nth-child(9)  { width: 60px; }   /* % */
-    .table-scroll th:nth-child(10), .table-scroll td:nth-child(10) { width: 76px; }  /* Contracts */
-    .table-scroll th:nth-child(11), .table-scroll td:nth-child(11) { width: 76px; }  /* Estimation */
-    .table-scroll th:nth-child(12), .table-scroll td:nth-child(12) { width: 260px; } /* Finance Notes */
-    .table-scroll th:nth-child(13), .table-scroll td:nth-child(13) { width: 70px; }  /* Edit */
+    .table-scroll th:nth-child(2), .table-scroll td:nth-child(2)  { width: 110px; }  /* Reference */
+    .table-scroll th:nth-child(3), .table-scroll td:nth-child(3)  { width: 80px; }   /* Start */
+    .table-scroll th:nth-child(4), .table-scroll td:nth-child(4)  { width: 80px; }   /* End */
+    .table-scroll th:nth-child(5), .table-scroll td:nth-child(5)  { width: 80px; }   /* Next Inv */
+    .table-scroll th:nth-child(6), .table-scroll td:nth-child(6)  { width: 92px; }   /* Status */
+    .table-scroll th:nth-child(7), .table-scroll td:nth-child(7)  { width: 105px; }  /* Value */
+    .table-scroll th:nth-child(8), .table-scroll td:nth-child(8)  { width: 105px; }  /* Invoiced */
+    .table-scroll th:nth-child(9), .table-scroll td:nth-child(9)  { width: 105px; }  /* Remaining */
+    .table-scroll th:nth-child(10), .table-scroll td:nth-child(10) { width: 60px; }   /* % */
+    .table-scroll th:nth-child(11), .table-scroll td:nth-child(11) { width: 76px; }  /* Contracts */
+    .table-scroll th:nth-child(12), .table-scroll td:nth-child(12) { width: 76px; }  /* Estimation */
+    .table-scroll th:nth-child(13), .table-scroll td:nth-child(13) { width: 260px; } /* Finance Notes */
+    .table-scroll th:nth-child(14), .table-scroll td:nth-child(14) { width: 70px; }  /* Edit */
 
     .table-frozen th:nth-child(1), .table-frozen td:nth-child(1) { width: 130px; }  /* Project Code */
     .table-frozen th:nth-child(2), .table-frozen td:nth-child(2) { width: 190px; }  /* Project */
@@ -578,6 +579,112 @@
     .chart-container {
       position: relative;
       height: 250px;
+    }
+
+    .cal-wrapper {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .cal-month {
+      flex: 1 1 300px;
+      min-width: 260px;
+    }
+
+    .cal-month-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--navy-800);
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+
+    .cal-dow {
+      font-size: 10px;
+      font-weight: 700;
+      text-align: center;
+      color: var(--ink-muted);
+      padding-bottom: 4px;
+      text-transform: uppercase;
+    }
+
+    .cal-cell {
+      position: relative;
+      aspect-ratio: 1;
+      border-radius: 8px;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      font-size: 10.5px;
+      color: var(--ink-soft);
+      border: 1.5px solid transparent;
+    }
+
+    .cal-cell.cal-empty {
+      background: transparent;
+    }
+
+    .cal-cell.cal-today {
+      border-color: var(--brass);
+    }
+
+    .cal-daynum {
+      font-weight: 600;
+    }
+
+    .cal-cell.cal-has-invoice .cal-daynum {
+      font-size: 9.5px;
+    }
+
+    .cal-dot {
+      min-width: 16px;
+      height: 16px;
+      padding: 0 3px;
+      border-radius: 999px;
+      font-size: 9px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      cursor: default;
+    }
+
+    .cal-dot-overdue { background: var(--overdue); }
+    .cal-dot-duesoon { background: var(--duesoon); }
+    .cal-dot-upcoming { background: var(--upcoming); }
+
+    .cal-legend {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+      font-size: 11px;
+      color: var(--ink-muted);
+    }
+
+    .cal-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .cal-legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      display: inline-block;
     }
 
     .empty-state {
@@ -910,6 +1017,7 @@
               <thead>
                 <tr>
                   <th onclick="sortBy('PO Number')">PO</th>
+                  <th onclick="sortBy('Your Reference')">Reference</th>
                   <th onclick="sortBy('Project Start')">Start</th>
                   <th onclick="sortBy('Project End')">End</th>
                   <th onclick="sortBy('Next Invoice Date')">Next Inv</th>
@@ -926,7 +1034,7 @@
               </thead>
               <tbody id="tableBody">
                 <tr>
-                  <td colspan="13" class="empty-state">
+                  <td colspan="14" class="empty-state">
                     <div class="empty-title">No data yet</div>
                     <div class="empty-text">Import your Business Central data to get started</div>
                   </td>
@@ -940,6 +1048,16 @@
 
     <!-- Dashboard Page -->
     <div class="page" id="page-dashboard">
+      <div class="controls">
+        <div class="controls-row" style="justify-content:flex-start;">
+          <div class="dropdown-wrapper">
+            <button class="dropdown-btn" id="dashPmBtn" onclick="toggleDashboardPMDropdown()">All PMs <span>▾</span></button>
+            <div class="dropdown-menu" id="dashPmMenu"></div>
+          </div>
+          <span style="font-size:12px;color:var(--ink-muted)">Filters every chart, the calendar, and the schedule below to that PM's projects.</span>
+        </div>
+      </div>
+
       <div class="dashboard-grid">
         <div class="chart-card">
           <div class="chart-title">Invoice Status</div>
@@ -964,6 +1082,38 @@
           <div class="chart-container">
             <canvas id="pmChart"></canvas>
           </div>
+        </div>
+      </div>
+
+      <div class="chart-card" style="margin-bottom:18px;">
+        <div class="chart-title">Invoice Calendar</div>
+        <div id="invoiceCalendar" class="cal-wrapper"></div>
+        <div class="cal-legend">
+          <div class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--overdue)"></span> Overdue</div>
+          <div class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--duesoon)"></span> Due Soon (≤30 days)</div>
+          <div class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--upcoming)"></span> Upcoming</div>
+          <div class="cal-legend-item">Number in the dot = invoices due that day. Hover a dot to see which projects.</div>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-title">Invoice Schedule</div>
+        <div class="table-container" style="box-shadow:none;border:1px solid var(--border);">
+          <table style="table-layout:fixed;width:100%;">
+            <thead>
+              <tr>
+                <th style="width:13%;text-align:left">Code</th>
+                <th style="width:27%;text-align:left">Project</th>
+                <th style="width:16%;text-align:left">PM</th>
+                <th style="width:14%">Next Invoice</th>
+                <th style="width:14%">Status</th>
+                <th style="width:16%">Remaining</th>
+              </tr>
+            </thead>
+            <tbody id="scheduleTableBody">
+              <tr><td colspan="6" class="empty-state"></td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -1122,6 +1272,7 @@ Thank you in advance.</textarea>
     let flags = {};
     let currentFilter = ['all'];
     let currentPM = null;
+    let dashboardPM = null;
     let sortCol = 'invoiceStatus';
     let sortDir = 'asc';
     let charts = {};
@@ -1322,6 +1473,30 @@ Thank you in advance.</textarea>
       return 'Upcoming';
     }
 
+    // Parses BC's mixed date formats (ISO string, MM/DD/YYYY, Excel serial)
+    // into a normalized Date at midnight, or null if unparseable.
+    function parseFlexibleDate(dateStr) {
+      if (!dateStr) return null;
+      let date;
+      if (typeof dateStr === 'string') {
+        if (dateStr.includes('-')) {
+          date = new Date(dateStr + 'T00:00:00');
+        } else if (dateStr.includes('/')) {
+          const [m, d, y] = dateStr.split('/');
+          date = new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
+        } else {
+          return null;
+        }
+      } else if (typeof dateStr === 'number') {
+        date = new Date((dateStr - 25569) * 86400 * 1000);
+      } else {
+        return null;
+      }
+      if (isNaN(date.getTime())) return null;
+      date.setHours(0, 0, 0, 0);
+      return date;
+    }
+
     function getStatusClass(status) {
       if (status === 'OVERDUE') return 'status-overdue';
       if (status === 'DUE SOON') return 'status-duesoon';
@@ -1491,7 +1666,7 @@ Thank you in advance.</textarea>
       const tbodyFrozen = document.getElementById('tableBodyFrozen');
 
       if (!rows.length) {
-        tbody.innerHTML = '<tr><td colspan="13" class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">No matching projects</div></td></tr>';
+        tbody.innerHTML = '<tr><td colspan="14" class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">No matching projects</div></td></tr>';
         tbodyFrozen.innerHTML = '<tr><td colspan="3" class="empty-state"></td></tr>';
         return;
       }
@@ -1515,6 +1690,7 @@ Thank you in advance.</textarea>
         return `
           <tr data-row="${i}">
             <td>${escapeHtml(p['PO Number'])}</td>
+            <td>${escapeHtml(p['Your Reference'])}</td>
             <td>${formatDate(p['Project Start'])}</td>
             <td>${formatDate(p['Project End'])}</td>
             <td>${formatDate(p['Next Invoice Date'])}</td>
@@ -1617,12 +1793,18 @@ Thank you in advance.</textarea>
     }
 
     function renderDashboard() {
+      buildDashboardPMDropdown();
+
+      const dashData = dashboardPM
+        ? projects.filter(p => (p['Person Responsible'] || '(None)') === dashboardPM)
+        : projects.slice();
+
       const statusCounts = { 'OVERDUE': 0, 'DUE SOON': 0, 'Upcoming': 0, 'No Date': 0 };
       const statusValues = { 'OVERDUE': 0, 'DUE SOON': 0, 'Upcoming': 0, 'No Date': 0 };
       const pmValues = {};
       let totInv = 0, totRem = 0;
 
-      projects.forEach(p => {
+      dashData.forEach(p => {
         const st = p.invoiceStatus;
         statusCounts[st] = (statusCounts[st] || 0) + 1;
         statusValues[st] = (statusValues[st] || 0) + p['Remaining Inv'];
@@ -1693,6 +1875,144 @@ Thank you in advance.</textarea>
         },
         options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } } }
       });
+
+      renderInvoiceCalendar(dashData);
+      renderScheduleTable(dashData);
+    }
+
+    function buildDashboardPMDropdown() {
+      const pms = {};
+      projects.forEach(p => {
+        const pm = p['Person Responsible'] || '(None)';
+        pms[pm] = (pms[pm] || 0) + 1;
+      });
+      const sorted = Object.entries(pms).sort((a, b) => b[1] - a[1]);
+
+      const menu = document.getElementById('dashPmMenu');
+      if (!menu) return;
+      menu.innerHTML = `
+        <div class="dropdown-item ${!dashboardPM ? 'selected' : ''}" onclick="selectDashboardPM(null)">
+          <span style="color:#b8902e">✓</span> All PMs (${projects.length})
+        </div>
+      ` + sorted.map(([pm, count]) => `
+        <div class="dropdown-item ${dashboardPM === pm ? 'selected' : ''}" onclick="selectDashboardPM('${pm.replace(/'/g, "\\'")}')">
+          <span style="color:#b8902e">✓</span> ${pm} (${count})
+        </div>
+      `).join('');
+    }
+
+    function selectDashboardPM(pm) {
+      dashboardPM = pm;
+      const btn = document.getElementById('dashPmBtn');
+      if (btn) btn.textContent = (pm || 'All PMs') + ' ▾';
+      const menu = document.getElementById('dashPmMenu');
+      if (menu) menu.classList.remove('active');
+      renderDashboard();
+    }
+
+    function toggleDashboardPMDropdown() {
+      const menu = document.getElementById('dashPmMenu');
+      if (menu) menu.classList.toggle('active');
+    }
+
+    // Builds one month's calendar grid, marking each day that has one or
+    // more invoices due. Dot color reflects the worst status that day
+    // (overdue beats due-soon beats upcoming); hovering shows the codes.
+    function buildCalendarMonth(year, month, invoicesByDay, todayKey) {
+      const monthName = new Date(year, month, 1).toLocaleString('en-US', { month: 'long', year: 'numeric' });
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      let cells = '';
+      for (let i = 0; i < firstDay; i++) {
+        cells += '<div class="cal-cell cal-empty"></div>';
+      }
+      for (let d = 1; d <= daysInMonth; d++) {
+        const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        const dayInvoices = invoicesByDay[dateKey] || [];
+        let cellClass = 'cal-cell';
+        if (dateKey === todayKey) cellClass += ' cal-today';
+
+        let dotHtml = '';
+        if (dayInvoices.length) {
+          cellClass += ' cal-has-invoice';
+          const hasOverdue = dayInvoices.some(x => x.status === 'OVERDUE');
+          const hasDueSoon = dayInvoices.some(x => x.status === 'DUE SOON');
+          const dotClass = hasOverdue ? 'cal-dot-overdue' : hasDueSoon ? 'cal-dot-duesoon' : 'cal-dot-upcoming';
+          const titleText = dayInvoices.map(x => `${x.code} — ${x.name}`).join('\n');
+          dotHtml = `<div class="cal-dot ${dotClass}" title="${escapeHtml(titleText)}">${dayInvoices.length}</div>`;
+        }
+
+        cells += `<div class="${cellClass}"><span class="cal-daynum">${d}</span>${dotHtml}</div>`;
+      }
+
+      return `
+        <div class="cal-month">
+          <div class="cal-month-title">${monthName}</div>
+          <div class="cal-grid">
+            <div class="cal-dow">Su</div><div class="cal-dow">Mo</div><div class="cal-dow">Tu</div><div class="cal-dow">We</div><div class="cal-dow">Th</div><div class="cal-dow">Fr</div><div class="cal-dow">Sa</div>
+            ${cells}
+          </div>
+        </div>
+      `;
+    }
+
+    // Shows last month through next month, so overdue invoices (past
+    // dates) and upcoming ones are both visible on the same view.
+    function renderInvoiceCalendar(dashData) {
+      const container = document.getElementById('invoiceCalendar');
+      if (!container) return;
+
+      const invoicesByDay = {};
+      dashData.forEach(p => {
+        const d = parseFlexibleDate(p['Next Invoice Date']);
+        if (!d) return;
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        if (!invoicesByDay[key]) invoicesByDay[key] = [];
+        invoicesByDay[key].push({ code: p['Project Code'], name: p['Project Name'], status: p.invoiceStatus });
+      });
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const todayKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+      let html = '';
+      for (let offset = -1; offset <= 1; offset++) {
+        const d = new Date(today.getFullYear(), today.getMonth() + offset, 1);
+        html += buildCalendarMonth(d.getFullYear(), d.getMonth(), invoicesByDay, todayKey);
+      }
+      container.innerHTML = html;
+    }
+
+    // Chronological list of every project with a next invoice date
+    // (soonest/most overdue first), followed by projects with no date set.
+    function renderScheduleTable(dashData) {
+      const tbody = document.getElementById('scheduleTableBody');
+      if (!tbody) return;
+
+      const withDates = dashData.filter(p => parseFlexibleDate(p['Next Invoice Date']));
+      const noDates = dashData.filter(p => !parseFlexibleDate(p['Next Invoice Date']));
+      withDates.sort((a, b) => parseFlexibleDate(a['Next Invoice Date']) - parseFlexibleDate(b['Next Invoice Date']));
+      const rows = withDates.concat(noDates);
+
+      if (!rows.length) {
+        tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><div class="empty-text">No projects to show</div></td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = rows.map(p => {
+        const status = p.invoiceStatus;
+        return `
+          <tr>
+            <td style="text-align:left;font-weight:600">${escapeHtml(p['Project Code'])}</td>
+            <td style="text-align:left">${escapeHtml(p['Project Name'])}</td>
+            <td style="text-align:left">${escapeHtml(p['Person Responsible'])}</td>
+            <td>${formatDate(p['Next Invoice Date'])}</td>
+            <td><span class="status-badge ${getStatusClass(status)}">${status}</span></td>
+            <td class="currency">${formatCurrency(p['Remaining Inv'])}</td>
+          </tr>
+        `;
+      }).join('');
     }
 
     function openExportModal() {
@@ -1956,7 +2276,7 @@ Thank you in advance.</textarea>
         doc.text(`${section.data.length} project${section.data.length === 1 ? '' : 's'}`, marginX + 12 + doc.getTextWidth(section.label) + 14, cursorY + 12);
         cursorY += 24;
 
-        const tableColumns = ['Code', 'Project', 'PM', 'PO Number', 'Value', 'Invoiced', 'Remaining', '% Inv', 'Finance Notes'];
+        const tableColumns = ['Code', 'Project', 'PM', 'PO Number', 'Reference', 'Value', 'Invoiced', 'Remaining', '% Inv', 'Finance Notes'];
         const tableRows = section.data.map(p => {
           const code = p['Project Code'];
           const cm = comments[code] || {};
@@ -1965,6 +2285,7 @@ Thank you in advance.</textarea>
             p['Project Name'] || '',
             p['Person Responsible'] || '',
             p['PO Number'] || '',
+            p['Your Reference'] || '',
             formatCurrency(p['Project Value']),
             formatCurrency(p['Invoiced Value']),
             formatCurrency(p['Remaining Inv']),
@@ -1975,7 +2296,7 @@ Thank you in advance.</textarea>
 
         // Subtotal row
         tableRows.push([
-          { content: 'Subtotal', colSpan: 4, styles: { fontStyle: 'bold', halign: 'right', fillColor: [230, 235, 244] } },
+          { content: 'Subtotal', colSpan: 5, styles: { fontStyle: 'bold', halign: 'right', fillColor: [230, 235, 244] } },
           { content: formatCurrency(pdfSum(section.data, 'Project Value')), styles: { fontStyle: 'bold', halign: 'right', fillColor: [230, 235, 244] } },
           { content: formatCurrency(pdfSum(section.data, 'Invoiced Value')), styles: { fontStyle: 'bold', halign: 'right', fillColor: [230, 235, 244] } },
           { content: formatCurrency(pdfSum(section.data, 'Remaining Inv')), styles: { fontStyle: 'bold', halign: 'right', fillColor: [230, 235, 244] } },
@@ -1991,15 +2312,16 @@ Thank you in advance.</textarea>
           headStyles: { fillColor: BLUE, textColor: [255, 255, 255], fontStyle: 'bold', halign: 'center' },
           alternateRowStyles: { fillColor: LIGHT },
           columnStyles: {
-            0: { cellWidth: 60 },
-            1: { cellWidth: 135 },
-            2: { cellWidth: 82 },
-            3: { cellWidth: 68 },
-            4: { cellWidth: 62, halign: 'right' },
-            5: { cellWidth: 62, halign: 'right' },
-            6: { cellWidth: 62, halign: 'right' },
-            7: { cellWidth: 40, halign: 'right' },
-            8: { cellWidth: 'auto' }
+            0: { cellWidth: 55 },
+            1: { cellWidth: 120 },
+            2: { cellWidth: 75 },
+            3: { cellWidth: 60 },
+            4: { cellWidth: 65 },
+            5: { cellWidth: 58, halign: 'right' },
+            6: { cellWidth: 58, halign: 'right' },
+            7: { cellWidth: 58, halign: 'right' },
+            8: { cellWidth: 38, halign: 'right' },
+            9: { cellWidth: 'auto' }
           },
           margin: { left: marginX, right: marginX }
         });
@@ -2235,6 +2557,8 @@ Thank you in advance.</textarea>
     document.addEventListener('click', (e) => {
       if (!e.target.closest('.dropdown-wrapper')) {
         document.getElementById('pmMenu').classList.remove('active');
+        const dashMenu = document.getElementById('dashPmMenu');
+        if (dashMenu) dashMenu.classList.remove('active');
       }
     });
 
