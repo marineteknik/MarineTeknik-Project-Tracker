@@ -618,17 +618,17 @@
 
     .cal-cell {
       position: relative;
-      aspect-ratio: 1;
+      min-height: 66px;
       border-radius: 8px;
       background: var(--bg);
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 2px;
-      font-size: 10.5px;
+      align-items: stretch;
+      padding: 4px 4px 6px;
+      font-size: 10px;
       color: var(--ink-soft);
       border: 1.5px solid transparent;
+      overflow: hidden;
     }
 
     .cal-cell.cal-empty {
@@ -640,30 +640,41 @@
     }
 
     .cal-daynum {
-      font-weight: 600;
+      font-weight: 700;
+      font-size: 10px;
+      color: var(--ink-muted);
+      text-align: right;
+      margin-bottom: 2px;
     }
 
-    .cal-cell.cal-has-invoice .cal-daynum {
-      font-size: 9.5px;
+    .cal-codes {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      overflow: hidden;
     }
 
-    .cal-dot {
-      min-width: 16px;
-      height: 16px;
-      padding: 0 3px;
-      border-radius: 999px;
+    .cal-code {
       font-size: 9px;
       font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
+      padding: 1.5px 4px;
+      border-radius: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
       cursor: default;
     }
 
-    .cal-dot-overdue { background: var(--overdue); }
-    .cal-dot-duesoon { background: var(--duesoon); }
-    .cal-dot-upcoming { background: var(--upcoming); }
+    .cal-code-overdue { background: var(--overdue-bg); color: var(--overdue); }
+    .cal-code-duesoon { background: var(--duesoon-bg); color: var(--duesoon); }
+    .cal-code-upcoming { background: var(--upcoming-bg); color: var(--upcoming); }
+
+    .cal-code-more {
+      font-size: 8.5px;
+      color: var(--ink-muted);
+      font-weight: 600;
+      padding-left: 3px;
+    }
 
     .cal-legend {
       display: flex;
@@ -1086,13 +1097,24 @@
       </div>
 
       <div class="chart-card" style="margin-bottom:18px;">
-        <div class="chart-title">Invoice Calendar</div>
+        <div class="chart-title" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+          <span>Invoice Calendar</span>
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+            <button class="filter-btn" onclick="calendarShiftMonths(-3)">« 3mo</button>
+            <button class="filter-btn" onclick="calendarShiftMonths(-1)">‹ Prev</button>
+            <span id="calendarRangeLabel" style="min-width:140px;text-align:center;color:var(--ink-muted);font-size:11.5px;font-weight:600;"></span>
+            <button class="filter-btn" onclick="calendarShiftMonths(1)">Next ›</button>
+            <button class="filter-btn" onclick="calendarShiftMonths(3)">3mo »</button>
+            <button class="filter-btn" onclick="calendarGoToday()">Today</button>
+            <button class="filter-btn" onclick="calendarGoToOldestOverdue()" style="border-color:var(--overdue);color:var(--overdue);">Jump to Oldest Overdue</button>
+          </div>
+        </div>
         <div id="invoiceCalendar" class="cal-wrapper"></div>
         <div class="cal-legend">
           <div class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--overdue)"></span> Overdue</div>
           <div class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--duesoon)"></span> Due Soon (≤30 days)</div>
           <div class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--upcoming)"></span> Upcoming</div>
-          <div class="cal-legend-item">Number in the dot = invoices due that day. Hover a dot to see which projects.</div>
+          <div class="cal-legend-item">Codes shown are the project(s) due that day. Hover a day to see full project names.</div>
         </div>
       </div>
 
@@ -1273,6 +1295,8 @@ Thank you in advance.</textarea>
     let currentFilter = ['all'];
     let currentPM = null;
     let dashboardPM = null;
+    let calendarCenterDate = null;
+    let currentCalendarData = [];
     let sortCol = 'invoiceStatus';
     let sortDir = 'asc';
     let charts = {};
@@ -1915,13 +1939,15 @@ Thank you in advance.</textarea>
       if (menu) menu.classList.toggle('active');
     }
 
-    // Builds one month's calendar grid, marking each day that has one or
-    // more invoices due. Dot color reflects the worst status that day
-    // (overdue beats due-soon beats upcoming); hovering shows the codes.
+    // Builds one month's calendar grid, listing the project code(s) due
+    // each day (color-coded by status: overdue beats due-soon beats
+    // upcoming for sort order). Hovering a day shows full project names.
     function buildCalendarMonth(year, month, invoicesByDay, todayKey) {
       const monthName = new Date(year, month, 1).toLocaleString('en-US', { month: 'long', year: 'numeric' });
       const firstDay = new Date(year, month, 1).getDay();
       const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const statusRank = { 'OVERDUE': 0, 'DUE SOON': 1, 'Upcoming': 2 };
+      const maxShown = 3;
 
       let cells = '';
       for (let i = 0; i < firstDay; i++) {
@@ -1933,17 +1959,22 @@ Thank you in advance.</textarea>
         let cellClass = 'cal-cell';
         if (dateKey === todayKey) cellClass += ' cal-today';
 
-        let dotHtml = '';
+        let codesHtml = '';
         if (dayInvoices.length) {
           cellClass += ' cal-has-invoice';
-          const hasOverdue = dayInvoices.some(x => x.status === 'OVERDUE');
-          const hasDueSoon = dayInvoices.some(x => x.status === 'DUE SOON');
-          const dotClass = hasOverdue ? 'cal-dot-overdue' : hasDueSoon ? 'cal-dot-duesoon' : 'cal-dot-upcoming';
-          const titleText = dayInvoices.map(x => `${x.code} — ${x.name}`).join('\n');
-          dotHtml = `<div class="cal-dot ${dotClass}" title="${escapeHtml(titleText)}">${dayInvoices.length}</div>`;
+          const sorted = dayInvoices.slice().sort((a, b) => (statusRank[a.status] ?? 3) - (statusRank[b.status] ?? 3));
+          const shown = sorted.slice(0, maxShown);
+          const extra = sorted.length - shown.length;
+          const codeSpans = shown.map(x => {
+            const cls = x.status === 'OVERDUE' ? 'cal-code-overdue' : x.status === 'DUE SOON' ? 'cal-code-duesoon' : 'cal-code-upcoming';
+            return `<span class="cal-code ${cls}">${escapeHtml(x.code)}</span>`;
+          }).join('');
+          const moreHtml = extra > 0 ? `<span class="cal-code-more">+${extra} more</span>` : '';
+          const titleText = sorted.map(x => `${x.code} — ${x.name}`).join('\n');
+          codesHtml = `<div class="cal-codes" title="${escapeHtml(titleText)}">${codeSpans}${moreHtml}</div>`;
         }
 
-        cells += `<div class="${cellClass}"><span class="cal-daynum">${d}</span>${dotHtml}</div>`;
+        cells += `<div class="${cellClass}"><span class="cal-daynum">${d}</span>${codesHtml}</div>`;
       }
 
       return `
@@ -1957,11 +1988,20 @@ Thank you in advance.</textarea>
       `;
     }
 
-    // Shows last month through next month, so overdue invoices (past
-    // dates) and upcoming ones are both visible on the same view.
+    // Shows a 3-month window centered on calendarCenterDate (defaults to
+    // the current month). The window can be navigated with the Prev/Next/
+    // Today/Jump-to-Oldest-Overdue controls so any month in the data —
+    // past or future — is reachable, not just the current quarter.
     function renderInvoiceCalendar(dashData) {
       const container = document.getElementById('invoiceCalendar');
       if (!container) return;
+      currentCalendarData = dashData;
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (!calendarCenterDate) {
+        calendarCenterDate = new Date(today.getFullYear(), today.getMonth(), 1);
+      }
 
       const invoicesByDay = {};
       dashData.forEach(p => {
@@ -1972,16 +2012,48 @@ Thank you in advance.</textarea>
         invoicesByDay[key].push({ code: p['Project Code'], name: p['Project Name'], status: p.invoiceStatus });
       });
 
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
       const todayKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
       let html = '';
       for (let offset = -1; offset <= 1; offset++) {
-        const d = new Date(today.getFullYear(), today.getMonth() + offset, 1);
+        const d = new Date(calendarCenterDate.getFullYear(), calendarCenterDate.getMonth() + offset, 1);
         html += buildCalendarMonth(d.getFullYear(), d.getMonth(), invoicesByDay, todayKey);
       }
       container.innerHTML = html;
+
+      const label = document.getElementById('calendarRangeLabel');
+      if (label) {
+        const start = new Date(calendarCenterDate.getFullYear(), calendarCenterDate.getMonth() - 1, 1);
+        const end = new Date(calendarCenterDate.getFullYear(), calendarCenterDate.getMonth() + 1, 1);
+        label.textContent = `${start.toLocaleString('en-US', { month: 'short', year: 'numeric' })} – ${end.toLocaleString('en-US', { month: 'short', year: 'numeric' })}`;
+      }
+    }
+
+    function calendarShiftMonths(n) {
+      if (!calendarCenterDate) calendarCenterDate = new Date();
+      calendarCenterDate = new Date(calendarCenterDate.getFullYear(), calendarCenterDate.getMonth() + n, 1);
+      renderInvoiceCalendar(currentCalendarData);
+    }
+
+    function calendarGoToday() {
+      const today = new Date();
+      calendarCenterDate = new Date(today.getFullYear(), today.getMonth(), 1);
+      renderInvoiceCalendar(currentCalendarData);
+    }
+
+    function calendarGoToOldestOverdue() {
+      const overdue = currentCalendarData
+        .map(p => ({ p, d: parseFlexibleDate(p['Next Invoice Date']) }))
+        .filter(x => x.d && x.p.invoiceStatus === 'OVERDUE');
+
+      if (!overdue.length) {
+        showToast('No overdue invoices to jump to');
+        return;
+      }
+      overdue.sort((a, b) => a.d - b.d);
+      const oldest = overdue[0].d;
+      calendarCenterDate = new Date(oldest.getFullYear(), oldest.getMonth(), 1);
+      renderInvoiceCalendar(currentCalendarData);
     }
 
     // Chronological list of every project with a next invoice date
