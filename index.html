@@ -1525,6 +1525,7 @@
             <button class="dropdown-btn" id="dashYearBtn" onclick="toggleDashboardYearDropdown()">All Years <span>▾</span></button>
             <div class="dropdown-menu" id="dashYearMenu"></div>
           </div>
+          <button class="btn" style="padding:7px 14px;background:var(--surface);border:1px solid var(--border);color:var(--ink-soft);border-radius:999px;font-weight:600;cursor:pointer;font-size:11.5px;" onclick="openTemplateManagerModal()">Payment Templates</button>
           <span style="font-size:12px;color:var(--ink-muted)">Filters every chart, the calendar, and the schedule below. Year is read from the project code (e.g. 25xxx → 2025, INS-26 → 2026).</span>
         </div>
       </div>
@@ -1767,27 +1768,77 @@
     </div>
   </div>
 
-  <!-- Invoice Amount Modal -->
+  <!-- Invoice Amount / Payment Plan Modal -->
   <div class="modal" id="invoiceAmountModal">
-    <div class="modal-content">
+    <div class="modal-content" style="max-width:660px;">
       <div class="modal-header">
-        <h2>Invoice Amount</h2>
+        <h2>Invoicing Plan</h2>
         <p id="invoiceAmountProjectInfo"></p>
       </div>
       <input type="hidden" id="invoiceAmountProjectCode">
+
       <div class="option-group">
         <label style="color:var(--navy-800);font-weight:700">Auto-Estimate</label>
         <div id="invoiceAmountEstimateDisplay" style="padding:10px 12px;background:var(--bg);border-radius:7px;font-size:14px;font-weight:600;color:var(--ink-soft);"></div>
-        <div style="font-size:11px;color:var(--ink-muted);margin-top:6px;">Remaining Inv spread evenly across the months left until Project End. Used automatically unless you enter an actual amount below.</div>
+        <div style="font-size:11px;color:var(--ink-muted);margin-top:6px;">Fallback only — Remaining Inv spread evenly to Project End. Used when neither option below is set.</div>
       </div>
+
       <div class="option-group">
-        <label style="color:var(--navy-800);font-weight:700">Actual Amount (optional override)</label>
-        <input type="number" id="invoiceAmountManualInput" step="0.01" min="0" placeholder="e.g. 45000" style="width:100%;padding:10px;border:1.5px solid var(--navy-700);border-radius:7px;font-size:13px;font-family:inherit;outline:none;background:var(--bg)">
+        <label style="color:var(--navy-800);font-weight:700">Single Manual Amount</label>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input type="number" id="invoiceAmountManualInput" step="0.01" min="0" placeholder="e.g. 45000" style="flex:1;padding:10px;border:1.5px solid var(--navy-700);border-radius:7px;font-size:13px;font-family:inherit;outline:none;background:var(--bg)">
+          <button class="btn" style="padding:9px 16px;background:var(--navy-700);color:#fff;border:none;border-radius:7px;font-size:12px;cursor:pointer;white-space:nowrap;" onclick="saveInvoiceAmountOverride()">Save</button>
+          <button class="btn" style="padding:9px 14px;background:var(--surface);color:var(--overdue);border:1px solid var(--overdue);border-radius:7px;font-size:12px;cursor:pointer;white-space:nowrap;" onclick="clearInvoiceAmountOverride()">Clear</button>
+        </div>
+        <div style="font-size:11px;color:var(--ink-muted);margin-top:6px;">A one-off number for the single next invoice. Ignored if a payment plan is set below.</div>
+      </div>
+
+      <div class="option-group">
+        <label style="color:var(--navy-800);font-weight:700">Payment Plan — splits Project Value into dated installments</label>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
+          <select id="planTemplateSelect" style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:7px;font-size:12.5px;background:var(--bg);"></select>
+          <button class="btn" style="padding:8px 14px;background:var(--brass);color:#3d2a00;border:none;border-radius:7px;font-size:12px;cursor:pointer;font-weight:700;white-space:nowrap;" onclick="applyPaymentTemplate()">Apply Template</button>
+        </div>
+        <div id="planInstallmentsContainer"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;flex-wrap:wrap;gap:8px;">
+          <button class="btn" style="padding:6px 12px;background:var(--bg);border:1px dashed var(--border);border-radius:7px;font-size:11.5px;cursor:pointer;color:var(--ink-soft);" onclick="addPlanInstallmentRow()">+ Add Installment</button>
+          <span id="planTotalIndicator" style="font-size:11.5px;font-weight:700;"></span>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:8px;">
+          <button class="btn-cancel" style="color:var(--overdue);border-color:var(--overdue);" onclick="clearPaymentPlan()">Clear Plan</button>
+          <button class="btn-export" onclick="savePaymentPlan()">Save Plan</button>
+        </div>
+        <div style="margin-top:10px;">
+          <a href="#" onclick="openTemplateManagerModal();return false;" style="font-size:11px;color:var(--navy-700);font-weight:600;">Manage payment term templates ▸</a>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeInvoiceAmountModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Payment Term Template Manager Modal -->
+  <div class="modal" id="templateManagerModal">
+    <div class="modal-content" style="max-width:600px;">
+      <div class="modal-header">
+        <h2>Payment Term Templates</h2>
+        <p>Reusable installment splits you can apply to any project's payment plan.</p>
+      </div>
+      <div id="templateListContainer" style="max-height:220px;overflow-y:auto;margin-bottom:18px;"></div>
+      <div class="option-group">
+        <label style="color:var(--navy-800);font-weight:700">New Template</label>
+        <input type="text" id="newTemplateName" placeholder="Template name (e.g. 50/50 Order/End)" style="width:100%;padding:9px;border:1.5px solid var(--navy-700);border-radius:7px;font-size:12.5px;margin-bottom:10px;background:var(--bg);font-family:inherit;">
+        <div id="newTemplateInstallments"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
+          <button class="btn" style="padding:6px 12px;background:var(--bg);border:1px dashed var(--border);border-radius:7px;font-size:11.5px;cursor:pointer;color:var(--ink-soft);" onclick="addNewTemplateRow()">+ Add Installment</button>
+          <span id="newTemplateTotalIndicator" style="font-size:11.5px;font-weight:700;"></span>
+        </div>
       </div>
       <div class="modal-footer">
-        <button class="btn-cancel" style="color:var(--overdue);border-color:var(--overdue);" onclick="clearInvoiceAmountOverride()">Clear Override</button>
-        <button class="btn-cancel" onclick="closeInvoiceAmountModal()">Cancel</button>
-        <button class="btn-export" onclick="saveInvoiceAmountOverride()">Save</button>
+        <button class="btn-cancel" onclick="closeTemplateManagerModal()">Close</button>
+        <button class="btn-export" onclick="saveNewTemplate()">Save Template</button>
       </div>
     </div>
   </div>
@@ -1928,6 +1979,11 @@ Thank you in advance.</textarea>
     let comments = {};
     let flags = {};
     let invoiceAmounts = {};
+    let paymentTemplates = [];
+    let projectPaymentPlans = {};
+    let editingProjectCode = null;
+    let editingInstallments = [];
+    let newTemplateInstallments = [];
     let currentFilter = ['all'];
     let currentPM = null;
     let dashboardPM = null;
@@ -2012,6 +2068,8 @@ Thank you in advance.</textarea>
         await loadComments();
         await loadFlags();
         await loadInvoiceAmounts();
+        await loadPaymentTemplates();
+        await loadProjectPaymentPlans();
         filterTable();
         updateKPIs();
         updateLastUpdatedTimestamp();
@@ -2161,6 +2219,43 @@ Thank you in advance.</textarea>
       }
     }
 
+    // Reusable payment term "splits" (e.g. 30/30/40 at Order/Start/End).
+    // Seeded with your standard four via SQL; users can add/edit/delete
+    // more from the app (Dashboard > Payment Templates) with no code
+    // changes needed.
+    async function loadPaymentTemplates() {
+      try {
+        const { data, error } = await supabaseClient.from('payment_term_templates').select('*').order('name');
+        if (error) throw error;
+        paymentTemplates = data || [];
+        console.log('Loaded payment templates from Supabase:', paymentTemplates.length);
+      } catch (e) {
+        console.error('Payment templates load error:', e);
+        paymentTemplates = [];
+      }
+    }
+
+    // The actual installment schedule applied to each project — a
+    // snapshot copied from a template (so later template edits don't
+    // retroactively change a project's saved plan) plus per-installment
+    // custom dates and "already invoiced" checkboxes.
+    async function loadProjectPaymentPlans() {
+      try {
+        const { data, error } = await supabaseClient.from('project_payment_terms').select('*');
+        if (error) throw error;
+        projectPaymentPlans = {};
+        (data || []).forEach(r => {
+          if (r.project_code) {
+            projectPaymentPlans[r.project_code] = { installments: r.installments || [], templateName: r.template_name || '' };
+          }
+        });
+        console.log('Loaded project payment plans from Supabase');
+      } catch (e) {
+        console.error('Project payment plans load error:', e);
+        projectPaymentPlans = {};
+      }
+    }
+
     function getInvoiceStatus(dateStr) {
       if (!dateStr) return 'No Date';
       
@@ -2263,6 +2358,66 @@ Thank you in advance.</textarea>
         return { amount: override, isManual: true };
       }
       return { amount: estimateInvoiceAmount(p), isManual: false };
+    }
+
+    // Same OVERDUE/DUE SOON/Upcoming logic as getInvoiceStatus(), but
+    // works on an already-parsed Date object — needed because payment
+    // plan installments resolve to Date objects (from Project Start/End
+    // or a custom date), not raw Excel date strings.
+    function getStatusForDate(d) {
+      if (!d) return 'No Date';
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const diffDays = Math.ceil((d - today) / (1000 * 60 * 60 * 24));
+      if (diffDays < 0) return 'OVERDUE';
+      if (diffDays <= 30) return 'DUE SOON';
+      return 'Upcoming';
+    }
+
+    function resolveInstallmentDate(installment, p) {
+      if (installment.milestone === 'start') return parseFlexibleDate(p['Project Start']);
+      if (installment.milestone === 'end') return parseFlexibleDate(p['Project End']);
+      if (installment.milestone === 'custom' && installment.custom_date) return parseFlexibleDate(installment.custom_date);
+      return null;
+    }
+
+    // The single source of truth for "what invoice event(s) does this
+    // project have coming up, and for how much". If a payment plan is
+    // saved, splits Project Value into its dated installments (skipping
+    // ones already marked invoiced). Otherwise falls back to the single
+    // Next Invoice Date event using the existing estimate/manual tier.
+    function getProjectInvoiceEvents(p) {
+      const code = p['Project Code'];
+      const plan = projectPaymentPlans[code];
+
+      if (plan && plan.installments && plan.installments.length) {
+        return plan.installments.map((inst, i) => {
+          const date = resolveInstallmentDate(inst, p);
+          const amount = (p['Project Value'] || 0) * (parseFloat(inst.pct) || 0) / 100;
+          return {
+            date,
+            amount,
+            label: inst.label || `Installment ${i + 1}`,
+            pct: inst.pct,
+            invoiced: !!inst.invoiced,
+            isPlan: true,
+            isManual: false,
+            index: i
+          };
+        });
+      }
+
+      const info = getInvoiceAmountInfo(p);
+      return [{
+        date: parseFlexibleDate(p['Next Invoice Date']),
+        amount: info.amount,
+        label: info.isManual ? 'Manual Amount' : 'Next Invoice',
+        pct: null,
+        invoiced: false,
+        isPlan: false,
+        isManual: info.isManual,
+        index: 0
+      }];
     }
 
     function formatDate(dateStr) {
@@ -2819,7 +2974,7 @@ Thank you in advance.</textarea>
             return `<span class="cal-code ${cls}"><span class="cal-code-name">${escapeHtml(x.code)}</span><span class="cal-code-amt">${amtLabel}</span></span>`;
           }).join('');
           const moreHtml = extra > 0 ? `<span class="cal-code-more">+${extra} more</span>` : '';
-          const titleText = sorted.map(x => `${x.code} — ${x.name} (PM: ${x.pm || 'Unassigned'}) — ${formatCurrency(x.amount)}${x.isManual ? '' : ' (estimated)'}`).join('\n');
+          const titleText = sorted.map(x => `${x.code} — ${x.name} (PM: ${x.pm || 'Unassigned'}) — ${x.label ? x.label + ': ' : ''}${formatCurrency(x.amount)}${x.isManual ? '' : ' (estimated)'}`).join('\n');
           codesHtml = `<div class="cal-codes" title="${escapeHtml(titleText)}">${codeSpans}${moreHtml}</div>`;
         }
 
@@ -2854,12 +3009,21 @@ Thank you in advance.</textarea>
 
       const invoicesByDay = {};
       dashData.forEach(p => {
-        const d = parseFlexibleDate(p['Next Invoice Date']);
-        if (!d) return;
-        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-        if (!invoicesByDay[key]) invoicesByDay[key] = [];
-        const info = getInvoiceAmountInfo(p);
-        invoicesByDay[key].push({ code: p['Project Code'], name: p['Project Name'], status: p.invoiceStatus, pm: p['Person Responsible'] || 'Unassigned', amount: info.amount, isManual: info.isManual });
+        const events = getProjectInvoiceEvents(p);
+        events.forEach(ev => {
+          if (ev.invoiced || !ev.date) return;
+          const key = `${ev.date.getFullYear()}-${String(ev.date.getMonth() + 1).padStart(2, '0')}-${String(ev.date.getDate()).padStart(2, '0')}`;
+          if (!invoicesByDay[key]) invoicesByDay[key] = [];
+          invoicesByDay[key].push({
+            code: p['Project Code'],
+            name: p['Project Name'],
+            status: getStatusForDate(ev.date),
+            pm: p['Person Responsible'] || 'Unassigned',
+            amount: ev.amount,
+            isManual: ev.isPlan || ev.isManual,
+            label: ev.label
+          });
+        });
       });
 
       const todayKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
@@ -2912,34 +3076,59 @@ Thank you in advance.</textarea>
       const tbody = document.getElementById('scheduleTableBody');
       if (!tbody) return;
 
-      const withDates = dashData.filter(p => parseFlexibleDate(p['Next Invoice Date']));
-      const noDates = dashData.filter(p => !parseFlexibleDate(p['Next Invoice Date']));
-      withDates.sort((a, b) => parseFlexibleDate(a['Next Invoice Date']) - parseFlexibleDate(b['Next Invoice Date']));
-      const rows = withDates.concat(noDates);
+      const dated = [];
+      const undatedProjects = [];
 
-      if (!rows.length) {
+      dashData.forEach(p => {
+        const events = getProjectInvoiceEvents(p);
+        const pending = events.filter(ev => !ev.invoiced && ev.date);
+        if (pending.length) {
+          pending.forEach(ev => dated.push({ p, ev }));
+        } else {
+          undatedProjects.push(p);
+        }
+      });
+
+      dated.sort((a, b) => a.ev.date - b.ev.date);
+
+      if (!dated.length && !undatedProjects.length) {
         tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><div class="empty-text">No projects to show</div></td></tr>';
         return;
       }
 
-      tbody.innerHTML = rows.map(p => {
-        const status = p.invoiceStatus;
+      const datedRows = dated.map(({ p, ev }) => {
+        const status = getStatusForDate(ev.date);
         const code = p['Project Code'];
-        const info = getInvoiceAmountInfo(p);
-        const amtLabel = formatCurrency(info.amount) + (info.isManual ? '' : ' *');
+        const notEstimated = ev.isPlan || ev.isManual;
+        const amtLabel = formatCurrency(ev.amount) + (notEstimated ? '' : ' *');
         return `
           <tr>
             <td style="text-align:left;font-weight:600">${escapeHtml(code)}</td>
             <td style="text-align:left">${escapeHtml(p['Project Name'])}</td>
             <td style="text-align:left">${escapeHtml(p['Person Responsible'])}</td>
-            <td>${formatDate(p['Next Invoice Date'])}</td>
+            <td>${formatDateObj(ev.date)}<div style="font-size:9.5px;color:var(--ink-muted);font-weight:500;">${escapeHtml(ev.label || '')}</div></td>
             <td><span class="status-badge ${getStatusClass(status)}">${status}</span></td>
             <td class="currency">${formatCurrency(p['Remaining Inv'])}</td>
-            <td class="currency" style="color:${info.isManual ? 'var(--ink)' : 'var(--ink-muted)'};font-weight:${info.isManual ? '700' : '500'};">${amtLabel}</td>
+            <td class="currency" style="color:${notEstimated ? 'var(--ink)' : 'var(--ink-muted)'};font-weight:${notEstimated ? '700' : '500'};">${amtLabel}</td>
             <td><button class="btn" style="padding:5px 10px;font-size:10.5px;cursor:pointer;background:var(--navy-700);color:#fff;border-radius:999px;" onclick="openInvoiceAmountModal('${escapeHtml(code)}')">✏️</button></td>
           </tr>
         `;
       }).join('');
+
+      const undatedRows = undatedProjects.map(p => `
+        <tr>
+          <td style="text-align:left;font-weight:600">${escapeHtml(p['Project Code'])}</td>
+          <td style="text-align:left">${escapeHtml(p['Project Name'])}</td>
+          <td style="text-align:left">${escapeHtml(p['Person Responsible'])}</td>
+          <td>—</td>
+          <td><span class="status-badge status-nodate">No Date</span></td>
+          <td class="currency">${formatCurrency(p['Remaining Inv'])}</td>
+          <td class="currency" style="color:var(--ink-muted);">—</td>
+          <td><button class="btn" style="padding:5px 10px;font-size:10.5px;cursor:pointer;background:var(--navy-700);color:#fff;border-radius:999px;" onclick="openInvoiceAmountModal('${escapeHtml(p['Project Code'])}')">✏️</button></td>
+        </tr>
+      `).join('');
+
+      tbody.innerHTML = datedRows + undatedRows;
     }
 
     // --- Project Status page ------------------------------------------
@@ -4039,17 +4228,19 @@ Thank you in advance.</textarea>
       }
       
       try {
-        // Clear Supabase
+        // Clear Supabase (payment_term_templates is a reusable library, not project-specific — left alone)
         await supabaseClient.from('projects').delete().neq('project_code', '');
         await supabaseClient.from('comments').delete().neq('project_code', '');
         await supabaseClient.from('flags').delete().neq('project_code', '');
         await supabaseClient.from('invoice_amounts').delete().neq('project_code', '');
+        await supabaseClient.from('project_payment_terms').delete().neq('project_code', '');
         
         // Clear local state
         projects = [];
         comments = {};
         flags = {};
         invoiceAmounts = {};
+        projectPaymentPlans = {};
         currentFilter = ['all'];
         currentPM = null;
         
@@ -4179,6 +4370,7 @@ Thank you in advance.</textarea>
     function openInvoiceAmountModal(code) {
       const proj = projects.find(p => p['Project Code'] === code);
       if (!proj) return;
+      editingProjectCode = code;
       const info = getInvoiceAmountInfo(proj);
 
       document.getElementById('invoiceAmountProjectCode').value = code;
@@ -4186,7 +4378,12 @@ Thank you in advance.</textarea>
       document.getElementById('invoiceAmountEstimateDisplay').textContent = formatCurrency(estimateInvoiceAmount(proj));
 
       const manualInput = document.getElementById('invoiceAmountManualInput');
-      manualInput.value = info.isManual ? info.amount : '';
+      const plan = projectPaymentPlans[code];
+      manualInput.value = (!plan && info.isManual) ? info.amount : '';
+
+      editingInstallments = plan ? JSON.parse(JSON.stringify(plan.installments)) : [];
+      renderPlanTemplateOptions();
+      renderPlanInstallments(proj);
 
       document.getElementById('invoiceAmountModal').classList.add('active');
     }
@@ -4219,9 +4416,8 @@ Thank you in advance.</textarea>
       }
 
       invoiceAmounts[code] = { manual: value };
-      closeInvoiceAmountModal();
       renderDashboard();
-      showToast(value === null ? '✓ Reverted to auto-estimate' : '✓ Invoice amount saved');
+      showToast(value === null ? '✓ Reverted to auto-estimate' : '✓ Single amount saved');
     }
 
     async function clearInvoiceAmountOverride() {
@@ -4236,9 +4432,269 @@ Thank you in advance.</textarea>
 
       invoiceAmounts[code] = { manual: null };
       document.getElementById('invoiceAmountManualInput').value = '';
-      closeInvoiceAmountModal();
       renderDashboard();
       showToast('✓ Reverted to auto-estimate');
+    }
+
+    // --- Payment Plan editor (inside the Invoicing Plan modal) --------
+
+    function renderPlanTemplateOptions() {
+      const select = document.getElementById('planTemplateSelect');
+      if (!select) return;
+      select.innerHTML = '<option value="">Choose a template…</option>' +
+        paymentTemplates.map(t => `<option value="${t.id}">${escapeHtml(t.name)}</option>`).join('');
+    }
+
+    function applyPaymentTemplate() {
+      const select = document.getElementById('planTemplateSelect');
+      const tmpl = paymentTemplates.find(t => t.id === select.value);
+      if (!tmpl) {
+        showToast('Choose a template first', 'error');
+        return;
+      }
+      editingInstallments = JSON.parse(JSON.stringify(tmpl.installments)).map(inst => ({
+        pct: inst.pct,
+        milestone: inst.milestone,
+        label: inst.label || '',
+        custom_date: inst.custom_date || '',
+        invoiced: false
+      }));
+      const proj = projects.find(p => p['Project Code'] === editingProjectCode);
+      renderPlanInstallments(proj);
+    }
+
+    function renderPlanInstallments(proj) {
+      const container = document.getElementById('planInstallmentsContainer');
+      if (!container || !proj) return;
+
+      if (!editingInstallments.length) {
+        container.innerHTML = '<div style="font-size:11.5px;color:var(--ink-muted);padding:8px 0;">No installments yet — apply a template above, or add one manually.</div>';
+      } else {
+        container.innerHTML = editingInstallments.map((inst, i) => {
+          const amount = (proj['Project Value'] || 0) * (parseFloat(inst.pct) || 0) / 100;
+          const resolved = inst.milestone === 'start' ? parseFlexibleDate(proj['Project Start'])
+            : inst.milestone === 'end' ? parseFlexibleDate(proj['Project End'])
+            : null;
+          const dateDisplay = resolved ? formatDateObj(resolved) : '—';
+          return `
+            <div style="display:flex;gap:6px;align-items:center;margin-bottom:7px;flex-wrap:wrap;background:var(--bg);padding:7px 8px;border-radius:8px;">
+              <input type="number" min="0" max="100" value="${inst.pct}" style="width:52px;padding:6px;border:1px solid var(--border);border-radius:6px;font-size:12px;" onchange="updatePlanRow(${i},'pct',this.value)">%
+              <select style="padding:6px;border:1px solid var(--border);border-radius:6px;font-size:12px;" onchange="updatePlanRow(${i},'milestone',this.value)">
+                <option value="start" ${inst.milestone === 'start' ? 'selected' : ''}>Project Start</option>
+                <option value="end" ${inst.milestone === 'end' ? 'selected' : ''}>Project End</option>
+                <option value="custom" ${inst.milestone === 'custom' ? 'selected' : ''}>Custom Date</option>
+              </select>
+              ${inst.milestone === 'custom'
+                ? `<input type="date" value="${inst.custom_date || ''}" style="padding:5px;border:1px solid var(--border);border-radius:6px;font-size:11.5px;" onchange="updatePlanRow(${i},'custom_date',this.value)">`
+                : `<span style="font-size:11px;color:var(--ink-muted);min-width:66px;">${dateDisplay}</span>`
+              }
+              <input type="text" value="${escapeHtml(inst.label || '')}" placeholder="Label" style="width:84px;padding:6px;border:1px solid var(--border);border-radius:6px;font-size:12px;" onchange="updatePlanRow(${i},'label',this.value)">
+              <span style="font-size:12px;font-weight:700;color:var(--navy-800);min-width:72px;">${formatCurrency(amount)}</span>
+              <label style="font-size:10px;color:var(--ink-muted);display:flex;align-items:center;gap:3px;white-space:nowrap;"><input type="checkbox" ${inst.invoiced ? 'checked' : ''} onchange="updatePlanRow(${i},'invoiced',this.checked)"> Invoiced</label>
+              <button onclick="removePlanInstallmentRow(${i})" style="border:none;background:none;color:var(--overdue);cursor:pointer;font-size:14px;margin-left:auto;">✕</button>
+            </div>
+          `;
+        }).join('');
+      }
+
+      const total = editingInstallments.reduce((s, i) => s + (parseFloat(i.pct) || 0), 0);
+      const indicator = document.getElementById('planTotalIndicator');
+      if (indicator) {
+        indicator.textContent = `Total: ${total}%` + (total === 100 ? ' ✓' : total > 100 ? ' — over 100%' : ' — under 100%');
+        indicator.style.color = total === 100 ? 'var(--upcoming)' : 'var(--overdue)';
+      }
+    }
+
+    function updatePlanRow(i, field, value) {
+      if (!editingInstallments[i]) return;
+      if (field === 'pct') editingInstallments[i].pct = parseFloat(value) || 0;
+      else if (field === 'invoiced') editingInstallments[i].invoiced = value;
+      else editingInstallments[i][field] = value;
+      renderPlanInstallments(projects.find(p => p['Project Code'] === editingProjectCode));
+    }
+
+    function addPlanInstallmentRow() {
+      editingInstallments.push({ pct: 0, milestone: 'custom', label: `Installment ${editingInstallments.length + 1}`, custom_date: '', invoiced: false });
+      renderPlanInstallments(projects.find(p => p['Project Code'] === editingProjectCode));
+    }
+
+    function removePlanInstallmentRow(i) {
+      editingInstallments.splice(i, 1);
+      renderPlanInstallments(projects.find(p => p['Project Code'] === editingProjectCode));
+    }
+
+    async function savePaymentPlan() {
+      const code = editingProjectCode;
+      if (!editingInstallments.length) {
+        showToast('Add at least one installment, or use Clear Plan to remove it', 'error');
+        return;
+      }
+      const total = editingInstallments.reduce((s, i) => s + (parseFloat(i.pct) || 0), 0);
+      if (Math.round(total) !== 100) {
+        showToast('Installment percentages must add up to 100%', 'error');
+        return;
+      }
+
+      const now = new Date().toISOString();
+      try {
+        await supabaseClient.from('project_payment_terms').upsert({
+          project_code: code,
+          installments: editingInstallments,
+          updated_at: now
+        }, { onConflict: 'project_code' });
+      } catch (e) {
+        console.error('Payment plan save error:', e);
+        showToast('Error saving payment plan', 'error');
+        return;
+      }
+
+      projectPaymentPlans[code] = { installments: editingInstallments };
+      renderDashboard();
+      showToast('✓ Payment plan saved');
+    }
+
+    async function clearPaymentPlan() {
+      const code = editingProjectCode;
+      try {
+        await supabaseClient.from('project_payment_terms').delete().eq('project_code', code);
+      } catch (e) {
+        console.error('Payment plan clear error:', e);
+        showToast('Error clearing payment plan', 'error');
+        return;
+      }
+      delete projectPaymentPlans[code];
+      editingInstallments = [];
+      renderPlanInstallments(projects.find(p => p['Project Code'] === code));
+      renderDashboard();
+      showToast('✓ Payment plan cleared');
+    }
+
+    // --- Payment Term Template manager ---------------------------------
+
+    function openTemplateManagerModal() {
+      renderTemplateList();
+      newTemplateInstallments = [];
+      document.getElementById('newTemplateName').value = '';
+      renderNewTemplateInstallments();
+      document.getElementById('templateManagerModal').classList.add('active');
+    }
+
+    function closeTemplateManagerModal() {
+      document.getElementById('templateManagerModal').classList.remove('active');
+      renderPlanTemplateOptions();
+    }
+
+    function renderTemplateList() {
+      const container = document.getElementById('templateListContainer');
+      if (!container) return;
+      if (!paymentTemplates.length) {
+        container.innerHTML = '<div style="font-size:11.5px;color:var(--ink-muted);">No templates yet — add one below.</div>';
+        return;
+      }
+      container.innerHTML = paymentTemplates.map(t => {
+        const summary = (t.installments || []).map(i => `${i.pct}% @ ${i.label || i.milestone}`).join(' · ');
+        return `
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 10px;border:1px solid var(--border);border-radius:8px;margin-bottom:6px;">
+            <div style="min-width:0;">
+              <div style="font-size:12.5px;font-weight:700;color:var(--ink);">${escapeHtml(t.name)}</div>
+              <div style="font-size:10.5px;color:var(--ink-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(summary)}</div>
+            </div>
+            <button onclick="deleteTemplate('${t.id}')" style="border:none;background:none;color:var(--overdue);cursor:pointer;font-size:11.5px;font-weight:600;white-space:nowrap;">Delete</button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function addNewTemplateRow() {
+      newTemplateInstallments.push({ pct: 0, milestone: 'custom', label: `Installment ${newTemplateInstallments.length + 1}` });
+      renderNewTemplateInstallments();
+    }
+
+    function renderNewTemplateInstallments() {
+      const container = document.getElementById('newTemplateInstallments');
+      if (!container) return;
+      container.innerHTML = newTemplateInstallments.map((inst, i) => `
+        <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px;">
+          <input type="number" min="0" max="100" value="${inst.pct}" style="width:52px;padding:6px;border:1px solid var(--border);border-radius:6px;font-size:12px;" onchange="updateNewTemplateRow(${i},'pct',this.value)">%
+          <select style="padding:6px;border:1px solid var(--border);border-radius:6px;font-size:12px;" onchange="updateNewTemplateRow(${i},'milestone',this.value)">
+            <option value="start" ${inst.milestone === 'start' ? 'selected' : ''}>Project Start</option>
+            <option value="end" ${inst.milestone === 'end' ? 'selected' : ''}>Project End</option>
+            <option value="custom" ${inst.milestone === 'custom' ? 'selected' : ''}>Custom Date</option>
+          </select>
+          <input type="text" value="${escapeHtml(inst.label || '')}" placeholder="Label (e.g. Order)" style="flex:1;padding:6px;border:1px solid var(--border);border-radius:6px;font-size:12px;" onchange="updateNewTemplateRow(${i},'label',this.value)">
+          <button onclick="removeNewTemplateRow(${i})" style="border:none;background:none;color:var(--overdue);cursor:pointer;font-size:14px;">✕</button>
+        </div>
+      `).join('');
+
+      const total = newTemplateInstallments.reduce((s, i) => s + (parseFloat(i.pct) || 0), 0);
+      const indicator = document.getElementById('newTemplateTotalIndicator');
+      if (indicator) {
+        indicator.textContent = `Total: ${total}%`;
+        indicator.style.color = total === 100 ? 'var(--upcoming)' : 'var(--overdue)';
+      }
+    }
+
+    function updateNewTemplateRow(i, field, value) {
+      if (!newTemplateInstallments[i]) return;
+      if (field === 'pct') newTemplateInstallments[i].pct = parseFloat(value) || 0;
+      else newTemplateInstallments[i][field] = value;
+      renderNewTemplateInstallments();
+    }
+
+    function removeNewTemplateRow(i) {
+      newTemplateInstallments.splice(i, 1);
+      renderNewTemplateInstallments();
+    }
+
+    async function saveNewTemplate() {
+      const name = document.getElementById('newTemplateName').value.trim();
+      if (!name) {
+        showToast('Enter a template name', 'error');
+        return;
+      }
+      if (!newTemplateInstallments.length) {
+        showToast('Add at least one installment', 'error');
+        return;
+      }
+      const total = newTemplateInstallments.reduce((s, i) => s + (parseFloat(i.pct) || 0), 0);
+      if (Math.round(total) !== 100) {
+        showToast('Installment percentages must add up to 100%', 'error');
+        return;
+      }
+
+      try {
+        const { data, error } = await supabaseClient.from('payment_term_templates').insert({
+          name,
+          installments: newTemplateInstallments,
+          is_builtin: false
+        }).select();
+        if (error) throw error;
+        if (data && data[0]) paymentTemplates.push(data[0]);
+      } catch (e) {
+        console.error('Template save error:', e);
+        showToast('Error saving template (name may already exist)', 'error');
+        return;
+      }
+
+      newTemplateInstallments = [];
+      document.getElementById('newTemplateName').value = '';
+      renderNewTemplateInstallments();
+      renderTemplateList();
+      showToast('✓ Template saved');
+    }
+
+    async function deleteTemplate(id) {
+      if (!confirm('Delete this template? Projects already using it keep their saved installments.')) return;
+      try {
+        await supabaseClient.from('payment_term_templates').delete().eq('id', id);
+      } catch (e) {
+        console.error('Template delete error:', e);
+        showToast('Error deleting template', 'error');
+        return;
+      }
+      paymentTemplates = paymentTemplates.filter(t => t.id !== id);
+      renderTemplateList();
+      showToast('✓ Template deleted');
     }
 
     window.addEventListener('load', initApp);
