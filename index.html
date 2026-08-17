@@ -1232,6 +1232,13 @@
             <div class="option-desc">Formatted management report, ready to email</div>
           </div>
         </div>
+        <div class="option">
+          <input type="radio" id="fmt-calendar" name="exportFormat" value="calendar">
+          <div class="option-text">
+            <div class="option-title">Invoice Calendar (.pdf)</div>
+            <div class="option-desc">Month-by-month calendar of next invoice dates — same view as the Dashboard, one month per page, ready to print or email</div>
+          </div>
+        </div>
       </div>
       <div class="modal-footer">
         <button class="btn-cancel" onclick="closeExportModal()">Cancel</button>
@@ -1970,7 +1977,7 @@ Thank you in advance.</textarea>
             return `<span class="cal-code ${cls}">${escapeHtml(x.code)}</span>`;
           }).join('');
           const moreHtml = extra > 0 ? `<span class="cal-code-more">+${extra} more</span>` : '';
-          const titleText = sorted.map(x => `${x.code} — ${x.name}`).join('\n');
+          const titleText = sorted.map(x => `${x.code} — ${x.name} (PM: ${x.pm || 'Unassigned'})`).join('\n');
           codesHtml = `<div class="cal-codes" title="${escapeHtml(titleText)}">${codeSpans}${moreHtml}</div>`;
         }
 
@@ -2009,7 +2016,7 @@ Thank you in advance.</textarea>
         if (!d) return;
         const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
         if (!invoicesByDay[key]) invoicesByDay[key] = [];
-        invoicesByDay[key].push({ code: p['Project Code'], name: p['Project Name'], status: p.invoiceStatus });
+        invoicesByDay[key].push({ code: p['Project Code'], name: p['Project Name'], status: p.invoiceStatus, pm: p['Person Responsible'] || 'Unassigned' });
       });
 
       const todayKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
@@ -2233,6 +2240,8 @@ Thank you in advance.</textarea>
       const format = document.querySelector('input[name="exportFormat"]:checked').value;
       if (format === 'pdf') {
         generatePDF();
+      } else if (format === 'calendar') {
+        generateCalendarPDF();
       } else {
         generateExcel();
       }
@@ -2421,6 +2430,212 @@ Thank you in advance.</textarea>
       doc.save(fileName);
       closeExportModal();
       showToast('✓ PDF report exported');
+    }
+
+    // --- Invoice Calendar PDF (one month per page) --------------------
+    // Draws a single month's grid onto the given jsPDF doc at (marginX, startY),
+    // filling each day cell with the project code(s) due that day,
+    // color-coded to match the on-screen Dashboard calendar.
+    function pdfDrawCalendarMonth(doc, year, month, invoicesByDay, startY, marginX, pageWidth, colors, statusRank) {
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const firstDay = new Date(year, month, 1).getDay();
+      const totalCells = firstDay + daysInMonth;
+      const rows = Math.ceil(totalCells / 7);
+      const gridW = pageWidth - marginX * 2;
+      const cellW = gridW / 7;
+      const cellH = 96;
+      const dowLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+      let y = startY;
+      doc.setFillColor(...colors.BLUE);
+      doc.rect(marginX, y, gridW, 20, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9.5);
+      dowLabels.forEach((lbl, i) => {
+        doc.text(lbl, marginX + i * cellW + cellW / 2, y + 14, { align: 'center' });
+      });
+      y += 20;
+
+      let dayCounter = 1;
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < 7; c++) {
+          const cellX = marginX + c * cellW;
+          const cellIndex = r * 7 + c;
+          doc.setDrawColor(...colors.BORDER);
+          doc.setLineWidth(0.5);
+          doc.rect(cellX, y, cellW, cellH, 'S');
+
+          if (cellIndex >= firstDay && dayCounter <= daysInMonth) {
+            const d = dayCounter;
+            const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(9);
+            doc.setTextColor(...colors.MUTED);
+            doc.text(String(d), cellX + cellW - 6, y + 13, { align: 'right' });
+
+            const dayInvoices = invoicesByDay[dateKey] || [];
+            if (dayInvoices.length) {
+              const sorted = dayInvoices.slice().sort((a, b) => (statusRank[a.status] ?? 3) - (statusRank[b.status] ?? 3));
+              const maxLines = 4;
+              const shown = sorted.slice(0, maxLines);
+              let ty = y + 27;
+              shown.forEach(inv => {
+                const sc = colors.STATUS_COLORS[inv.status] || colors.STATUS_COLORS.Upcoming;
+                doc.setFillColor(...sc.bg);
+                doc.roundedRect(cellX + 4, ty - 11, cellW - 8, 18, 2, 2, 'F');
+                doc.setTextColor(...sc.text);
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(7);
+                doc.text(String(inv.code), cellX + cellW / 2, ty - 3, { align: 'center', maxWidth: cellW - 12 });
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(6.2);
+                doc.text(String(inv.pm || 'Unassigned'), cellX + cellW / 2, ty + 6, { align: 'center', maxWidth: cellW - 12 });
+                ty += 22;
+              });
+              if (sorted.length > maxLines) {
+                doc.setFont('helvetica', 'italic');
+                doc.setFontSize(6.5);
+                doc.setTextColor(...colors.MUTED);
+                doc.text(`+${sorted.length - maxLines} more`, cellX + cellW / 2, ty - 3, { align: 'center' });
+              }
+            }
+            dayCounter++;
+          }
+        }
+        y += cellH;
+      }
+    }
+
+    function generateCalendarPDF() {
+      const sections = getReportSections();
+      const seen = new Set();
+      const data = [];
+      sections.forEach(s => s.data.forEach(p => {
+        if (!seen.has(p['Project Code'])) { seen.add(p['Project Code']); data.push(p); }
+      }));
+
+      const dated = data
+        .map(p => ({ p, d: parseFlexibleDate(p['Next Invoice Date']) }))
+        .filter(x => x.d);
+
+      if (!dated.length) {
+        showToast('No projects with invoice dates match the selected filters', 'error');
+        return;
+      }
+
+      const invoicesByDay = {};
+      dated.forEach(({ p, d }) => {
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        if (!invoicesByDay[key]) invoicesByDay[key] = [];
+        invoicesByDay[key].push({ code: p['Project Code'], name: p['Project Name'], status: p.invoiceStatus, pm: p['Person Responsible'] || 'Unassigned' });
+      });
+
+      let minD = dated[0].d, maxD = dated[0].d;
+      dated.forEach(({ d }) => { if (d < minD) minD = d; if (d > maxD) maxD = d; });
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'a3' });
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const marginX = 40;
+
+      const colors = {
+        NAVY: [7, 42, 74],
+        BLUE: [22, 104, 193],
+        BRASS: [245, 158, 11],
+        INK: [33, 29, 78],
+        MUTED: [110, 118, 130],
+        BORDER: [225, 228, 235],
+        STATUS_COLORS: {
+          'OVERDUE': { bg: [254, 226, 226], text: [220, 38, 38] },
+          'DUE SOON': { bg: [254, 243, 199], text: [217, 119, 6] },
+          'Upcoming': { bg: [209, 250, 229], text: [5, 150, 105] }
+        }
+      };
+      const statusRank = { 'OVERDUE': 0, 'DUE SOON': 1, 'Upcoming': 2 };
+
+      const generatedOn = new Date().toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+      const scopeLabel = sections.length === 1 ? sections[0].label : sections.map(s => s.label).join('  •  ');
+
+      // Cap the range so a stray far-future/past date can't generate hundreds of pages
+      const MAX_MONTHS = 24;
+      let cursorMonth = new Date(minD.getFullYear(), minD.getMonth(), 1);
+      const rawEndMonth = new Date(maxD.getFullYear(), maxD.getMonth(), 1);
+      const monthSpan = (rawEndMonth.getFullYear() - cursorMonth.getFullYear()) * 12 + (rawEndMonth.getMonth() - cursorMonth.getMonth());
+      const cappedEndMonth = monthSpan > MAX_MONTHS
+        ? new Date(cursorMonth.getFullYear(), cursorMonth.getMonth() + MAX_MONTHS, 1)
+        : rawEndMonth;
+      const wasCapped = monthSpan > MAX_MONTHS;
+
+      let firstPage = true;
+      while (cursorMonth <= cappedEndMonth) {
+        if (!firstPage) doc.addPage();
+        firstPage = false;
+
+        doc.setFillColor(...colors.NAVY);
+        doc.rect(0, 0, pageWidth, 74, 'F');
+        doc.setFillColor(...colors.BRASS);
+        doc.rect(0, 74, pageWidth, 3, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(20);
+        doc.text('MarineTeknik — Invoice Calendar', marginX, 32);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(12);
+        doc.setTextColor(200, 220, 240);
+        doc.text(cursorMonth.toLocaleString('en-US', { month: 'long', year: 'numeric' }), marginX, 54);
+
+        doc.setFontSize(9.5);
+        doc.setTextColor(220, 230, 245);
+        doc.text(`Generated: ${generatedOn}`, pageWidth - marginX, 26, { align: 'right' });
+        doc.text(`Scope: ${scopeLabel}`, pageWidth - marginX, 40, { align: 'right' });
+
+        pdfDrawCalendarMonth(doc, cursorMonth.getFullYear(), cursorMonth.getMonth(), invoicesByDay, 96, marginX, pageWidth, colors, statusRank);
+
+        const legendY = pageHeight - 42;
+        let lx = marginX;
+        const legendItems = [
+          { label: 'Overdue', color: colors.STATUS_COLORS['OVERDUE'].text },
+          { label: 'Due Soon (\u226430 days)', color: colors.STATUS_COLORS['DUE SOON'].text },
+          { label: 'Upcoming', color: colors.STATUS_COLORS['Upcoming'].text }
+        ];
+        legendItems.forEach(item => {
+          doc.setFillColor(...item.color);
+          doc.circle(lx + 3, legendY - 3, 3.5, 'F');
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(8.5);
+          doc.setTextColor(...colors.MUTED);
+          doc.text(item.label, lx + 11, legendY);
+          lx += doc.getTextWidth(item.label) + 40;
+        });
+        doc.setFont('helvetica', 'italic');
+        doc.setFontSize(8);
+        doc.setTextColor(...colors.MUTED);
+        doc.text('Second line under each code is the assigned PM.', lx + 10, legendY);
+
+        doc.setFont('helvetica', 'italic');
+        doc.setFontSize(8);
+        doc.setTextColor(...colors.MUTED);
+        doc.text('Generated automatically from the MarineTeknik Project Invoice Tracker.', marginX, pageHeight - 20);
+
+        cursorMonth = new Date(cursorMonth.getFullYear(), cursorMonth.getMonth() + 1, 1);
+      }
+
+      const totalPages = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= totalPages; i++) {
+        doc.setPage(i);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(7.5);
+        doc.setTextColor(...colors.MUTED);
+        doc.text(`Page ${i} of ${totalPages}`, pageWidth - marginX, pageHeight - 20, { align: 'right' });
+      }
+
+      const reportLabel = reportFileLabel(sections);
+      const fileName = `MarineTeknik_Calendar_${reportLabel}_${new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }).replace(/\//g, '-')}.pdf`;
+      doc.save(fileName);
+      closeExportModal();
+      showToast(wasCapped ? '✓ Calendar exported (range capped at 24 months)' : '✓ Calendar report exported');
     }
 
     async function handleImport(event) {
