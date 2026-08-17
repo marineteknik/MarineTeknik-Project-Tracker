@@ -852,11 +852,11 @@
     .status-issue-duesoon { background: var(--duesoon); }
     .status-issue-nodate { background: #9ca3af; }
 
-    .status-top-grid {
+    .status-side-grid {
       display: grid;
-      grid-template-columns: 280px 1fr;
+      grid-template-columns: 1fr 1fr;
       gap: 18px;
-      align-items: start;
+      margin-bottom: 18px;
     }
 
     .status-bottom-grid {
@@ -864,11 +864,6 @@
       grid-template-columns: 1fr 1fr;
       gap: 18px;
       margin-top: 18px;
-    }
-
-    .status-side-col {
-      display: flex;
-      flex-direction: column;
     }
 
     .activity-list, .issue-list {
@@ -1511,7 +1506,11 @@
             <button class="dropdown-btn" id="dashPmBtn" onclick="toggleDashboardPMDropdown()">All PMs <span>▾</span></button>
             <div class="dropdown-menu" id="dashPmMenu"></div>
           </div>
-          <span style="font-size:12px;color:var(--ink-muted)">Filters every chart, the calendar, and the schedule below to that PM's projects.</span>
+          <div class="dropdown-wrapper">
+            <button class="dropdown-btn" id="dashYearBtn" onclick="toggleDashboardYearDropdown()">All Years <span>▾</span></button>
+            <div class="dropdown-menu" id="dashYearMenu"></div>
+          </div>
+          <span style="font-size:12px;color:var(--ink-muted)">Filters every chart, the calendar, and the schedule below. Year is read from the project code (e.g. 25xxx → 2025, INS-26 → 2026).</span>
         </div>
       </div>
 
@@ -1617,6 +1616,20 @@
     <!-- Project Status Page -->
     <div class="page" id="page-status">
 
+      <div class="controls">
+        <div class="controls-row" style="justify-content:flex-start;">
+          <div class="dropdown-wrapper">
+            <button class="dropdown-btn" id="statusYearBtn" onclick="toggleStatusYearDropdown()">All Years <span>▾</span></button>
+            <div class="dropdown-menu" id="statusYearMenu"></div>
+          </div>
+          <div class="dropdown-wrapper">
+            <button class="dropdown-btn" id="statusRemainingBtn" onclick="toggleStatusRemainingDropdown()">All Projects <span>▾</span></button>
+            <div class="dropdown-menu" id="statusRemainingMenu"></div>
+          </div>
+          <span style="font-size:12px;color:var(--ink-muted)">Filters everything on this page. Year is read from the project code (e.g. 25xxx → 2025, INS-26 → 2026).</span>
+        </div>
+      </div>
+
       <div class="status-header">
         <div class="status-header-block">
           <div class="status-header-label">Project Status</div>
@@ -1642,48 +1655,46 @@
         </div>
       </div>
 
-      <div class="status-top-grid">
-        <div class="status-side-col">
-          <div class="chart-card" style="border-top:3px solid var(--navy-700);">
-            <div class="chart-header">
-              <div class="chart-header-text">
-                <div class="chart-title">Open Projects</div>
-                <div class="chart-subtitle">% invoiced to date</div>
-              </div>
-              <div class="chart-icon" style="background:#dbeaff;color:#1668c1;">◔</div>
-            </div>
-            <div class="activity-list" id="statusOpenProjectsList"></div>
-          </div>
-
-          <div class="chart-card" style="border-top:3px solid var(--overdue);margin-top:18px;">
-            <div class="chart-header">
-              <div class="chart-header-text">
-                <div class="chart-title">Top Issues</div>
-                <div class="chart-subtitle">Most overdue by remaining value</div>
-              </div>
-              <div class="chart-icon" style="background:#fee2e2;color:#dc2626;">!</div>
-            </div>
-            <div class="issue-list" id="statusTopIssuesList"></div>
-          </div>
-        </div>
-
-        <div class="chart-card" style="border-top:3px solid var(--brass);">
+      <div class="status-side-grid">
+        <div class="chart-card" style="border-top:3px solid var(--navy-700);">
           <div class="chart-header">
             <div class="chart-header-text">
-              <div class="chart-title">Project Plan</div>
-              <div class="chart-subtitle">Project Start → Project End, bar fill = % invoiced. Overlapping bars share time on the calendar.</div>
+              <div class="chart-title">Open Projects</div>
+              <div class="chart-subtitle">% invoiced to date</div>
             </div>
-            <div class="chart-icon" style="background:#fef0d6;color:#b45309;">▦</div>
+            <div class="chart-icon" style="background:#dbeaff;color:#1668c1;">◔</div>
           </div>
-          <div class="gantt-outer" id="ganttOuter">
-            <div class="empty-state"><div class="empty-text">No projects with both a Project Start and Project End date</div></div>
+          <div class="activity-list" id="statusOpenProjectsList"></div>
+        </div>
+
+        <div class="chart-card" style="border-top:3px solid var(--overdue);">
+          <div class="chart-header">
+            <div class="chart-header-text">
+              <div class="chart-title">Top Issues</div>
+              <div class="chart-subtitle">Most overdue by remaining value</div>
+            </div>
+            <div class="chart-icon" style="background:#fee2e2;color:#dc2626;">!</div>
           </div>
-          <div class="cal-legend" style="margin-top:12px;">
-            <div class="cal-legend-item"><span class="cal-legend-dot" style="background:#dc2626"></span> &lt;34% invoiced</div>
-            <div class="cal-legend-item"><span class="cal-legend-dot" style="background:#d97706"></span> 34–74% invoiced</div>
-            <div class="cal-legend-item"><span class="cal-legend-dot" style="background:#059669"></span> ≥75% invoiced</div>
-            <div class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--brass)"></span> Today</div>
+          <div class="issue-list" id="statusTopIssuesList"></div>
+        </div>
+      </div>
+
+      <div class="chart-card" style="border-top:3px solid var(--brass);margin-bottom:18px;">
+        <div class="chart-header">
+          <div class="chart-header-text">
+            <div class="chart-title">Project Plan</div>
+            <div class="chart-subtitle">Project Start → Project End, bar fill = % invoiced. Overlapping bars share time on the calendar.</div>
           </div>
+          <div class="chart-icon" style="background:#fef0d6;color:#b45309;">▦</div>
+        </div>
+        <div class="gantt-outer" id="ganttOuter">
+          <div class="empty-state"><div class="empty-text">No projects with both a Project Start and Project End date</div></div>
+        </div>
+        <div class="cal-legend" style="margin-top:12px;">
+          <div class="cal-legend-item"><span class="cal-legend-dot" style="background:#dc2626"></span> 0% invoiced</div>
+          <div class="cal-legend-item"><span class="cal-legend-dot" style="background:#d97706"></span> Partially invoiced</div>
+          <div class="cal-legend-item"><span class="cal-legend-dot" style="background:#059669"></span> Fully invoiced (100%)</div>
+          <div class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--brass)"></span> Today</div>
         </div>
       </div>
 
@@ -1692,11 +1703,11 @@
           <div class="chart-header">
             <div class="chart-header-text">
               <div class="chart-title">Remaining Value Burndown</div>
-              <div class="chart-subtitle">Portfolio backlog as invoices come due, vs. an even-pace plan</div>
+              <div class="chart-subtitle">Portfolio backlog by month, vs. an even-pace plan</div>
             </div>
             <div class="chart-icon" style="background:#dbeafe;color:#2563eb;">◆</div>
           </div>
-          <div class="chart-container" style="height:230px;">
+          <div class="chart-container" style="height:270px;">
             <canvas id="burndownChart"></canvas>
           </div>
         </div>
@@ -1876,6 +1887,7 @@ Thank you in advance.</textarea>
     let currentFilter = ['all'];
     let currentPM = null;
     let dashboardPM = null;
+    let dashboardYear = null;
     let calendarCenterDate = null;
     let currentCalendarData = [];
     let sortCol = 'invoiceStatus';
@@ -2438,10 +2450,13 @@ Thank you in advance.</textarea>
 
     function renderDashboard() {
       buildDashboardPMDropdown();
+      buildDashboardYearDropdown();
 
-      const dashData = dashboardPM
-        ? projects.filter(p => (p['Person Responsible'] || '(None)') === dashboardPM)
-        : projects.slice();
+      const dashData = projects.filter(p => {
+        if (dashboardPM && (p['Person Responsible'] || '(None)') !== dashboardPM) return false;
+        if (dashboardYear && getProjectYearFromCode(p['Project Code']) !== dashboardYear) return false;
+        return true;
+      });
 
       const statusCounts = { 'OVERDUE': 0, 'DUE SOON': 0, 'Upcoming': 0, 'No Date': 0 };
       const statusValues = { 'OVERDUE': 0, 'DUE SOON': 0, 'Upcoming': 0, 'No Date': 0 };
@@ -2542,7 +2557,7 @@ Thank you in advance.</textarea>
           }
         }
       });
-      charts.collection.$centerText = { value: collectPct + '%', label: 'COLLECTED' };
+      charts.collection.$centerText = { value: collectPct + '%', label: 'INVOICED' };
       charts.collection.update();
 
       // PM chart
@@ -2612,6 +2627,61 @@ Thank you in advance.</textarea>
 
     function toggleDashboardPMDropdown() {
       const menu = document.getElementById('dashPmMenu');
+      if (menu) menu.classList.toggle('active');
+    }
+
+    // Derives a project's year from its Project Code rather than any
+    // date field, per how codes are actually assigned: a code starting
+    // with 2 digits reads as 20YY (e.g. "25-0142" -> 2025). Codes that
+    // don't start with digits (e.g. "INS-26") are matched by the first
+    // "-YY-" or "-YY" (end of string) segment instead.
+    function getProjectYearFromCode(code) {
+      if (!code) return null;
+      const c = String(code).trim();
+      let m = c.match(/^(\d{2})/);
+      if (!m) m = c.match(/-(\d{2})(?:-|$)/);
+      if (!m) m = c.match(/(\d{2})/);
+      if (!m) return null;
+      const yy = parseInt(m[1], 10);
+      if (isNaN(yy)) return null;
+      return 2000 + yy;
+    }
+
+    function getAllProjectYears() {
+      const years = new Set();
+      projects.forEach(p => {
+        const y = getProjectYearFromCode(p['Project Code']);
+        if (y) years.add(y);
+      });
+      return Array.from(years).sort((a, b) => b - a);
+    }
+
+    function buildDashboardYearDropdown() {
+      const menu = document.getElementById('dashYearMenu');
+      if (!menu) return;
+      const years = getAllProjectYears();
+      menu.innerHTML = `
+        <div class="dropdown-item ${!dashboardYear ? 'selected' : ''}" onclick="selectDashboardYear(null)">
+          <span style="color:#b8902e">✓</span> All Years
+        </div>
+      ` + years.map(y => `
+        <div class="dropdown-item ${dashboardYear === y ? 'selected' : ''}" onclick="selectDashboardYear(${y})">
+          <span style="color:#b8902e">✓</span> ${y}
+        </div>
+      `).join('');
+    }
+
+    function selectDashboardYear(year) {
+      dashboardYear = year;
+      const btn = document.getElementById('dashYearBtn');
+      if (btn) btn.textContent = (year || 'All Years') + ' ▾';
+      const menu = document.getElementById('dashYearMenu');
+      if (menu) menu.classList.remove('active');
+      renderDashboard();
+    }
+
+    function toggleDashboardYearDropdown() {
+      const menu = document.getElementById('dashYearMenu');
       if (menu) menu.classList.toggle('active');
     }
 
@@ -2782,13 +2852,88 @@ Thank you in advance.</textarea>
     }
 
     function pctColorHex(pct) {
-      if (pct >= 75) return '#059669';
-      if (pct >= 34) return '#d97706';
+      if (pct >= 100) return '#059669';
+      if (pct > 0) return '#d97706';
       return '#dc2626';
     }
 
+    let statusYear = null;
+    let statusMinRemaining = 0;
+
+    const STATUS_REMAINING_PRESETS = [
+      { value: 0, label: 'All Projects' },
+      { value: 1, label: 'Outstanding Only (> $0)' },
+      { value: 10000, label: '≥ $10,000' },
+      { value: 50000, label: '≥ $50,000' },
+      { value: 100000, label: '≥ $100,000' },
+      { value: 250000, label: '≥ $250,000' },
+      { value: 500000, label: '≥ $500,000' }
+    ];
+
+    function buildStatusYearDropdown() {
+      const menu = document.getElementById('statusYearMenu');
+      if (!menu) return;
+      const years = getAllProjectYears();
+      menu.innerHTML = `
+        <div class="dropdown-item ${!statusYear ? 'selected' : ''}" onclick="selectStatusYear(null)">
+          <span style="color:#b8902e">✓</span> All Years
+        </div>
+      ` + years.map(y => `
+        <div class="dropdown-item ${statusYear === y ? 'selected' : ''}" onclick="selectStatusYear(${y})">
+          <span style="color:#b8902e">✓</span> ${y}
+        </div>
+      `).join('');
+    }
+
+    function selectStatusYear(year) {
+      statusYear = year;
+      const btn = document.getElementById('statusYearBtn');
+      if (btn) btn.textContent = (year || 'All Years') + ' ▾';
+      const menu = document.getElementById('statusYearMenu');
+      if (menu) menu.classList.remove('active');
+      renderProjectStatusDashboard();
+    }
+
+    function toggleStatusYearDropdown() {
+      const menu = document.getElementById('statusYearMenu');
+      if (menu) menu.classList.toggle('active');
+    }
+
+    function buildStatusRemainingDropdown() {
+      const menu = document.getElementById('statusRemainingMenu');
+      if (!menu) return;
+      menu.innerHTML = STATUS_REMAINING_PRESETS.map(opt => `
+        <div class="dropdown-item ${statusMinRemaining === opt.value ? 'selected' : ''}" onclick="selectStatusMinRemaining(${opt.value})">
+          <span style="color:#b8902e">✓</span> ${opt.label}
+        </div>
+      `).join('');
+    }
+
+    function selectStatusMinRemaining(value) {
+      statusMinRemaining = value;
+      const preset = STATUS_REMAINING_PRESETS.find(o => o.value === value);
+      const btn = document.getElementById('statusRemainingBtn');
+      if (btn) btn.textContent = (preset ? preset.label : 'All Projects') + ' ▾';
+      const menu = document.getElementById('statusRemainingMenu');
+      if (menu) menu.classList.remove('active');
+      renderProjectStatusDashboard();
+    }
+
+    function toggleStatusRemainingDropdown() {
+      const menu = document.getElementById('statusRemainingMenu');
+      if (menu) menu.classList.toggle('active');
+    }
+
     function renderProjectStatusDashboard() {
-      const dashData = projects.slice();
+      buildStatusYearDropdown();
+      buildStatusRemainingDropdown();
+
+      const dashData = projects.filter(p => {
+        if (statusYear && getProjectYearFromCode(p['Project Code']) !== statusYear) return false;
+        if (statusMinRemaining > 0 && (p['Remaining Inv'] || 0) < statusMinRemaining) return false;
+        return true;
+      });
+
       renderStatusHeader(dashData);
       renderStatusSideLists(dashData);
       renderGanttChart(dashData);
@@ -2907,8 +3052,13 @@ Thank you in advance.</textarea>
 
       const msPerDay = 86400000;
       const totalDays = Math.max(1, Math.round((maxDate - minDate) / msPerDay) + 1);
-      const pxPerDay = Math.max(1.2, Math.min(5, 900 / totalDays));
-      const timelineWidth = Math.max(700, totalDays * pxPerDay);
+      // Scale to fill whatever width the (now full-width) card actually has,
+      // rather than a fixed guess — this is what was making dates unreadable.
+      const labelColW = 210;
+      const containerWidth = container.clientWidth || 1000;
+      const availableWidth = Math.max(320, containerWidth - labelColW - 24);
+      const pxPerDay = Math.max(2, Math.min(36, availableWidth / totalDays));
+      const timelineWidth = Math.max(availableWidth, totalDays * pxPerDay);
       const dayOffset = (d) => Math.round((d - minDate) / msPerDay);
 
       const months = [];
@@ -2984,17 +3134,26 @@ Thank you in advance.</textarea>
 
       const dated = dashData
         .map(p => ({ d: parseFlexibleDate(p['Next Invoice Date']), rem: p['Remaining Inv'] || 0 }))
-        .filter(x => x.d && x.rem > 0)
-        .sort((a, b) => a.d - b.d);
+        .filter(x => x.d && x.rem > 0);
 
       const totalRemaining = dated.reduce((s, x) => s + x.rem, 0);
+
+      // Group into months so the line reads as a clean trend instead of
+      // one cramped point per invoice date.
+      const byMonth = {};
+      dated.forEach(x => {
+        const key = `${x.d.getFullYear()}-${String(x.d.getMonth() + 1).padStart(2, '0')}`;
+        byMonth[key] = (byMonth[key] || 0) + x.rem;
+      });
+      const monthKeys = Object.keys(byMonth).sort();
 
       const labels = ['Today'];
       const actual = [totalRemaining];
       let running = totalRemaining;
-      dated.forEach(x => {
-        running = Math.max(0, running - x.rem);
-        labels.push(formatDateObj(x.d));
+      monthKeys.forEach(key => {
+        running = Math.max(0, running - byMonth[key]);
+        const [y, m] = key.split('-');
+        labels.push(new Date(parseInt(y, 10), parseInt(m, 10) - 1, 1).toLocaleString('en-US', { month: 'short', year: '2-digit' }));
         actual.push(running);
       });
 
@@ -3013,6 +3172,7 @@ Thank you in advance.</textarea>
               borderColor: '#9ca3af',
               borderDash: [5, 4],
               pointRadius: 0,
+              borderWidth: 2,
               tension: 0
             },
             {
@@ -3021,7 +3181,10 @@ Thank you in advance.</textarea>
               borderColor: '#dc2626',
               backgroundColor: 'rgba(220,38,38,0.08)',
               fill: true,
-              pointRadius: 0,
+              pointRadius: 3,
+              pointBackgroundColor: '#dc2626',
+              pointBorderColor: '#fff',
+              borderWidth: 2.5,
               tension: 0.15
             }
           ]
@@ -3842,9 +4005,7 @@ Thank you in advance.</textarea>
 
     document.addEventListener('click', (e) => {
       if (!e.target.closest('.dropdown-wrapper')) {
-        document.getElementById('pmMenu').classList.remove('active');
-        const dashMenu = document.getElementById('dashPmMenu');
-        if (dashMenu) dashMenu.classList.remove('active');
+        document.querySelectorAll('.dropdown-menu.active').forEach(m => m.classList.remove('active'));
       }
     });
 
