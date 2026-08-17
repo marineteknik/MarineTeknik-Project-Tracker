@@ -670,7 +670,7 @@
 
     .cal-cell {
       position: relative;
-      min-height: 66px;
+      min-height: 84px;
       border-radius: 8px;
       background: var(--bg);
       display: flex;
@@ -707,14 +707,29 @@
     }
 
     .cal-code {
+      display: flex;
+      flex-direction: column;
+      padding: 2px 4px;
+      border-radius: 4px;
+      cursor: default;
+      overflow: hidden;
+    }
+
+    .cal-code .cal-code-name {
       font-size: 9px;
       font-weight: 700;
-      padding: 1.5px 4px;
-      border-radius: 4px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      cursor: default;
+    }
+
+    .cal-code .cal-code-amt {
+      font-size: 7.5px;
+      font-weight: 700;
+      opacity: 0.85;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .cal-code-overdue { background: var(--overdue-bg); color: var(--overdue); }
@@ -1587,26 +1602,29 @@
           <div class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--overdue)"></span> Overdue</div>
           <div class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--duesoon)"></span> Due Soon (≤30 days)</div>
           <div class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--upcoming)"></span> Upcoming</div>
-          <div class="cal-legend-item">Codes shown are the project(s) due that day. Hover a day to see full project names.</div>
+          <div class="cal-legend-item">Each chip shows the project code and $ amount due that day. <strong>*</strong> = auto-estimated (no manual amount entered yet). Hover a day for full details.</div>
         </div>
       </div>
 
       <div class="chart-card">
-        <div class="chart-title" style="margin-bottom:14px;">Invoice Schedule</div>
+        <div class="chart-title" style="margin-bottom:4px;">Invoice Schedule</div>
+        <div style="font-size:11px;color:var(--ink-muted);margin-bottom:14px;">Invoice Amount is auto-estimated (Remaining Inv spread evenly to Project End) unless you enter an actual amount — click ✏️ to set one.</div>
         <div class="table-container" style="box-shadow:none;border:1px solid var(--border);">
           <table style="table-layout:fixed;width:100%;">
             <thead>
               <tr>
-                <th style="width:13%;text-align:left">Code</th>
-                <th style="width:27%;text-align:left">Project</th>
-                <th style="width:16%;text-align:left">PM</th>
-                <th style="width:14%">Next Invoice</th>
-                <th style="width:14%">Status</th>
-                <th style="width:16%">Remaining</th>
+                <th style="width:11%;text-align:left">Code</th>
+                <th style="width:20%;text-align:left">Project</th>
+                <th style="width:12%;text-align:left">PM</th>
+                <th style="width:10%">Next Invoice</th>
+                <th style="width:10%">Status</th>
+                <th style="width:11%">Remaining</th>
+                <th style="width:14%">Invoice Amount</th>
+                <th style="width:6%">Edit</th>
               </tr>
             </thead>
             <tbody id="scheduleTableBody">
-              <tr><td colspan="6" class="empty-state"></td></tr>
+              <tr><td colspan="8" class="empty-state"></td></tr>
             </tbody>
           </table>
         </div>
@@ -1749,6 +1767,31 @@
     </div>
   </div>
 
+  <!-- Invoice Amount Modal -->
+  <div class="modal" id="invoiceAmountModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Invoice Amount</h2>
+        <p id="invoiceAmountProjectInfo"></p>
+      </div>
+      <input type="hidden" id="invoiceAmountProjectCode">
+      <div class="option-group">
+        <label style="color:var(--navy-800);font-weight:700">Auto-Estimate</label>
+        <div id="invoiceAmountEstimateDisplay" style="padding:10px 12px;background:var(--bg);border-radius:7px;font-size:14px;font-weight:600;color:var(--ink-soft);"></div>
+        <div style="font-size:11px;color:var(--ink-muted);margin-top:6px;">Remaining Inv spread evenly across the months left until Project End. Used automatically unless you enter an actual amount below.</div>
+      </div>
+      <div class="option-group">
+        <label style="color:var(--navy-800);font-weight:700">Actual Amount (optional override)</label>
+        <input type="number" id="invoiceAmountManualInput" step="0.01" min="0" placeholder="e.g. 45000" style="width:100%;padding:10px;border:1.5px solid var(--navy-700);border-radius:7px;font-size:13px;font-family:inherit;outline:none;background:var(--bg)">
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" style="color:var(--overdue);border-color:var(--overdue);" onclick="clearInvoiceAmountOverride()">Clear Override</button>
+        <button class="btn-cancel" onclick="closeInvoiceAmountModal()">Cancel</button>
+        <button class="btn-export" onclick="saveInvoiceAmountOverride()">Save</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Export Modal -->
   <div class="modal" id="exportModal">
     <div class="modal-content" style="max-width: 560px;">
@@ -1884,6 +1927,7 @@ Thank you in advance.</textarea>
     let projects = [];
     let comments = {};
     let flags = {};
+    let invoiceAmounts = {};
     let currentFilter = ['all'];
     let currentPM = null;
     let dashboardPM = null;
@@ -1967,6 +2011,7 @@ Thank you in advance.</textarea>
         await loadProjects();
         await loadComments();
         await loadFlags();
+        await loadInvoiceAmounts();
         filterTable();
         updateKPIs();
         updateLastUpdatedTimestamp();
@@ -2095,6 +2140,27 @@ Thank you in advance.</textarea>
       }
     }
 
+    // Manual "actual amount to invoice" overrides, keyed by project code.
+    // Lives in its own table — separate from the BC-driven `projects`
+    // table — exactly like comments/flags, so it survives re-imports and
+    // never touches the locked Excel column list.
+    async function loadInvoiceAmounts() {
+      try {
+        const { data } = await supabaseClient.from('invoice_amounts').select('*');
+        invoiceAmounts = {};
+        (data || []).forEach(r => {
+          if (r.project_code) {
+            const val = r.manual_amount;
+            invoiceAmounts[r.project_code] = { manual: (val === null || val === undefined) ? null : parseFloat(val) };
+          }
+        });
+        console.log('Loaded invoice amounts from Supabase');
+      } catch (e) {
+        console.error('Invoice amounts load error:', e);
+        invoiceAmounts = {};
+      }
+    }
+
     function getInvoiceStatus(dateStr) {
       if (!dateStr) return 'No Date';
       
@@ -2161,6 +2227,42 @@ Thank you in advance.</textarea>
 
     function formatCurrency(val) {
       return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val);
+    }
+
+    function formatAbbrevCurrency(val) {
+      const v = val || 0;
+      if (v >= 1000000) return '$' + (v / 1000000).toFixed(1) + 'M';
+      if (v >= 1000) return '$' + Math.round(v / 1000) + 'k';
+      return '$' + Math.round(v);
+    }
+
+    // Estimates the $ amount due at a project's Next Invoice Date, since
+    // BC doesn't export payment terms: spreads Remaining Inv evenly across
+    // the months left until Project End (a rough stand-in for a real
+    // schedule). If there's no Project End (or it's not after the next
+    // invoice date), treats it as the final/only remaining invoice.
+    function estimateInvoiceAmount(p) {
+      const remaining = p['Remaining Inv'] || 0;
+      if (remaining <= 0) return 0;
+
+      const nextDate = parseFlexibleDate(p['Next Invoice Date']);
+      const endDate = parseFlexibleDate(p['Project End']);
+      if (!nextDate || !endDate || endDate <= nextDate) return remaining;
+
+      const msPerMonth = 1000 * 60 * 60 * 24 * 30.44;
+      const monthsLeft = Math.max(1, Math.round((endDate - nextDate) / msPerMonth) + 1);
+      return remaining / monthsLeft;
+    }
+
+    // A manually-entered actual amount (invoiceAmounts, loaded from its
+    // own Supabase table) always wins over the auto-estimate.
+    function getInvoiceAmountInfo(p) {
+      const code = p['Project Code'];
+      const override = invoiceAmounts[code] ? invoiceAmounts[code].manual : null;
+      if (override !== null && override !== undefined && !isNaN(override)) {
+        return { amount: override, isManual: true };
+      }
+      return { amount: estimateInvoiceAmount(p), isManual: false };
     }
 
     function formatDate(dateStr) {
@@ -2693,7 +2795,7 @@ Thank you in advance.</textarea>
       const firstDay = new Date(year, month, 1).getDay();
       const daysInMonth = new Date(year, month + 1, 0).getDate();
       const statusRank = { 'OVERDUE': 0, 'DUE SOON': 1, 'Upcoming': 2 };
-      const maxShown = 3;
+      const maxShown = 2;
 
       let cells = '';
       for (let i = 0; i < firstDay; i++) {
@@ -2713,10 +2815,11 @@ Thank you in advance.</textarea>
           const extra = sorted.length - shown.length;
           const codeSpans = shown.map(x => {
             const cls = x.status === 'OVERDUE' ? 'cal-code-overdue' : x.status === 'DUE SOON' ? 'cal-code-duesoon' : 'cal-code-upcoming';
-            return `<span class="cal-code ${cls}">${escapeHtml(x.code)}</span>`;
+            const amtLabel = formatAbbrevCurrency(x.amount) + (x.isManual ? '' : '*');
+            return `<span class="cal-code ${cls}"><span class="cal-code-name">${escapeHtml(x.code)}</span><span class="cal-code-amt">${amtLabel}</span></span>`;
           }).join('');
           const moreHtml = extra > 0 ? `<span class="cal-code-more">+${extra} more</span>` : '';
-          const titleText = sorted.map(x => `${x.code} — ${x.name} (PM: ${x.pm || 'Unassigned'})`).join('\n');
+          const titleText = sorted.map(x => `${x.code} — ${x.name} (PM: ${x.pm || 'Unassigned'}) — ${formatCurrency(x.amount)}${x.isManual ? '' : ' (estimated)'}`).join('\n');
           codesHtml = `<div class="cal-codes" title="${escapeHtml(titleText)}">${codeSpans}${moreHtml}</div>`;
         }
 
@@ -2755,7 +2858,8 @@ Thank you in advance.</textarea>
         if (!d) return;
         const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
         if (!invoicesByDay[key]) invoicesByDay[key] = [];
-        invoicesByDay[key].push({ code: p['Project Code'], name: p['Project Name'], status: p.invoiceStatus, pm: p['Person Responsible'] || 'Unassigned' });
+        const info = getInvoiceAmountInfo(p);
+        invoicesByDay[key].push({ code: p['Project Code'], name: p['Project Name'], status: p.invoiceStatus, pm: p['Person Responsible'] || 'Unassigned', amount: info.amount, isManual: info.isManual });
       });
 
       const todayKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
@@ -2814,20 +2918,25 @@ Thank you in advance.</textarea>
       const rows = withDates.concat(noDates);
 
       if (!rows.length) {
-        tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><div class="empty-text">No projects to show</div></td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><div class="empty-text">No projects to show</div></td></tr>';
         return;
       }
 
       tbody.innerHTML = rows.map(p => {
         const status = p.invoiceStatus;
+        const code = p['Project Code'];
+        const info = getInvoiceAmountInfo(p);
+        const amtLabel = formatCurrency(info.amount) + (info.isManual ? '' : ' *');
         return `
           <tr>
-            <td style="text-align:left;font-weight:600">${escapeHtml(p['Project Code'])}</td>
+            <td style="text-align:left;font-weight:600">${escapeHtml(code)}</td>
             <td style="text-align:left">${escapeHtml(p['Project Name'])}</td>
             <td style="text-align:left">${escapeHtml(p['Person Responsible'])}</td>
             <td>${formatDate(p['Next Invoice Date'])}</td>
             <td><span class="status-badge ${getStatusClass(status)}">${status}</span></td>
             <td class="currency">${formatCurrency(p['Remaining Inv'])}</td>
+            <td class="currency" style="color:${info.isManual ? 'var(--ink)' : 'var(--ink-muted)'};font-weight:${info.isManual ? '700' : '500'};">${amtLabel}</td>
+            <td><button class="btn" style="padding:5px 10px;font-size:10.5px;cursor:pointer;background:var(--navy-700);color:#fff;border-radius:999px;" onclick="openInvoiceAmountModal('${escapeHtml(code)}')">✏️</button></td>
           </tr>
         `;
       }).join('');
@@ -3934,11 +4043,13 @@ Thank you in advance.</textarea>
         await supabaseClient.from('projects').delete().neq('project_code', '');
         await supabaseClient.from('comments').delete().neq('project_code', '');
         await supabaseClient.from('flags').delete().neq('project_code', '');
+        await supabaseClient.from('invoice_amounts').delete().neq('project_code', '');
         
         // Clear local state
         projects = [];
         comments = {};
         flags = {};
+        invoiceAmounts = {};
         currentFilter = ['all'];
         currentPM = null;
         
@@ -4063,6 +4174,71 @@ Thank you in advance.</textarea>
       closeCommentModal();
       await loadAllData(); // Reload all data from Supabase
       showToast('✓ Notes saved');
+    }
+
+    function openInvoiceAmountModal(code) {
+      const proj = projects.find(p => p['Project Code'] === code);
+      if (!proj) return;
+      const info = getInvoiceAmountInfo(proj);
+
+      document.getElementById('invoiceAmountProjectCode').value = code;
+      document.getElementById('invoiceAmountProjectInfo').textContent = proj['Project Name'] || code;
+      document.getElementById('invoiceAmountEstimateDisplay').textContent = formatCurrency(estimateInvoiceAmount(proj));
+
+      const manualInput = document.getElementById('invoiceAmountManualInput');
+      manualInput.value = info.isManual ? info.amount : '';
+
+      document.getElementById('invoiceAmountModal').classList.add('active');
+    }
+
+    function closeInvoiceAmountModal() {
+      document.getElementById('invoiceAmountModal').classList.remove('active');
+    }
+
+    async function saveInvoiceAmountOverride() {
+      const code = document.getElementById('invoiceAmountProjectCode').value;
+      const raw = document.getElementById('invoiceAmountManualInput').value;
+      const value = raw === '' ? null : parseFloat(raw);
+
+      if (raw !== '' && (isNaN(value) || value < 0)) {
+        showToast('Enter a valid, non-negative amount', 'error');
+        return;
+      }
+
+      const now = new Date().toISOString();
+      try {
+        await supabaseClient.from('invoice_amounts').upsert({
+          project_code: code,
+          manual_amount: value,
+          updated_at: now
+        }, { onConflict: 'project_code' });
+      } catch (e) {
+        console.error('Invoice amount save error:', e);
+        showToast('Error saving invoice amount', 'error');
+        return;
+      }
+
+      invoiceAmounts[code] = { manual: value };
+      closeInvoiceAmountModal();
+      renderDashboard();
+      showToast(value === null ? '✓ Reverted to auto-estimate' : '✓ Invoice amount saved');
+    }
+
+    async function clearInvoiceAmountOverride() {
+      const code = document.getElementById('invoiceAmountProjectCode').value;
+      try {
+        await supabaseClient.from('invoice_amounts').delete().eq('project_code', code);
+      } catch (e) {
+        console.error('Invoice amount clear error:', e);
+        showToast('Error clearing invoice amount', 'error');
+        return;
+      }
+
+      invoiceAmounts[code] = { manual: null };
+      document.getElementById('invoiceAmountManualInput').value = '';
+      closeInvoiceAmountModal();
+      renderDashboard();
+      showToast('✓ Reverted to auto-estimate');
     }
 
     window.addEventListener('load', initApp);
