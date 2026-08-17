@@ -560,20 +560,72 @@
       margin-bottom: 18px;
     }
 
+    .dashboard-section-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 12.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--navy-800);
+      margin: 4px 0 14px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .dashboard-section-title::before {
+      content: '';
+      width: 4px;
+      height: 15px;
+      background: linear-gradient(180deg, var(--brass), var(--navy-700));
+      border-radius: 2px;
+    }
+
     .chart-card {
       background: var(--surface);
       padding: 18px 20px;
       border-radius: var(--radius);
       border: 1px solid var(--border);
       box-shadow: var(--shadow-sm);
+      transition: all 0.2s ease;
+    }
+
+    .chart-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+    }
+
+    .chart-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .chart-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      flex-shrink: 0;
     }
 
     .chart-title {
       font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 15px;
+      font-size: 14.5px;
       font-weight: 700;
-      margin-bottom: 14px;
       color: var(--ink);
+      margin-bottom: 2px;
+    }
+
+    .chart-subtitle {
+      font-size: 11px;
+      color: var(--ink-muted);
+      font-weight: 500;
     }
 
     .chart-container {
@@ -696,6 +748,399 @@
       height: 10px;
       border-radius: 999px;
       display: inline-block;
+    }
+
+    /* --- Project Status page ------------------------------------- */
+
+    .status-header {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 18px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      padding: 18px 22px;
+      margin-bottom: 18px;
+    }
+
+    .status-header-block {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .status-header-label {
+      font-size: 10.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      font-weight: 700;
+      color: var(--ink-muted);
+    }
+
+    .status-header-main {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .status-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      background: var(--upcoming);
+      box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.15);
+      flex-shrink: 0;
+    }
+
+    .status-dot.warn { background: var(--duesoon); box-shadow: 0 0 0 4px rgba(217, 119, 6, 0.15); }
+    .status-dot.bad { background: var(--overdue); box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.15); }
+
+    .status-header-value {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .status-progress-track {
+      flex: 1;
+      max-width: 160px;
+      height: 10px;
+      background: var(--bg);
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .status-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--navy-700), var(--navy-600));
+      border-radius: 999px;
+      transition: width 0.4s ease;
+    }
+
+    .status-issue-badges {
+      display: flex;
+      gap: 10px;
+    }
+
+    .status-issue-badge {
+      flex: 1;
+      border-radius: 10px;
+      padding: 8px 6px;
+      text-align: center;
+      color: #fff;
+    }
+
+    .status-issue-badge span {
+      display: block;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 17px;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    .status-issue-badge small {
+      font-size: 8.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      opacity: 0.9;
+    }
+
+    .status-issue-overdue { background: var(--overdue); }
+    .status-issue-duesoon { background: var(--duesoon); }
+    .status-issue-nodate { background: #9ca3af; }
+
+    .status-top-grid {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .status-bottom-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .status-side-col {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .activity-list, .issue-list {
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+      max-height: 220px;
+      overflow-y: auto;
+    }
+
+    .activity-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .activity-row-top {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .activity-row-top span:last-child {
+      color: var(--ink-muted);
+      font-weight: 700;
+    }
+
+    .activity-bar-track {
+      height: 6px;
+      background: var(--bg);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .activity-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+    }
+
+    .issue-list-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: var(--overdue-bg);
+      font-size: 11.5px;
+    }
+
+    .issue-list-item .issue-code {
+      font-weight: 700;
+      color: var(--overdue);
+    }
+
+    .issue-list-item .issue-meta {
+      color: var(--ink-muted);
+      font-size: 10px;
+      font-weight: 500;
+    }
+
+    /* Gantt (Project Plan) */
+
+    .gantt-outer {
+      max-height: 480px;
+      overflow: auto;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+
+    .gantt-header-row {
+      display: flex;
+      position: sticky;
+      top: 0;
+      z-index: 3;
+      background: var(--navy-800);
+    }
+
+    .gantt-label-cell {
+      width: 210px;
+      flex: 0 0 210px;
+      padding: 8px 12px;
+      font-size: 10.5px;
+      box-sizing: border-box;
+      border-bottom: 1px solid var(--border);
+      border-right: 2px solid var(--navy-700);
+    }
+
+    .gantt-header-row .gantt-label-cell {
+      position: sticky;
+      left: 0;
+      z-index: 4;
+      color: #eef1f4;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      border-bottom: none;
+      border-right: 2px solid var(--brass);
+      display: flex;
+      align-items: center;
+    }
+
+    .gantt-timeline-header {
+      flex: 1;
+      position: relative;
+      min-height: 32px;
+    }
+
+    .gantt-month-label {
+      position: absolute;
+      top: 0;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      padding-left: 6px;
+      font-size: 9.5px;
+      font-weight: 700;
+      color: #eef1f4;
+      border-left: 1px solid rgba(255, 255, 255, 0.15);
+      box-sizing: border-box;
+      white-space: nowrap;
+    }
+
+    .gantt-body {
+      position: relative;
+    }
+
+    .gantt-row {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .gantt-row:nth-child(odd) { background: #fbfbfc; }
+
+    .gantt-row .gantt-label-cell {
+      position: sticky;
+      left: 0;
+      z-index: 1;
+      background: inherit;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 2px;
+    }
+
+    .gantt-row .gantt-label-cell .gantt-code {
+      font-weight: 700;
+      color: var(--ink);
+      font-size: 11px;
+    }
+
+    .gantt-row .gantt-label-cell .gantt-meta {
+      color: var(--ink-muted);
+      font-size: 9.5px;
+    }
+
+    .gantt-timeline-track {
+      flex: 1;
+      position: relative;
+      height: 40px;
+    }
+
+    .gantt-gridline {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      border-left: 1px solid var(--border);
+    }
+
+    .gantt-bar {
+      position: absolute;
+      top: 8px;
+      height: 24px;
+      border-radius: 6px;
+      overflow: hidden;
+      background: #eef0f7;
+      border: 1px solid var(--border);
+      min-width: 6px;
+      cursor: default;
+    }
+
+    .gantt-bar-fill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      border-radius: 6px 0 0 6px;
+      opacity: 0.85;
+    }
+
+    .gantt-bar-label {
+      position: absolute;
+      left: 6px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 9.5px;
+      font-weight: 700;
+      color: var(--ink);
+      white-space: nowrap;
+      z-index: 1;
+      pointer-events: none;
+      text-shadow: 0 0 3px #fff, 0 0 3px #fff;
+    }
+
+    .gantt-today-line {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--brass);
+      z-index: 2;
+    }
+
+    /* Mini milestone timeline (Project Timeline) */
+
+    .mini-timeline-wrapper {
+      position: relative;
+      height: 220px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding: 0 16px;
+    }
+
+    .mini-timeline-track {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 50%;
+      height: 2px;
+      background: var(--border);
+    }
+
+    .mini-timeline-point {
+      position: absolute;
+      top: 50%;
+      width: 11px;
+      height: 11px;
+      border-radius: 999px;
+      transform: translate(-50%, -50%);
+      border: 2px solid #fff;
+      box-shadow: 0 0 0 1px var(--border);
+      cursor: default;
+    }
+
+    .mini-timeline-stem {
+      position: absolute;
+      width: 1px;
+      background: var(--border);
+      transform: translateX(-50%);
+    }
+
+    .mini-timeline-label {
+      position: absolute;
+      width: 100px;
+      text-align: center;
+      font-size: 9.5px;
+      transform: translateX(-50%);
+    }
+
+    .mini-timeline-label .mt-code {
+      font-weight: 700;
+      color: var(--ink);
+      display: block;
+    }
+
+    .mini-timeline-label .mt-date {
+      color: var(--ink-muted);
+      display: block;
+      font-size: 8.5px;
+      margin-top: 1px;
     }
 
     .empty-state {
@@ -937,6 +1382,7 @@
   <div class="tabs">
     <button class="tab active" onclick="switchTab('tracker')">Tracker</button>
     <button class="tab" onclick="switchTab('dashboard')">Dashboard</button>
+    <button class="tab" onclick="switchTab('status')">Project Status</button>
   </div>
 
   <div class="content">
@@ -1069,35 +1515,63 @@
         </div>
       </div>
 
+      <div class="dashboard-section-title">Portfolio Analytics</div>
+
       <div class="dashboard-grid">
-        <div class="chart-card">
-          <div class="chart-title">Invoice Status</div>
+        <div class="chart-card" style="border-top:3px solid var(--navy-700);">
+          <div class="chart-header">
+            <div class="chart-header-text">
+              <div class="chart-title">Invoice Status</div>
+              <div class="chart-subtitle">Distribution across all projects</div>
+            </div>
+            <div class="chart-icon" style="background:#dbeaff;color:#1668c1;">◔</div>
+          </div>
           <div class="chart-container">
             <canvas id="statusChart"></canvas>
           </div>
         </div>
-        <div class="chart-card">
-          <div class="chart-title">Value by Status</div>
+        <div class="chart-card" style="border-top:3px solid var(--brass);">
+          <div class="chart-header">
+            <div class="chart-header-text">
+              <div class="chart-title">Value by Status</div>
+              <div class="chart-subtitle">Remaining invoice value per status</div>
+            </div>
+            <div class="chart-icon" style="background:#fef0d6;color:#b45309;">$</div>
+          </div>
           <div class="chart-container">
             <canvas id="valueChart"></canvas>
           </div>
         </div>
-        <div class="chart-card">
-          <div class="chart-title">Collection Progress</div>
+        <div class="chart-card" style="border-top:3px solid #2563eb;">
+          <div class="chart-header">
+            <div class="chart-header-text">
+              <div class="chart-title">Collection Progress</div>
+              <div class="chart-subtitle">Invoiced vs. remaining, portfolio-wide</div>
+            </div>
+            <div class="chart-icon" style="background:#dbeafe;color:#2563eb;">◆</div>
+          </div>
           <div class="chart-container">
             <canvas id="collectionChart"></canvas>
           </div>
         </div>
-        <div class="chart-card" style="grid-column: 1 / -1;">
-          <div class="chart-title">Value by PM</div>
+        <div class="chart-card" style="grid-column: 1 / -1;border-top:3px solid var(--upcoming);">
+          <div class="chart-header">
+            <div class="chart-header-text">
+              <div class="chart-title">Value by PM</div>
+              <div class="chart-subtitle">Total contracted project value assigned to each PM</div>
+            </div>
+            <div class="chart-icon" style="background:#d1fae5;color:#059669;">👤</div>
+          </div>
           <div class="chart-container">
             <canvas id="pmChart"></canvas>
           </div>
         </div>
       </div>
 
+      <div class="dashboard-section-title">Invoice Timing</div>
+
       <div class="chart-card" style="margin-bottom:18px;">
-        <div class="chart-title" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+        <div class="chart-title" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
           <span>Invoice Calendar</span>
           <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
             <button class="filter-btn" onclick="calendarShiftMonths(-3)">« 3mo</button>
@@ -1119,7 +1593,7 @@
       </div>
 
       <div class="chart-card">
-        <div class="chart-title">Invoice Schedule</div>
+        <div class="chart-title" style="margin-bottom:14px;">Invoice Schedule</div>
         <div class="table-container" style="box-shadow:none;border:1px solid var(--border);">
           <table style="table-layout:fixed;width:100%;">
             <thead>
@@ -1136,6 +1610,106 @@
               <tr><td colspan="6" class="empty-state"></td></tr>
             </tbody>
           </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Project Status Page -->
+    <div class="page" id="page-status">
+
+      <div class="status-header">
+        <div class="status-header-block">
+          <div class="status-header-label">Project Status</div>
+          <div class="status-header-main">
+            <span class="status-dot" id="statusHealthDot"></span>
+            <span class="status-header-value" id="statusHealthLabel">—</span>
+          </div>
+        </div>
+        <div class="status-header-block">
+          <div class="status-header-label">Completed</div>
+          <div class="status-header-main">
+            <div class="status-progress-track"><div class="status-progress-fill" id="statusCompletionFill" style="width:0%;"></div></div>
+            <span class="status-header-value" id="statusCompletionPct">0%</span>
+          </div>
+        </div>
+        <div class="status-header-block">
+          <div class="status-header-label">Outstanding Issues</div>
+          <div class="status-issue-badges">
+            <div class="status-issue-badge status-issue-overdue"><span id="statusOverdueCount">0</span><small>Overdue</small></div>
+            <div class="status-issue-badge status-issue-duesoon"><span id="statusDueSoonCount">0</span><small>Due Soon</small></div>
+            <div class="status-issue-badge status-issue-nodate"><span id="statusNoDateCount">0</span><small>No Date</small></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="status-top-grid">
+        <div class="status-side-col">
+          <div class="chart-card" style="border-top:3px solid var(--navy-700);">
+            <div class="chart-header">
+              <div class="chart-header-text">
+                <div class="chart-title">Open Projects</div>
+                <div class="chart-subtitle">% invoiced to date</div>
+              </div>
+              <div class="chart-icon" style="background:#dbeaff;color:#1668c1;">◔</div>
+            </div>
+            <div class="activity-list" id="statusOpenProjectsList"></div>
+          </div>
+
+          <div class="chart-card" style="border-top:3px solid var(--overdue);margin-top:18px;">
+            <div class="chart-header">
+              <div class="chart-header-text">
+                <div class="chart-title">Top Issues</div>
+                <div class="chart-subtitle">Most overdue by remaining value</div>
+              </div>
+              <div class="chart-icon" style="background:#fee2e2;color:#dc2626;">!</div>
+            </div>
+            <div class="issue-list" id="statusTopIssuesList"></div>
+          </div>
+        </div>
+
+        <div class="chart-card" style="border-top:3px solid var(--brass);">
+          <div class="chart-header">
+            <div class="chart-header-text">
+              <div class="chart-title">Project Plan</div>
+              <div class="chart-subtitle">Project Start → Project End, bar fill = % invoiced. Overlapping bars share time on the calendar.</div>
+            </div>
+            <div class="chart-icon" style="background:#fef0d6;color:#b45309;">▦</div>
+          </div>
+          <div class="gantt-outer" id="ganttOuter">
+            <div class="empty-state"><div class="empty-text">No projects with both a Project Start and Project End date</div></div>
+          </div>
+          <div class="cal-legend" style="margin-top:12px;">
+            <div class="cal-legend-item"><span class="cal-legend-dot" style="background:#dc2626"></span> &lt;34% invoiced</div>
+            <div class="cal-legend-item"><span class="cal-legend-dot" style="background:#d97706"></span> 34–74% invoiced</div>
+            <div class="cal-legend-item"><span class="cal-legend-dot" style="background:#059669"></span> ≥75% invoiced</div>
+            <div class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--brass)"></span> Today</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="status-bottom-grid">
+        <div class="chart-card" style="border-top:3px solid #2563eb;">
+          <div class="chart-header">
+            <div class="chart-header-text">
+              <div class="chart-title">Remaining Value Burndown</div>
+              <div class="chart-subtitle">Portfolio backlog as invoices come due, vs. an even-pace plan</div>
+            </div>
+            <div class="chart-icon" style="background:#dbeafe;color:#2563eb;">◆</div>
+          </div>
+          <div class="chart-container" style="height:230px;">
+            <canvas id="burndownChart"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card" style="border-top:3px solid var(--upcoming);">
+          <div class="chart-header">
+            <div class="chart-header-text">
+              <div class="chart-title">Project Timeline</div>
+              <div class="chart-subtitle">Nearest overdue &amp; upcoming invoice dates</div>
+            </div>
+            <div class="chart-icon" style="background:#d1fae5;color:#059669;">▲</div>
+          </div>
+          <div class="mini-timeline-wrapper" id="invoiceMilestoneTimeline"></div>
         </div>
       </div>
     </div>
@@ -1312,6 +1886,44 @@ Thank you in advance.</textarea>
       supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     } catch (e) {
       console.error('Supabase error:', e);
+    }
+
+    // Global Chart.js styling so every chart shares the same
+    // typography, tooltip, and grid treatment as the rest of the app.
+    if (window.Chart) {
+      Chart.defaults.font.family = "'Inter', sans-serif";
+      Chart.defaults.color = '#6b7280';
+      Chart.defaults.plugins.tooltip.backgroundColor = '#072a4a';
+      Chart.defaults.plugins.tooltip.titleFont = { family: "'Plus Jakarta Sans', sans-serif", weight: '700', size: 12 };
+      Chart.defaults.plugins.tooltip.bodyFont = { family: "'Inter', sans-serif", size: 11.5 };
+      Chart.defaults.plugins.tooltip.padding = 10;
+      Chart.defaults.plugins.tooltip.cornerRadius = 8;
+      Chart.defaults.plugins.tooltip.displayColors = true;
+      Chart.defaults.plugins.tooltip.boxPadding = 5;
+
+      // Draws a big number + label in the middle of a doughnut chart
+      // (e.g. total project count, or % collected) — set via
+      // chart.$centerText = { value, label } right after creation.
+      Chart.register({
+        id: 'centerText',
+        afterDraw(chart) {
+          if (!chart.$centerText) return;
+          const { ctx, chartArea } = chart;
+          if (!chartArea) return;
+          const centerX = (chartArea.left + chartArea.right) / 2;
+          const centerY = (chartArea.top + chartArea.bottom) / 2;
+          ctx.save();
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.font = "700 20px 'Plus Jakarta Sans', sans-serif";
+          ctx.fillStyle = '#211d4e';
+          ctx.fillText(chart.$centerText.value, centerX, centerY - 8);
+          ctx.font = "700 9.5px 'Inter', sans-serif";
+          ctx.fillStyle = '#6b7280';
+          ctx.fillText(chart.$centerText.label, centerX, centerY + 10);
+          ctx.restore();
+        }
+      });
     }
 
     async function initApp() {
@@ -1821,6 +2433,7 @@ Thank you in advance.</textarea>
       document.getElementById('page-' + tab).classList.add('active');
       event.target.classList.add('active');
       if (tab === 'dashboard') renderDashboard();
+      if (tab === 'status') renderProjectStatusDashboard();
     }
 
     function renderDashboard() {
@@ -1854,11 +2467,25 @@ Thank you in advance.</textarea>
           datasets: [{
             data: Object.values(statusCounts),
             backgroundColor: ['#dc2626', '#d97706', '#059669', '#9ca3af'],
-            borderWidth: 0
+            borderWidth: 3,
+            borderColor: '#ffffff',
+            hoverOffset: 6
           }]
         },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '68%',
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { usePointStyle: true, pointStyle: 'circle', boxWidth: 8, padding: 14, font: { size: 11, weight: '600' } }
+            }
+          }
+        }
       });
+      charts.status.$centerText = { value: String(dashData.length), label: 'PROJECTS' };
+      charts.status.update();
 
       // Value chart
       if (charts.value) charts.value.destroy();
@@ -1869,14 +2496,27 @@ Thank you in advance.</textarea>
           datasets: [{
             data: Object.values(statusValues),
             backgroundColor: ['#dc2626', '#d97706', '#059669', '#9ca3af'],
-            borderRadius: 6
+            borderRadius: 8,
+            maxBarThickness: 46
           }]
         },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: (ctx) => formatCurrency(ctx.parsed.y) } }
+          },
+          scales: {
+            y: { beginAtZero: true, grid: { color: '#eef0f7' }, border: { display: false }, ticks: { callback: (v) => '$' + (v >= 1000 ? (v / 1000).toFixed(0) + 'k' : v), font: { size: 10.5 } } },
+            x: { grid: { display: false }, border: { display: false }, ticks: { font: { size: 10.5, weight: '600' } } }
+          }
+        }
       });
 
       // Collection chart
       if (charts.collection) charts.collection.destroy();
+      const collectPct = (totInv + totRem) > 0 ? Math.round((totInv / (totInv + totRem)) * 100) : 0;
       charts.collection = new Chart(document.getElementById('collectionChart'), {
         type: 'doughnut',
         data: {
@@ -1884,11 +2524,26 @@ Thank you in advance.</textarea>
           datasets: [{
             data: [totInv, totRem],
             backgroundColor: ['#1668c1', '#f59e0b'],
-            borderWidth: 0
+            borderWidth: 3,
+            borderColor: '#ffffff',
+            hoverOffset: 6
           }]
         },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '68%',
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { usePointStyle: true, pointStyle: 'circle', boxWidth: 8, padding: 14, font: { size: 11, weight: '600' } }
+            },
+            tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${formatCurrency(ctx.parsed)}` } }
+          }
+        }
       });
+      charts.collection.$centerText = { value: collectPct + '%', label: 'COLLECTED' };
+      charts.collection.update();
 
       // PM chart
       if (charts.pm) charts.pm.destroy();
@@ -1901,10 +2556,24 @@ Thank you in advance.</textarea>
             label: 'Project Value',
             data: pmLabels.map(pm => pmValues[pm]),
             backgroundColor: '#1668c1',
-            borderRadius: 6
+            hoverBackgroundColor: '#0a4d8c',
+            borderRadius: 6,
+            maxBarThickness: 22
           }]
         },
-        options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } } }
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          indexAxis: 'y',
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: (ctx) => formatCurrency(ctx.parsed.x) } }
+          },
+          scales: {
+            x: { beginAtZero: true, grid: { color: '#eef0f7' }, border: { display: false }, ticks: { callback: (v) => '$' + (v >= 1000 ? (v / 1000).toFixed(0) + 'k' : v), font: { size: 10.5 } } },
+            y: { grid: { display: false }, border: { display: false }, ticks: { font: { size: 11, weight: '600' } } }
+          }
+        }
       });
 
       renderInvoiceCalendar(dashData);
@@ -2092,6 +2761,336 @@ Thank you in advance.</textarea>
           </tr>
         `;
       }).join('');
+    }
+
+    // --- Project Status page ------------------------------------------
+    // A second dashboard view styled like a classic "Project Status"
+    // template. It's built entirely from the same 15 Excel-import
+    // columns already in use elsewhere (no new fields required):
+    // Project Start/End drive the Gantt, Next Invoice Date + Remaining
+    // Inv drive the burndown & timeline, % invoiced drives progress.
+
+    // Formats an already-parsed Date object as MM/DD/YY (parseFlexibleDate
+    // returns Date objects, so the string/number-based formatDate() can't
+    // be reused directly here).
+    function formatDateObj(d) {
+      if (!d) return '—';
+      const month = (d.getMonth() + 1).toString().padStart(2, '0');
+      const day = d.getDate().toString().padStart(2, '0');
+      const year = d.getFullYear().toString().slice(2);
+      return month + '/' + day + '/' + year;
+    }
+
+    function pctColorHex(pct) {
+      if (pct >= 75) return '#059669';
+      if (pct >= 34) return '#d97706';
+      return '#dc2626';
+    }
+
+    function renderProjectStatusDashboard() {
+      const dashData = projects.slice();
+      renderStatusHeader(dashData);
+      renderStatusSideLists(dashData);
+      renderGanttChart(dashData);
+      renderBurndownChart(dashData);
+      renderInvoiceMilestoneTimeline(dashData);
+    }
+
+    function renderStatusHeader(dashData) {
+      const overdue = dashData.filter(p => p.invoiceStatus === 'OVERDUE').length;
+      const duesoon = dashData.filter(p => p.invoiceStatus === 'DUE SOON').length;
+      const nodate = dashData.filter(p => p.invoiceStatus === 'No Date').length;
+
+      const totalValue = dashData.reduce((s, p) => s + (p['Project Value'] || 0), 0);
+      const totalInvoiced = dashData.reduce((s, p) => s + (p['Invoiced Value'] || 0), 0);
+      const completionPct = totalValue > 0 ? Math.round((totalInvoiced / totalValue) * 100) : 0;
+
+      const dot = document.getElementById('statusHealthDot');
+      const label = document.getElementById('statusHealthLabel');
+      if (dot && label) {
+        dot.classList.remove('warn', 'bad');
+        if (overdue > 0) {
+          dot.classList.add('bad');
+          label.textContent = `${overdue} Overdue`;
+        } else if (duesoon > 0) {
+          dot.classList.add('warn');
+          label.textContent = `${duesoon} Due Soon`;
+        } else {
+          label.textContent = 'On Track';
+        }
+      }
+
+      const fill = document.getElementById('statusCompletionFill');
+      const pctLabel = document.getElementById('statusCompletionPct');
+      if (fill) fill.style.width = completionPct + '%';
+      if (pctLabel) pctLabel.textContent = completionPct + '%';
+
+      const oEl = document.getElementById('statusOverdueCount');
+      const dEl = document.getElementById('statusDueSoonCount');
+      const nEl = document.getElementById('statusNoDateCount');
+      if (oEl) oEl.textContent = overdue;
+      if (dEl) dEl.textContent = duesoon;
+      if (nEl) nEl.textContent = nodate;
+    }
+
+    function renderStatusSideLists(dashData) {
+      const openList = document.getElementById('statusOpenProjectsList');
+      if (openList) {
+        const open = dashData
+          .filter(p => (p['Status'] || 'Open').toLowerCase() === 'open')
+          .sort((a, b) => (b['Remaining Inv'] || 0) - (a['Remaining Inv'] || 0))
+          .slice(0, 8);
+        if (!open.length) {
+          openList.innerHTML = '<div class="empty-text" style="padding:10px 0;">No open projects</div>';
+        } else {
+          openList.innerHTML = open.map(p => {
+            const pct = Math.min(100, Math.max(0, p['% invoiced'] || 0));
+            return `
+              <div class="activity-row">
+                <div class="activity-row-top"><span>${escapeHtml(p['Project Code'])}</span><span>${pct.toFixed(0)}%</span></div>
+                <div class="activity-bar-track"><div class="activity-bar-fill" style="width:${pct}%;background:${pctColorHex(pct)};"></div></div>
+              </div>
+            `;
+          }).join('');
+        }
+      }
+
+      const issuesList = document.getElementById('statusTopIssuesList');
+      if (issuesList) {
+        const overdueProjects = dashData
+          .filter(p => p.invoiceStatus === 'OVERDUE')
+          .sort((a, b) => (b['Remaining Inv'] || 0) - (a['Remaining Inv'] || 0))
+          .slice(0, 5);
+        if (!overdueProjects.length) {
+          issuesList.innerHTML = '<div class="empty-text" style="padding:10px 0;">No overdue projects</div>';
+        } else {
+          issuesList.innerHTML = overdueProjects.map(p => `
+            <div class="issue-list-item">
+              <div><span class="issue-code">${escapeHtml(p['Project Code'])}</span><div class="issue-meta">${escapeHtml(p['Person Responsible'] || 'Unassigned')}</div></div>
+              <div class="currency" style="color:var(--overdue);">${formatCurrency(p['Remaining Inv'])}</div>
+            </div>
+          `).join('');
+        }
+      }
+    }
+
+    // Builds a Gantt-style bar chart from Project Start / Project End,
+    // one row per project, bar fill width = % invoiced (color-coded).
+    // A sticky label column + sticky month header keep both readable
+    // while scrolling a potentially wide/tall timeline.
+    function renderGanttChart(dashData) {
+      const container = document.getElementById('ganttOuter');
+      if (!container) return;
+
+      const items = dashData
+        .map(p => ({
+          code: p['Project Code'],
+          pm: p['Person Responsible'] || 'Unassigned',
+          value: p['Project Value'] || 0,
+          pct: p['% invoiced'] || 0,
+          start: parseFlexibleDate(p['Project Start']),
+          end: parseFlexibleDate(p['Project End'])
+        }))
+        .filter(x => x.start && x.end && x.end >= x.start)
+        .sort((a, b) => a.start - b.start);
+
+      if (!items.length) {
+        container.innerHTML = '<div class="empty-state"><div class="empty-text">No projects with both a Project Start and Project End date</div></div>';
+        return;
+      }
+
+      let minDate = items[0].start, maxDate = items[0].end;
+      items.forEach(x => {
+        if (x.start < minDate) minDate = x.start;
+        if (x.end > maxDate) maxDate = x.end;
+      });
+
+      const msPerDay = 86400000;
+      const totalDays = Math.max(1, Math.round((maxDate - minDate) / msPerDay) + 1);
+      const pxPerDay = Math.max(1.2, Math.min(5, 900 / totalDays));
+      const timelineWidth = Math.max(700, totalDays * pxPerDay);
+      const dayOffset = (d) => Math.round((d - minDate) / msPerDay);
+
+      const months = [];
+      let cursor = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
+      while (cursor <= maxDate) {
+        months.push(new Date(cursor));
+        cursor = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1);
+      }
+
+      const monthHeaderHtml = months.map(m => {
+        const left = dayOffset(m) * pxPerDay;
+        const label = m.toLocaleString('en-US', { month: 'short', year: '2-digit' });
+        return `<div class="gantt-month-label" style="left:${left}px;">${label}</div>`;
+      }).join('');
+
+      const gridlinesHtml = months.map(m => {
+        const left = dayOffset(m) * pxPerDay;
+        return `<div class="gantt-gridline" style="left:${left}px;"></div>`;
+      }).join('');
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      let todayLineHtml = '';
+      if (today >= minDate && today <= maxDate) {
+        const left = dayOffset(today) * pxPerDay;
+        todayLineHtml = `<div class="gantt-today-line" style="left:${left}px;" title="Today"></div>`;
+      }
+
+      const rowsHtml = items.map(x => {
+        const left = dayOffset(x.start) * pxPerDay;
+        const width = Math.max(10, (dayOffset(x.end) - dayOffset(x.start) + 1) * pxPerDay);
+        const color = pctColorHex(x.pct);
+        const fillWidth = Math.min(100, Math.max(0, x.pct));
+        const dateRange = `${formatDateObj(x.start)} – ${formatDateObj(x.end)}`;
+        const tooltip = `${x.code} — ${dateRange} — ${x.pct.toFixed(0)}% invoiced — ${formatCurrency(x.value)}`;
+        return `
+          <div class="gantt-row">
+            <div class="gantt-label-cell">
+              <span class="gantt-code">${escapeHtml(x.code)}</span>
+              <span class="gantt-meta">${escapeHtml(x.pm)} · ${dateRange}</span>
+            </div>
+            <div class="gantt-timeline-track" style="width:${timelineWidth}px;">
+              ${gridlinesHtml}
+              <div class="gantt-bar" style="left:${left}px;width:${width}px;" title="${escapeHtml(tooltip)}">
+                <div class="gantt-bar-fill" style="width:${fillWidth}%;background:${color};"></div>
+                <div class="gantt-bar-label">${escapeHtml(x.code)}</div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      container.innerHTML = `
+        <div class="gantt-header-row">
+          <div class="gantt-label-cell">Project</div>
+          <div class="gantt-timeline-header" style="width:${timelineWidth}px;">
+            ${monthHeaderHtml}
+            ${todayLineHtml}
+          </div>
+        </div>
+        <div class="gantt-body">
+          ${rowsHtml}
+        </div>
+      `;
+    }
+
+    // Cumulative Remaining Inv "paid down" against Next Invoice Date,
+    // vs. a straight-line even-pace plan across the same span — the
+    // closest available analog to a burndown chart from these columns.
+    function renderBurndownChart(dashData) {
+      const canvas = document.getElementById('burndownChart');
+      if (!canvas) return;
+
+      const dated = dashData
+        .map(p => ({ d: parseFlexibleDate(p['Next Invoice Date']), rem: p['Remaining Inv'] || 0 }))
+        .filter(x => x.d && x.rem > 0)
+        .sort((a, b) => a.d - b.d);
+
+      const totalRemaining = dated.reduce((s, x) => s + x.rem, 0);
+
+      const labels = ['Today'];
+      const actual = [totalRemaining];
+      let running = totalRemaining;
+      dated.forEach(x => {
+        running = Math.max(0, running - x.rem);
+        labels.push(formatDateObj(x.d));
+        actual.push(running);
+      });
+
+      const n = actual.length - 1;
+      const planned = actual.map((_, i) => n > 0 ? Math.round(totalRemaining * (1 - i / n)) : 0);
+
+      if (charts.burndown) charts.burndown.destroy();
+      charts.burndown = new Chart(canvas, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: 'Planned (even pace)',
+              data: planned,
+              borderColor: '#9ca3af',
+              borderDash: [5, 4],
+              pointRadius: 0,
+              tension: 0
+            },
+            {
+              label: 'Actual Backlog',
+              data: actual,
+              borderColor: '#dc2626',
+              backgroundColor: 'rgba(220,38,38,0.08)',
+              fill: true,
+              pointRadius: 0,
+              tension: 0.15
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { usePointStyle: true, pointStyle: 'circle', boxWidth: 8, font: { size: 10.5, weight: '600' } } },
+            tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${formatCurrency(ctx.parsed.y)}` } }
+          },
+          scales: {
+            x: { ticks: { maxTicksLimit: 8, font: { size: 9.5 } }, grid: { display: false }, border: { display: false } },
+            y: { beginAtZero: true, ticks: { callback: (v) => '$' + (v >= 1000 ? (v / 1000).toFixed(0) + 'k' : v), font: { size: 10 } }, grid: { color: '#eef0f7' }, border: { display: false } }
+          }
+        }
+      });
+    }
+
+    // Horizontal milestone timeline of the nearest overdue + upcoming
+    // Next Invoice Dates, positioned proportionally to their date and
+    // alternating labels above/below like the reference template.
+    function renderInvoiceMilestoneTimeline(dashData) {
+      const wrapper = document.getElementById('invoiceMilestoneTimeline');
+      if (!wrapper) return;
+
+      const dated = dashData
+        .map(p => ({ code: p['Project Code'], d: parseFlexibleDate(p['Next Invoice Date']), status: p.invoiceStatus }))
+        .filter(x => x.d);
+
+      const overdueSorted = dated.filter(x => x.status === 'OVERDUE').sort((a, b) => a.d - b.d).slice(-4);
+      const upcomingSorted = dated.filter(x => x.status !== 'OVERDUE').sort((a, b) => a.d - b.d).slice(0, 7);
+      const points = overdueSorted.concat(upcomingSorted).sort((a, b) => a.d - b.d);
+
+      if (!points.length) {
+        wrapper.innerHTML = '<div class="empty-state"><div class="empty-text">No scheduled invoice dates</div></div>';
+        return;
+      }
+
+      let minDate = points[0].d, maxDate = points[0].d;
+      points.forEach(p => {
+        if (p.d < minDate) minDate = p.d;
+        if (p.d > maxDate) maxDate = p.d;
+      });
+      const span = maxDate - minDate;
+      const trackWidth = Math.max(700, points.length * 110);
+
+      const pointsHtml = points.map((p, i) => {
+        const pct = span > 0
+          ? ((p.d - minDate) / span) * 100
+          : (points.length > 1 ? (i / (points.length - 1)) * 100 : 50);
+        const color = p.status === 'OVERDUE' ? '#dc2626' : p.status === 'DUE SOON' ? '#d97706' : '#059669';
+        const above = i % 2 === 0;
+        const labelTop = above ? '58px' : '132px';
+        const stemTop = above ? '84px' : '110px';
+        return `
+          <div class="mini-timeline-point" style="left:${pct}%;background:${color};" title="${escapeHtml(p.code)} — ${formatDateObj(p.d)}"></div>
+          <div class="mini-timeline-stem" style="left:${pct}%;top:${stemTop};height:26px;"></div>
+          <div class="mini-timeline-label" style="left:${pct}%;top:${labelTop};">
+            <span class="mt-code">${escapeHtml(p.code)}</span>
+            <span class="mt-date">${formatDateObj(p.d)}</span>
+          </div>
+        `;
+      }).join('');
+
+      wrapper.innerHTML = `<div style="position:relative;min-width:${trackWidth}px;height:100%;">
+        <div class="mini-timeline-track"></div>
+        ${pointsHtml}
+      </div>`;
     }
 
     function openExportModal() {
