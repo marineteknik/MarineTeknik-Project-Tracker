@@ -1153,6 +1153,123 @@
       margin-top: 1px;
     }
 
+    /* --- Invoicing Plan modal ------------------------------------- */
+
+    .plan-mode-tabs {
+      display: flex;
+      gap: 6px;
+      background: var(--bg);
+      padding: 4px;
+      border-radius: 10px;
+      margin-bottom: 18px;
+    }
+
+    .plan-mode-tab {
+      flex: 1;
+      padding: 9px 10px;
+      border: none;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--ink-muted);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-family: inherit;
+    }
+
+    .plan-mode-tab:hover {
+      color: var(--navy-700);
+    }
+
+    .plan-mode-tab.active {
+      background: var(--surface);
+      color: var(--navy-800);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .plan-mode-panel {
+      margin-bottom: 6px;
+    }
+
+    .plan-table-header {
+      display: grid;
+      grid-template-columns: 44px 106px 84px 1fr 76px 40px 22px;
+      gap: 8px;
+      padding: 0 8px 6px;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      font-weight: 700;
+      color: var(--ink-muted);
+    }
+
+    .plan-table-header span:nth-child(5),
+    .plan-table-header span:nth-child(6) {
+      text-align: center;
+    }
+
+    .plan-table-row {
+      display: grid;
+      grid-template-columns: 44px 106px 84px 1fr 76px 40px 22px;
+      gap: 8px;
+      align-items: center;
+      background: var(--bg);
+      border-radius: 8px;
+      padding: 7px 8px;
+      margin-bottom: 6px;
+    }
+
+    .plan-table-row.is-invoiced {
+      opacity: 0.55;
+    }
+
+    .plan-input, .plan-select {
+      padding: 6px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 11.5px;
+      font-family: inherit;
+      width: 100%;
+      box-sizing: border-box;
+      background: var(--surface);
+    }
+
+    .plan-amount-display {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--navy-800);
+      text-align: right;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .plan-invoiced-check {
+      display: flex;
+      justify-content: center;
+    }
+
+    .plan-remove-btn {
+      border: none;
+      background: none;
+      color: var(--overdue);
+      cursor: pointer;
+      font-size: 14px;
+      padding: 0;
+    }
+
+    .plan-template-row {
+      display: grid;
+      grid-template-columns: 44px 106px 1fr 22px;
+      gap: 8px;
+      align-items: center;
+      background: var(--bg);
+      border-radius: 8px;
+      padding: 7px 8px;
+      margin-bottom: 6px;
+    }
+
     .empty-state {
       text-align: center;
       padding: 60px 20px;
@@ -1340,6 +1457,122 @@
       box-shadow: var(--shadow-sm);
     }
 
+    /* --- Login screen ---------------------------------------------- */
+
+    .login-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 5000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(120deg, var(--navy-900) 0%, var(--navy-800) 50%, var(--navy-700) 100%);
+      padding: 20px;
+    }
+
+    .login-card {
+      background: var(--surface);
+      border-radius: 20px;
+      box-shadow: var(--shadow-lg);
+      padding: 40px 36px;
+      width: 100%;
+      max-width: 380px;
+      box-sizing: border-box;
+    }
+
+    .login-brand {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .login-brand h1 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--navy-900);
+      margin-bottom: 4px;
+    }
+
+    .login-brand p {
+      font-size: 11.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      font-weight: 600;
+      color: var(--ink-muted);
+    }
+
+    .login-field {
+      margin-bottom: 16px;
+    }
+
+    .login-field label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--navy-800);
+      margin-bottom: 6px;
+    }
+
+    .login-field input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 9px;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      box-sizing: border-box;
+      background: var(--bg);
+      transition: border-color 0.15s ease;
+    }
+
+    .login-field input:focus {
+      border-color: var(--navy-700);
+    }
+
+    .login-error {
+      background: var(--overdue-bg);
+      color: var(--overdue);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .login-submit {
+      width: 100%;
+      padding: 13px;
+      border: none;
+      border-radius: 999px;
+      background: linear-gradient(120deg, var(--brass) 0%, var(--brass-light) 100%);
+      color: #3d2a00;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .login-submit:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 14px rgba(245, 158, 11, 0.35);
+    }
+
+    .login-submit:disabled {
+      opacity: 0.6;
+      cursor: default;
+      transform: none;
+    }
+
+    .login-footnote {
+      text-align: center;
+      font-size: 10.5px;
+      color: var(--ink-muted);
+      margin-top: 20px;
+      line-height: 1.5;
+    }
+
     @media (max-width: 768px) {
       .header-content {
         flex-direction: column;
@@ -1374,6 +1607,25 @@
   </style>
 </head>
 <body>
+  <div id="loginScreen" class="login-screen">
+    <div class="login-card">
+      <div class="login-brand">
+        <h1>⚓ MarineTeknik</h1>
+        <p>Project Invoice Tracker</p>
+      </div>
+      <form id="loginForm" onsubmit="handleLoginSubmit(event)">
+        <div class="login-field">
+          <label for="loginPassword">Team Password</label>
+          <input type="password" id="loginPassword" autocomplete="current-password" required placeholder="••••••••" autofocus>
+        </div>
+        <div id="loginError" class="login-error" style="display:none;"></div>
+        <button type="submit" id="loginSubmitBtn" class="login-submit">Sign In</button>
+      </form>
+      <p class="login-footnote">Shared team access. Contact your administrator if you don't have the password.</p>
+    </div>
+  </div>
+
+  <div id="appShell" style="display:none;">
  <div class="header">
   <div class="header-content">
     <div class="header-left">
@@ -1382,6 +1634,10 @@
       <p style="font-size: 11px; opacity: 0.7; margin-top: 8px; text-transform:none; letter-spacing:normal; font-weight:400;">Last Updated: <span id="lastUpdated">—</span></p>
     </div>
     <div class="header-right">
+      <div style="display:flex;align-items:center;gap:10px;margin-right:6px;">
+        <span style="font-size:11.5px;color:#c9d9ec;">🔒 Signed In</span>
+        <button class="btn btn-secondary" onclick="handleLogout()">Sign Out</button>
+      </div>
       <button class="btn btn-secondary" onclick="clearAllData()">Clear</button>
       <button class="btn btn-secondary" onclick="openImportModal()">Import</button>
       <button class="btn btn-primary" onclick="openExportModal()">Export</button>
@@ -1609,19 +1865,24 @@
 
       <div class="chart-card">
         <div class="chart-title" style="margin-bottom:4px;">Invoice Schedule</div>
-        <div style="font-size:11px;color:var(--ink-muted);margin-bottom:14px;">Invoice Amount is auto-estimated (Remaining Inv spread evenly to Project End) unless you enter an actual amount — click ✏️ to set one.</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+          <div style="font-size:11px;color:var(--ink-muted);">Shows every invoice/installment — <strong>✓ Complete</strong> ones included, so you can see progress at a glance. Amount is auto-estimated unless a single amount or payment plan is set — click ✏️ to set one.</div>
+          <label style="display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--ink-soft);font-weight:600;white-space:nowrap;cursor:pointer;">
+            <input type="checkbox" id="hideCompletedToggle" onchange="onHideCompletedToggle(this.checked)"> Hide completed
+          </label>
+        </div>
         <div class="table-container" style="box-shadow:none;border:1px solid var(--border);">
           <table style="table-layout:fixed;width:100%;">
             <thead>
               <tr>
-                <th style="width:11%;text-align:left">Code</th>
-                <th style="width:20%;text-align:left">Project</th>
-                <th style="width:12%;text-align:left">PM</th>
-                <th style="width:10%">Next Invoice</th>
-                <th style="width:10%">Status</th>
-                <th style="width:11%">Remaining</th>
-                <th style="width:14%">Invoice Amount</th>
-                <th style="width:6%">Edit</th>
+                <th style="width:10%;text-align:left">Code</th>
+                <th style="width:18%;text-align:left">Project</th>
+                <th style="width:11%;text-align:left">PM</th>
+                <th style="width:11%">Invoice Event</th>
+                <th style="width:12%">Status</th>
+                <th style="width:10%">Remaining</th>
+                <th style="width:12%">Amount</th>
+                <th style="width:16%">Actions</th>
               </tr>
             </thead>
             <tbody id="scheduleTableBody">
@@ -1744,6 +2005,7 @@
       </div>
     </div>
   </div>
+  </div>
 
   <!-- Comment Modal -->
   <div class="modal" id="commentModal">
@@ -1770,45 +2032,65 @@
 
   <!-- Invoice Amount / Payment Plan Modal -->
   <div class="modal" id="invoiceAmountModal">
-    <div class="modal-content" style="max-width:660px;">
+    <div class="modal-content" style="max-width:680px;">
       <div class="modal-header">
         <h2>Invoicing Plan</h2>
         <p id="invoiceAmountProjectInfo"></p>
       </div>
+      <div id="planSchemaWarning" style="display:none;background:var(--overdue-bg);color:var(--overdue);border-radius:8px;padding:10px 12px;font-size:11.5px;font-weight:600;margin-bottom:16px;">
+        ⚠ Setup needed — the payment plan tables don't exist in this Supabase project yet. Run the setup SQL (payment_and_invoice_setup.sql), then reload this page. Nothing you enter here will save until that's done.
+      </div>
       <input type="hidden" id="invoiceAmountProjectCode">
 
-      <div class="option-group">
-        <label style="color:var(--navy-800);font-weight:700">Auto-Estimate</label>
-        <div id="invoiceAmountEstimateDisplay" style="padding:10px 12px;background:var(--bg);border-radius:7px;font-size:14px;font-weight:600;color:var(--ink-soft);"></div>
-        <div style="font-size:11px;color:var(--ink-muted);margin-top:6px;">Fallback only — Remaining Inv spread evenly to Project End. Used when neither option below is set.</div>
+      <div class="plan-mode-tabs">
+        <button type="button" class="plan-mode-tab" id="planTabEstimate" onclick="setPlanMode('estimate')">Auto-Estimate</button>
+        <button type="button" class="plan-mode-tab" id="planTabManual" onclick="setPlanMode('manual')">Single Amount</button>
+        <button type="button" class="plan-mode-tab" id="planTabPlan" onclick="setPlanMode('plan')">Payment Plan</button>
       </div>
 
-      <div class="option-group">
-        <label style="color:var(--navy-800);font-weight:700">Single Manual Amount</label>
-        <div style="display:flex;gap:8px;align-items:center;">
-          <input type="number" id="invoiceAmountManualInput" step="0.01" min="0" placeholder="e.g. 45000" style="flex:1;padding:10px;border:1.5px solid var(--navy-700);border-radius:7px;font-size:13px;font-family:inherit;outline:none;background:var(--bg)">
-          <button class="btn" style="padding:9px 16px;background:var(--navy-700);color:#fff;border:none;border-radius:7px;font-size:12px;cursor:pointer;white-space:nowrap;" onclick="saveInvoiceAmountOverride()">Save</button>
-          <button class="btn" style="padding:9px 14px;background:var(--surface);color:var(--overdue);border:1px solid var(--overdue);border-radius:7px;font-size:12px;cursor:pointer;white-space:nowrap;" onclick="clearInvoiceAmountOverride()">Clear</button>
+      <!-- Auto-Estimate -->
+      <div class="plan-mode-panel" id="planPanelEstimate">
+        <div style="padding:20px;background:var(--bg);border-radius:10px;text-align:center;">
+          <div style="font-size:10.5px;text-transform:uppercase;letter-spacing:0.5px;color:var(--ink-muted);font-weight:700;margin-bottom:8px;">Estimated Next Invoice</div>
+          <div id="invoiceAmountEstimateDisplay" style="font-size:28px;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;color:var(--ink);"></div>
         </div>
-        <div style="font-size:11px;color:var(--ink-muted);margin-top:6px;">A one-off number for the single next invoice. Ignored if a payment plan is set below.</div>
+        <div style="font-size:11.5px;color:var(--ink-muted);margin-top:12px;text-align:center;">Remaining Inv spread evenly to Project End. This is only used automatically when neither a single amount nor a payment plan is set below.</div>
       </div>
 
-      <div class="option-group">
-        <label style="color:var(--navy-800);font-weight:700">Payment Plan — splits Project Value into dated installments</label>
-        <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
-          <select id="planTemplateSelect" style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:7px;font-size:12.5px;background:var(--bg);"></select>
-          <button class="btn" style="padding:8px 14px;background:var(--brass);color:#3d2a00;border:none;border-radius:7px;font-size:12px;cursor:pointer;font-weight:700;white-space:nowrap;" onclick="applyPaymentTemplate()">Apply Template</button>
+      <!-- Single Manual Amount -->
+      <div class="plan-mode-panel" id="planPanelManual" style="display:none;">
+        <label style="display:block;font-size:11px;font-weight:700;color:var(--navy-800);margin-bottom:8px;">Actual amount for the next invoice</label>
+        <div style="display:flex;gap:8px;">
+          <input type="number" id="invoiceAmountManualInput" step="0.01" min="0" placeholder="e.g. 45000" style="flex:1;padding:12px;border:1.5px solid var(--navy-700);border-radius:9px;font-size:15px;font-family:inherit;outline:none;background:var(--bg)">
+          <button class="btn-export" onclick="saveInvoiceAmountOverride()">Save</button>
+        </div>
+        <button class="btn-cancel" style="color:var(--overdue);border-color:var(--overdue);margin-top:10px;" onclick="clearInvoiceAmountOverride()">Clear override</button>
+        <div style="font-size:11.5px;color:var(--ink-muted);margin-top:12px;">A one-off number for a single upcoming invoice. Good for simple jobs that don't need a full payment plan.</div>
+      </div>
+
+      <!-- Payment Plan -->
+      <div class="plan-mode-panel" id="planPanelPlan" style="display:none;">
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:14px;">
+          <select id="planTemplateSelect" style="flex:1;padding:9px;border:1.5px solid var(--border);border-radius:8px;font-size:12.5px;background:var(--surface);font-family:inherit;"></select>
+          <button class="btn" style="padding:9px 16px;background:var(--brass);color:#3d2a00;border:none;border-radius:8px;font-size:12px;cursor:pointer;font-weight:700;white-space:nowrap;" onclick="applyPaymentTemplate()">Apply</button>
+        </div>
+
+        <div class="plan-table-header">
+          <span>%</span><span>Milestone</span><span>Date</span><span>Label</span><span>Amount</span><span>Paid</span><span></span>
         </div>
         <div id="planInstallmentsContainer"></div>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;flex-wrap:wrap;gap:8px;">
-          <button class="btn" style="padding:6px 12px;background:var(--bg);border:1px dashed var(--border);border-radius:7px;font-size:11.5px;cursor:pointer;color:var(--ink-soft);" onclick="addPlanInstallmentRow()">+ Add Installment</button>
-          <span id="planTotalIndicator" style="font-size:11.5px;font-weight:700;"></span>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
+          <button class="btn" style="padding:7px 14px;background:var(--bg);border:1px dashed var(--border);border-radius:8px;font-size:11.5px;cursor:pointer;color:var(--ink-soft);" onclick="addPlanInstallmentRow()">+ Add Installment</button>
+          <span id="planTotalIndicator" style="font-size:12px;font-weight:700;"></span>
         </div>
-        <div style="margin-top:12px;display:flex;gap:8px;">
+
+        <div style="display:flex;gap:8px;margin-top:16px;">
           <button class="btn-cancel" style="color:var(--overdue);border-color:var(--overdue);" onclick="clearPaymentPlan()">Clear Plan</button>
           <button class="btn-export" onclick="savePaymentPlan()">Save Plan</button>
         </div>
-        <div style="margin-top:10px;">
+
+        <div style="margin-top:12px;text-align:right;">
           <a href="#" onclick="openTemplateManagerModal();return false;" style="font-size:11px;color:var(--navy-700);font-weight:600;">Manage payment term templates ▸</a>
         </div>
       </div>
@@ -1826,10 +2108,16 @@
         <h2>Payment Term Templates</h2>
         <p>Reusable installment splits you can apply to any project's payment plan.</p>
       </div>
+      <div id="templateSchemaWarning" style="display:none;background:var(--overdue-bg);color:var(--overdue);border-radius:8px;padding:10px 12px;font-size:11.5px;font-weight:600;margin-bottom:16px;">
+        ⚠ Setup needed — the payment plan tables don't exist in this Supabase project yet. Run the setup SQL (payment_and_invoice_setup.sql), then reload this page.
+      </div>
       <div id="templateListContainer" style="max-height:220px;overflow-y:auto;margin-bottom:18px;"></div>
       <div class="option-group">
         <label style="color:var(--navy-800);font-weight:700">New Template</label>
         <input type="text" id="newTemplateName" placeholder="Template name (e.g. 50/50 Order/End)" style="width:100%;padding:9px;border:1.5px solid var(--navy-700);border-radius:7px;font-size:12.5px;margin-bottom:10px;background:var(--bg);font-family:inherit;">
+        <div class="plan-table-header" style="grid-template-columns:44px 106px 1fr 22px;">
+          <span>%</span><span>Milestone</span><span>Label</span><span></span>
+        </div>
         <div id="newTemplateInstallments"></div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
           <button class="btn" style="padding:6px 12px;background:var(--bg);border:1px dashed var(--border);border-radius:7px;font-size:11.5px;cursor:pointer;color:var(--ink-soft);" onclick="addNewTemplateRow()">+ Add Installment</button>
@@ -1974,6 +2262,13 @@ Thank you in advance.</textarea>
     const SUPABASE_URL = 'https://mpvsentuomxnyijhrwli.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wdnNlbnR1b214bnlpamhyd2xpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3Njg5MTUsImV4cCI6MjA4OTM0NDkxNX0.yL2YDH-fx12oR03-JFDxj651mWZRQoPywv8ilebzox0';
 
+    // Supabase Auth still needs an email/password pair internally — this
+    // is a fixed, internal-only address for the one shared team account.
+    // Nobody types or sees it; the login screen only asks for the
+    // password. Must exactly match the email you use when creating that
+    // one user in Supabase (Authentication > Users > Add user).
+    const SHARED_LOGIN_EMAIL = 'team-access@marineteknik.internal';
+
     let supabaseClient;
     let projects = [];
     let comments = {};
@@ -1988,6 +2283,7 @@ Thank you in advance.</textarea>
     let currentPM = null;
     let dashboardPM = null;
     let dashboardYear = null;
+    let hideCompletedInstallments = false;
     let calendarCenterDate = null;
     let currentCalendarData = [];
     let sortCol = 'invoiceStatus';
@@ -2038,28 +2334,111 @@ Thank you in advance.</textarea>
       });
     }
 
-    async function initApp() {
-      try {
-        // Try to get session first
-        const { data: { session } } = await supabaseClient.auth.getSession();
-        
-        if (session) {
-          // User is logged in
-          console.log('User authenticated');
-          await loadAllData();
-          buildPMDropdown();
-        } else {
-          // No session, try to authenticate with anonymous key
-          // Load from localStorage if available
+    let dataLoadedForSession = false;
+
+    // Single source of truth for "is anyone signed in right now" — shows
+    // the app or the login screen accordingly. Called on initial load
+    // and every time auth state changes (sign in, sign out, token
+    // refresh, or another tab signing out).
+    async function handleAuthChange(session) {
+      const loginScreen = document.getElementById('loginScreen');
+      const appShell = document.getElementById('appShell');
+
+      if (session && session.user) {
+        loginScreen.style.display = 'none';
+        appShell.style.display = 'block';
+
+        if (!dataLoadedForSession) {
+          dataLoadedForSession = true;
           await loadAllData();
           buildPMDropdown();
         }
+      } else {
+        dataLoadedForSession = false;
+        appShell.style.display = 'none';
+        loginScreen.style.display = 'flex';
+      }
+    }
+
+    async function initApp() {
+      try {
+        // Fires immediately with whatever session exists (or none), then
+        // again on every future sign-in/sign-out/refresh — this is the
+        // one place that decides whether the app or the login screen shows.
+        supabaseClient.auth.onAuthStateChange((_event, session) => {
+          handleAuthChange(session);
+        });
+
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        await handleAuthChange(session);
       } catch (e) {
         console.error('Init error:', e);
-        // Attempt to load from localStorage on any error
-        await loadAllData();
-        buildPMDropdown();
+        await handleAuthChange(null);
       }
+    }
+
+    async function handleLoginSubmit(event) {
+      event.preventDefault();
+      const password = document.getElementById('loginPassword').value;
+      const errorEl = document.getElementById('loginError');
+      const btn = document.getElementById('loginSubmitBtn');
+
+      errorEl.style.display = 'none';
+
+      btn.disabled = true;
+      btn.textContent = 'Signing in…';
+      try {
+        const { error } = await supabaseClient.auth.signInWithPassword({ email: SHARED_LOGIN_EMAIL, password });
+        if (error) throw error;
+        document.getElementById('loginPassword').value = '';
+        // handleAuthChange fires automatically via onAuthStateChange
+      } catch (e) {
+        console.error('Login error:', e);
+        errorEl.textContent = e.message === 'Invalid login credentials'
+          ? 'Incorrect password.'
+          : (e.message || 'Sign-in failed. Please try again.');
+        errorEl.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Sign In';
+      }
+    }
+
+    async function handleLogout() {
+      try {
+        const { error } = await supabaseClient.auth.signOut();
+        if (error) throw error;
+      } catch (e) {
+        console.error('Sign out error:', e);
+        showToast('Error signing out', 'error');
+      }
+      // handleAuthChange fires automatically via onAuthStateChange
+    }
+
+    let paymentSchemaMissing = false;
+
+    // Detects Postgres/PostgREST "table doesn't exist" errors specifically,
+    // so we can tell the user exactly what's wrong instead of a generic
+    // (and often misleading) failure message.
+    function isMissingTableError(e) {
+      if (!e) return false;
+      const msg = (e.message || '') + ' ' + (e.details || '') + ' ' + (e.hint || '');
+      return e.code === '42P01' || e.code === 'PGRST205' || /relation .* does not exist/i.test(msg) || /could not find the table/i.test(msg);
+    }
+
+    // Turns a raw Supabase/Postgres error into a message that actually
+    // tells the user what happened, instead of a generic guess — this
+    // is what was making "table doesn't exist" look identical to
+    // "duplicate name" in the UI.
+    function explainSupabaseError(e, fallback) {
+      if (isMissingTableError(e)) {
+        return 'Setup needed — this table doesn\'t exist in Supabase yet. Run the setup SQL, then reload the page.';
+      }
+      if (e && e.code === '23505') {
+        return 'That name is already taken — pick a different one.';
+      }
+      const detail = e && (e.message || e.details);
+      return detail ? `${fallback}: ${detail}` : fallback;
     }
 
     async function loadAllData() {
@@ -2073,6 +2452,9 @@ Thank you in advance.</textarea>
         filterTable();
         updateKPIs();
         updateLastUpdatedTimestamp();
+        if (paymentSchemaMissing) {
+          showToast('⚠ Payment plan tables aren\'t set up in Supabase yet — see the setup notice in the Invoicing Plan modal', 'error');
+        }
       } catch (e) {
         console.error('Load error:', e);
       }
@@ -2161,7 +2543,8 @@ Thank you in advance.</textarea>
 
     async function loadComments() {
       try {
-        const { data } = await supabaseClient.from('comments').select('*');
+        const { data, error } = await supabaseClient.from('comments').select('*');
+        if (error) throw error;
         comments = {};
         (data || []).forEach(c => {
           if (c.project_code) {
@@ -2181,7 +2564,8 @@ Thank you in advance.</textarea>
 
     async function loadFlags() {
       try {
-        const { data } = await supabaseClient.from('flags').select('*');
+        const { data, error } = await supabaseClient.from('flags').select('*');
+        if (error) throw error;
         flags = {};
         (data || []).forEach(f => {
           if (f.project_code) {
@@ -2204,7 +2588,8 @@ Thank you in advance.</textarea>
     // never touches the locked Excel column list.
     async function loadInvoiceAmounts() {
       try {
-        const { data } = await supabaseClient.from('invoice_amounts').select('*');
+        const { data, error } = await supabaseClient.from('invoice_amounts').select('*');
+        if (error) throw error;
         invoiceAmounts = {};
         (data || []).forEach(r => {
           if (r.project_code) {
@@ -2216,6 +2601,7 @@ Thank you in advance.</textarea>
       } catch (e) {
         console.error('Invoice amounts load error:', e);
         invoiceAmounts = {};
+        if (isMissingTableError(e)) paymentSchemaMissing = true;
       }
     }
 
@@ -2232,6 +2618,7 @@ Thank you in advance.</textarea>
       } catch (e) {
         console.error('Payment templates load error:', e);
         paymentTemplates = [];
+        if (isMissingTableError(e)) paymentSchemaMissing = true;
       }
     }
 
@@ -2253,6 +2640,7 @@ Thank you in advance.</textarea>
       } catch (e) {
         console.error('Project payment plans load error:', e);
         projectPaymentPlans = {};
+        if (isMissingTableError(e)) paymentSchemaMissing = true;
       }
     }
 
@@ -3077,58 +3465,83 @@ Thank you in advance.</textarea>
       if (!tbody) return;
 
       const dated = [];
-      const undatedProjects = [];
+      const undated = [];
 
       dashData.forEach(p => {
-        const events = getProjectInvoiceEvents(p);
-        const pending = events.filter(ev => !ev.invoiced && ev.date);
-        if (pending.length) {
-          pending.forEach(ev => dated.push({ p, ev }));
-        } else {
-          undatedProjects.push(p);
-        }
+        getProjectInvoiceEvents(p).forEach(ev => {
+          if (hideCompletedInstallments && ev.invoiced) return;
+          if (ev.date) dated.push({ p, ev });
+          else undated.push({ p, ev });
+        });
       });
 
       dated.sort((a, b) => a.ev.date - b.ev.date);
 
-      if (!dated.length && !undatedProjects.length) {
+      if (!dated.length && !undated.length) {
         tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><div class="empty-text">No projects to show</div></td></tr>';
         return;
       }
 
-      const datedRows = dated.map(({ p, ev }) => {
-        const status = getStatusForDate(ev.date);
+      const buildRow = ({ p, ev }, hasDate) => {
         const code = p['Project Code'];
+        const status = hasDate ? getStatusForDate(ev.date) : 'No Date';
         const notEstimated = ev.isPlan || ev.isManual;
         const amtLabel = formatCurrency(ev.amount) + (notEstimated ? '' : ' *');
+        const statusBadge = ev.invoiced
+          ? `<span class="status-badge status-upcoming">✓ Complete</span>`
+          : `<span class="status-badge ${getStatusClass(status)}">${status}</span>`;
+        const toggleBtn = ev.isPlan
+          ? `<button class="btn" style="padding:4px 9px;font-size:9.5px;cursor:pointer;border-radius:999px;white-space:nowrap;${ev.invoiced ? 'background:var(--surface);color:var(--ink-muted);border:1px solid var(--border);' : 'background:var(--upcoming);color:#fff;border:1px solid var(--upcoming);'}" onclick="toggleInstallmentInvoiced('${escapeHtml(code)}', ${ev.index})">${ev.invoiced ? 'Undo' : 'Mark Paid'}</button>`
+          : '';
         return `
-          <tr>
+          <tr${ev.invoiced ? ' style="opacity:0.6;"' : ''}>
             <td style="text-align:left;font-weight:600">${escapeHtml(code)}</td>
             <td style="text-align:left">${escapeHtml(p['Project Name'])}</td>
             <td style="text-align:left">${escapeHtml(p['Person Responsible'])}</td>
-            <td>${formatDateObj(ev.date)}<div style="font-size:9.5px;color:var(--ink-muted);font-weight:500;">${escapeHtml(ev.label || '')}</div></td>
-            <td><span class="status-badge ${getStatusClass(status)}">${status}</span></td>
+            <td>${hasDate ? formatDateObj(ev.date) : '—'}<div style="font-size:9.5px;color:var(--ink-muted);font-weight:500;">${escapeHtml(ev.label || '')}</div></td>
+            <td>${statusBadge}</td>
             <td class="currency">${formatCurrency(p['Remaining Inv'])}</td>
             <td class="currency" style="color:${notEstimated ? 'var(--ink)' : 'var(--ink-muted)'};font-weight:${notEstimated ? '700' : '500'};">${amtLabel}</td>
-            <td><button class="btn" style="padding:5px 10px;font-size:10.5px;cursor:pointer;background:var(--navy-700);color:#fff;border-radius:999px;" onclick="openInvoiceAmountModal('${escapeHtml(code)}')">✏️</button></td>
+            <td style="display:flex;gap:5px;justify-content:center;align-items:center;flex-wrap:wrap;">
+              ${toggleBtn}
+              <button class="btn" style="padding:5px 9px;font-size:10.5px;cursor:pointer;background:var(--navy-700);color:#fff;border-radius:999px;" onclick="openInvoiceAmountModal('${escapeHtml(code)}')">✏️</button>
+            </td>
           </tr>
         `;
-      }).join('');
+      };
 
-      const undatedRows = undatedProjects.map(p => `
-        <tr>
-          <td style="text-align:left;font-weight:600">${escapeHtml(p['Project Code'])}</td>
-          <td style="text-align:left">${escapeHtml(p['Project Name'])}</td>
-          <td style="text-align:left">${escapeHtml(p['Person Responsible'])}</td>
-          <td>—</td>
-          <td><span class="status-badge status-nodate">No Date</span></td>
-          <td class="currency">${formatCurrency(p['Remaining Inv'])}</td>
-          <td class="currency" style="color:var(--ink-muted);">—</td>
-          <td><button class="btn" style="padding:5px 10px;font-size:10.5px;cursor:pointer;background:var(--navy-700);color:#fff;border-radius:999px;" onclick="openInvoiceAmountModal('${escapeHtml(p['Project Code'])}')">✏️</button></td>
-        </tr>
-      `).join('');
+      tbody.innerHTML = dated.map(r => buildRow(r, true)).join('') + undated.map(r => buildRow(r, false)).join('');
+    }
 
-      tbody.innerHTML = datedRows + undatedRows;
+    function onHideCompletedToggle(checked) {
+      hideCompletedInstallments = checked;
+      renderDashboard();
+    }
+
+    // Flips a single installment's invoiced/paid flag directly from the
+    // Invoice Schedule table, without needing to open the full modal.
+    async function toggleInstallmentInvoiced(code, index) {
+      const plan = projectPaymentPlans[code];
+      if (!plan || !plan.installments || !plan.installments[index]) return;
+
+      plan.installments[index].invoiced = !plan.installments[index].invoiced;
+      const now = new Date().toISOString();
+      try {
+        const { error } = await supabaseClient.from('project_payment_terms').upsert({
+          project_code: code,
+          installments: plan.installments,
+          updated_at: now
+        }, { onConflict: 'project_code' });
+        if (error) throw error;
+      } catch (e) {
+        console.error('Toggle invoiced error:', e);
+        showToast(explainSupabaseError(e, 'Error updating installment'), 'error');
+        plan.installments[index].invoiced = !plan.installments[index].invoiced; // revert on failure
+        return;
+      }
+
+      renderDashboard();
+      showToast(plan.installments[index].invoiced ? '✓ Marked as paid' : '↺ Marked as not yet paid');
     }
 
     // --- Project Status page ------------------------------------------
@@ -4367,11 +4780,25 @@ Thank you in advance.</textarea>
       showToast('✓ Notes saved');
     }
 
+    function setPlanMode(mode) {
+      const panels = { estimate: 'planPanelEstimate', manual: 'planPanelManual', plan: 'planPanelPlan' };
+      const tabs = { estimate: 'planTabEstimate', manual: 'planTabManual', plan: 'planTabPlan' };
+      Object.keys(panels).forEach(key => {
+        const panel = document.getElementById(panels[key]);
+        const tab = document.getElementById(tabs[key]);
+        if (panel) panel.style.display = key === mode ? 'block' : 'none';
+        if (tab) tab.classList.toggle('active', key === mode);
+      });
+    }
+
     function openInvoiceAmountModal(code) {
       const proj = projects.find(p => p['Project Code'] === code);
       if (!proj) return;
       editingProjectCode = code;
       const info = getInvoiceAmountInfo(proj);
+
+      const warning = document.getElementById('planSchemaWarning');
+      if (warning) warning.style.display = paymentSchemaMissing ? 'block' : 'none';
 
       document.getElementById('invoiceAmountProjectCode').value = code;
       document.getElementById('invoiceAmountProjectInfo').textContent = proj['Project Name'] || code;
@@ -4384,6 +4811,10 @@ Thank you in advance.</textarea>
       editingInstallments = plan ? JSON.parse(JSON.stringify(plan.installments)) : [];
       renderPlanTemplateOptions();
       renderPlanInstallments(proj);
+
+      // Default to whichever mode is actually in use for this project.
+      const defaultMode = (plan && plan.installments && plan.installments.length) ? 'plan' : (info.isManual ? 'manual' : 'estimate');
+      setPlanMode(defaultMode);
 
       document.getElementById('invoiceAmountModal').classList.add('active');
     }
@@ -4404,14 +4835,15 @@ Thank you in advance.</textarea>
 
       const now = new Date().toISOString();
       try {
-        await supabaseClient.from('invoice_amounts').upsert({
+        const { error } = await supabaseClient.from('invoice_amounts').upsert({
           project_code: code,
           manual_amount: value,
           updated_at: now
         }, { onConflict: 'project_code' });
+        if (error) throw error;
       } catch (e) {
         console.error('Invoice amount save error:', e);
-        showToast('Error saving invoice amount', 'error');
+        showToast(explainSupabaseError(e, 'Error saving invoice amount'), 'error');
         return;
       }
 
@@ -4423,10 +4855,11 @@ Thank you in advance.</textarea>
     async function clearInvoiceAmountOverride() {
       const code = document.getElementById('invoiceAmountProjectCode').value;
       try {
-        await supabaseClient.from('invoice_amounts').delete().eq('project_code', code);
+        const { error } = await supabaseClient.from('invoice_amounts').delete().eq('project_code', code);
+        if (error) throw error;
       } catch (e) {
         console.error('Invoice amount clear error:', e);
-        showToast('Error clearing invoice amount', 'error');
+        showToast(explainSupabaseError(e, 'Error clearing invoice amount'), 'error');
         return;
       }
 
@@ -4476,22 +4909,22 @@ Thank you in advance.</textarea>
             : inst.milestone === 'end' ? parseFlexibleDate(proj['Project End'])
             : null;
           const dateDisplay = resolved ? formatDateObj(resolved) : '—';
+          const dateCell = inst.milestone === 'custom'
+            ? `<input type="date" class="plan-input" value="${inst.custom_date || ''}" onchange="updatePlanRow(${i},'custom_date',this.value)">`
+            : `<span style="font-size:11px;color:var(--ink-muted);">${dateDisplay}</span>`;
           return `
-            <div style="display:flex;gap:6px;align-items:center;margin-bottom:7px;flex-wrap:wrap;background:var(--bg);padding:7px 8px;border-radius:8px;">
-              <input type="number" min="0" max="100" value="${inst.pct}" style="width:52px;padding:6px;border:1px solid var(--border);border-radius:6px;font-size:12px;" onchange="updatePlanRow(${i},'pct',this.value)">%
-              <select style="padding:6px;border:1px solid var(--border);border-radius:6px;font-size:12px;" onchange="updatePlanRow(${i},'milestone',this.value)">
+            <div class="plan-table-row ${inst.invoiced ? 'is-invoiced' : ''}">
+              <input type="number" min="0" max="100" class="plan-input" value="${inst.pct}" onchange="updatePlanRow(${i},'pct',this.value)">
+              <select class="plan-select" onchange="updatePlanRow(${i},'milestone',this.value)">
                 <option value="start" ${inst.milestone === 'start' ? 'selected' : ''}>Project Start</option>
                 <option value="end" ${inst.milestone === 'end' ? 'selected' : ''}>Project End</option>
                 <option value="custom" ${inst.milestone === 'custom' ? 'selected' : ''}>Custom Date</option>
               </select>
-              ${inst.milestone === 'custom'
-                ? `<input type="date" value="${inst.custom_date || ''}" style="padding:5px;border:1px solid var(--border);border-radius:6px;font-size:11.5px;" onchange="updatePlanRow(${i},'custom_date',this.value)">`
-                : `<span style="font-size:11px;color:var(--ink-muted);min-width:66px;">${dateDisplay}</span>`
-              }
-              <input type="text" value="${escapeHtml(inst.label || '')}" placeholder="Label" style="width:84px;padding:6px;border:1px solid var(--border);border-radius:6px;font-size:12px;" onchange="updatePlanRow(${i},'label',this.value)">
-              <span style="font-size:12px;font-weight:700;color:var(--navy-800);min-width:72px;">${formatCurrency(amount)}</span>
-              <label style="font-size:10px;color:var(--ink-muted);display:flex;align-items:center;gap:3px;white-space:nowrap;"><input type="checkbox" ${inst.invoiced ? 'checked' : ''} onchange="updatePlanRow(${i},'invoiced',this.checked)"> Invoiced</label>
-              <button onclick="removePlanInstallmentRow(${i})" style="border:none;background:none;color:var(--overdue);cursor:pointer;font-size:14px;margin-left:auto;">✕</button>
+              ${dateCell}
+              <input type="text" class="plan-input" value="${escapeHtml(inst.label || '')}" placeholder="Label" onchange="updatePlanRow(${i},'label',this.value)">
+              <span class="plan-amount-display">${formatCurrency(amount)}</span>
+              <span class="plan-invoiced-check"><input type="checkbox" title="Mark as invoiced" ${inst.invoiced ? 'checked' : ''} onchange="updatePlanRow(${i},'invoiced',this.checked)"></span>
+              <button class="plan-remove-btn" title="Remove" onclick="removePlanInstallmentRow(${i})">✕</button>
             </div>
           `;
         }).join('');
@@ -4537,14 +4970,15 @@ Thank you in advance.</textarea>
 
       const now = new Date().toISOString();
       try {
-        await supabaseClient.from('project_payment_terms').upsert({
+        const { error } = await supabaseClient.from('project_payment_terms').upsert({
           project_code: code,
           installments: editingInstallments,
           updated_at: now
         }, { onConflict: 'project_code' });
+        if (error) throw error;
       } catch (e) {
         console.error('Payment plan save error:', e);
-        showToast('Error saving payment plan', 'error');
+        showToast(explainSupabaseError(e, 'Error saving payment plan'), 'error');
         return;
       }
 
@@ -4556,10 +4990,11 @@ Thank you in advance.</textarea>
     async function clearPaymentPlan() {
       const code = editingProjectCode;
       try {
-        await supabaseClient.from('project_payment_terms').delete().eq('project_code', code);
+        const { error } = await supabaseClient.from('project_payment_terms').delete().eq('project_code', code);
+        if (error) throw error;
       } catch (e) {
         console.error('Payment plan clear error:', e);
-        showToast('Error clearing payment plan', 'error');
+        showToast(explainSupabaseError(e, 'Error clearing payment plan'), 'error');
         return;
       }
       delete projectPaymentPlans[code];
@@ -4572,6 +5007,9 @@ Thank you in advance.</textarea>
     // --- Payment Term Template manager ---------------------------------
 
     function openTemplateManagerModal() {
+      const warning = document.getElementById('templateSchemaWarning');
+      if (warning) warning.style.display = paymentSchemaMissing ? 'block' : 'none';
+
       renderTemplateList();
       newTemplateInstallments = [];
       document.getElementById('newTemplateName').value = '';
@@ -4614,15 +5052,15 @@ Thank you in advance.</textarea>
       const container = document.getElementById('newTemplateInstallments');
       if (!container) return;
       container.innerHTML = newTemplateInstallments.map((inst, i) => `
-        <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px;">
-          <input type="number" min="0" max="100" value="${inst.pct}" style="width:52px;padding:6px;border:1px solid var(--border);border-radius:6px;font-size:12px;" onchange="updateNewTemplateRow(${i},'pct',this.value)">%
-          <select style="padding:6px;border:1px solid var(--border);border-radius:6px;font-size:12px;" onchange="updateNewTemplateRow(${i},'milestone',this.value)">
+        <div class="plan-template-row">
+          <input type="number" min="0" max="100" class="plan-input" value="${inst.pct}" onchange="updateNewTemplateRow(${i},'pct',this.value)">
+          <select class="plan-select" onchange="updateNewTemplateRow(${i},'milestone',this.value)">
             <option value="start" ${inst.milestone === 'start' ? 'selected' : ''}>Project Start</option>
             <option value="end" ${inst.milestone === 'end' ? 'selected' : ''}>Project End</option>
             <option value="custom" ${inst.milestone === 'custom' ? 'selected' : ''}>Custom Date</option>
           </select>
-          <input type="text" value="${escapeHtml(inst.label || '')}" placeholder="Label (e.g. Order)" style="flex:1;padding:6px;border:1px solid var(--border);border-radius:6px;font-size:12px;" onchange="updateNewTemplateRow(${i},'label',this.value)">
-          <button onclick="removeNewTemplateRow(${i})" style="border:none;background:none;color:var(--overdue);cursor:pointer;font-size:14px;">✕</button>
+          <input type="text" class="plan-input" value="${escapeHtml(inst.label || '')}" placeholder="Label (e.g. Order)" onchange="updateNewTemplateRow(${i},'label',this.value)">
+          <button class="plan-remove-btn" title="Remove" onclick="removeNewTemplateRow(${i})">✕</button>
         </div>
       `).join('');
 
@@ -4672,7 +5110,7 @@ Thank you in advance.</textarea>
         if (data && data[0]) paymentTemplates.push(data[0]);
       } catch (e) {
         console.error('Template save error:', e);
-        showToast('Error saving template (name may already exist)', 'error');
+        showToast(explainSupabaseError(e, 'Error saving template'), 'error');
         return;
       }
 
@@ -4686,10 +5124,11 @@ Thank you in advance.</textarea>
     async function deleteTemplate(id) {
       if (!confirm('Delete this template? Projects already using it keep their saved installments.')) return;
       try {
-        await supabaseClient.from('payment_term_templates').delete().eq('id', id);
+        const { error } = await supabaseClient.from('payment_term_templates').delete().eq('id', id);
+        if (error) throw error;
       } catch (e) {
         console.error('Template delete error:', e);
-        showToast('Error deleting template', 'error');
+        showToast(explainSupabaseError(e, 'Error deleting template'), 'error');
         return;
       }
       paymentTemplates = paymentTemplates.filter(t => t.id !== id);
