@@ -653,20 +653,31 @@
       text-align: center;
     }
 
-    .cal-month-total {
+    .cal-month-total-wrap {
       text-align: center;
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .cal-month-badge {
       font-size: 11px;
       font-weight: 700;
-      color: var(--brass-dark);
-      background: #fef0d6;
       border-radius: 999px;
       padding: 3px 10px;
       display: inline-block;
-      margin: 0 auto 10px;
     }
 
-    .cal-month-total-wrap {
-      text-align: center;
+    .cal-month-behind {
+      color: var(--overdue);
+      background: var(--overdue-bg);
+    }
+
+    .cal-month-total {
+      color: var(--brass-dark);
+      background: #fef0d6;
     }
 
     .cal-grid {
@@ -3405,13 +3416,12 @@ Thank you in advance.</textarea>
     // Builds one month's calendar grid, listing the project code(s) due
     // each day (color-coded by status: overdue beats due-soon beats
     // upcoming for sort order). Hovering a day shows full project names.
-    function buildCalendarMonth(year, month, invoicesByDay, todayKey) {
+    function buildCalendarMonth(year, month, invoicesByDay, todayKey, monthStats) {
       const monthName = new Date(year, month, 1).toLocaleString('en-US', { month: 'long', year: 'numeric' });
       const firstDay = new Date(year, month, 1).getDay();
       const daysInMonth = new Date(year, month + 1, 0).getDate();
       const statusRank = { 'OVERDUE': 0, 'DUE SOON': 1, 'Upcoming': 2 };
       const maxShown = 2;
-      let monthTotal = 0;
 
       let cells = '';
       for (let i = 0; i < firstDay; i++) {
@@ -3420,7 +3430,6 @@ Thank you in advance.</textarea>
       for (let d = 1; d <= daysInMonth; d++) {
         const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
         const dayInvoices = invoicesByDay[dateKey] || [];
-        monthTotal += dayInvoices.reduce((s, x) => s + (x.amount || 0), 0);
         let cellClass = 'cal-cell';
         if (dateKey === todayKey) cellClass += ' cal-today';
 
@@ -3443,10 +3452,16 @@ Thank you in advance.</textarea>
         cells += `<div class="${cellClass}"><span class="cal-daynum">${d}</span>${codesHtml}</div>`;
       }
 
+      const stats = monthStats || { total: 0, behind: 0 };
+      const behindBadge = stats.behind > 0
+        ? `<span class="cal-month-badge cal-month-behind" title="Overdue and not yet invoiced, due this month">Behind: ${formatCurrency(stats.behind)}</span>`
+        : '';
+      const totalBadge = `<span class="cal-month-badge cal-month-total" title="Total of everything scheduled to invoice this month, invoiced or not">Total: ${formatCurrency(stats.total)}</span>`;
+
       return `
         <div class="cal-month">
           <div class="cal-month-title">${monthName}</div>
-          <div class="cal-month-total-wrap"><span class="cal-month-total" title="Total of every not-yet-invoiced amount due this month">Expected: ${formatCurrency(monthTotal)}</span></div>
+          <div class="cal-month-total-wrap">${behindBadge}${totalBadge}</div>
           <div class="cal-grid">
             <div class="cal-dow">Su</div><div class="cal-dow">Mo</div><div class="cal-dow">Tu</div><div class="cal-dow">We</div><div class="cal-dow">Th</div><div class="cal-dow">Fr</div><div class="cal-dow">Sa</div>
             ${cells}
@@ -3471,16 +3486,29 @@ Thank you in advance.</textarea>
       }
 
       const invoicesByDay = {};
+      const monthStats = {}; // 'YYYY-M' -> { total, behind } — total covers EVERY
+      // event scheduled that month (invoiced or not); behind is only the
+      // overdue, not-yet-invoiced portion. Day cells below still only show
+      // pending items — already-invoiced ones only count toward Total.
       dashData.forEach(p => {
         const events = getProjectInvoiceEvents(p);
         events.forEach(ev => {
-          if (ev.invoiced || !ev.date) return;
+          if (!ev.date) return;
+          const monthKey = `${ev.date.getFullYear()}-${ev.date.getMonth()}`;
+          if (!monthStats[monthKey]) monthStats[monthKey] = { total: 0, behind: 0 };
+          monthStats[monthKey].total += ev.amount || 0;
+          const status = getStatusForDate(ev.date);
+          if (!ev.invoiced && status === 'OVERDUE') {
+            monthStats[monthKey].behind += ev.amount || 0;
+          }
+
+          if (ev.invoiced) return;
           const key = `${ev.date.getFullYear()}-${String(ev.date.getMonth() + 1).padStart(2, '0')}-${String(ev.date.getDate()).padStart(2, '0')}`;
           if (!invoicesByDay[key]) invoicesByDay[key] = [];
           invoicesByDay[key].push({
             code: p['Project Code'],
             name: p['Project Name'],
-            status: getStatusForDate(ev.date),
+            status,
             pm: p['Person Responsible'] || 'Unassigned',
             amount: ev.amount,
             isManual: ev.isPlan || ev.isManual,
@@ -3494,7 +3522,8 @@ Thank you in advance.</textarea>
       let html = '';
       for (let offset = -1; offset <= 1; offset++) {
         const d = new Date(calendarCenterDate.getFullYear(), calendarCenterDate.getMonth() + offset, 1);
-        html += buildCalendarMonth(d.getFullYear(), d.getMonth(), invoicesByDay, todayKey);
+        const monthKey = `${d.getFullYear()}-${d.getMonth()}`;
+        html += buildCalendarMonth(d.getFullYear(), d.getMonth(), invoicesByDay, todayKey, monthStats[monthKey]);
       }
       container.innerHTML = html;
 
