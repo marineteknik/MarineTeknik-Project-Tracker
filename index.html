@@ -1224,6 +1224,11 @@
       opacity: 0.55;
     }
 
+    .plan-table-row.is-fixed {
+      background: #fef8ec;
+      border: 1px dashed var(--brass);
+    }
+
     .plan-input, .plan-select {
       padding: 6px;
       border: 1px solid var(--border);
@@ -2080,8 +2085,11 @@
         </div>
         <div id="planInstallmentsContainer"></div>
 
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
-          <button class="btn" style="padding:7px 14px;background:var(--bg);border:1px dashed var(--border);border-radius:8px;font-size:11.5px;cursor:pointer;color:var(--ink-soft);" onclick="addPlanInstallmentRow()">+ Add Installment</button>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;flex-wrap:wrap;gap:8px;">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn" style="padding:7px 14px;background:var(--bg);border:1px dashed var(--border);border-radius:8px;font-size:11.5px;cursor:pointer;color:var(--ink-soft);" onclick="addPlanInstallmentRow()">+ Add Installment</button>
+            <button class="btn" style="padding:7px 14px;background:#fef0d6;border:1px dashed var(--brass-dark);border-radius:8px;font-size:11.5px;cursor:pointer;color:var(--brass-dark);font-weight:600;" onclick="addFixedAmountRow()" title="For change orders, materials, PO extensions — extras that aren't a % of Project Value">+ Add Fixed Amount</button>
+          </div>
           <span id="planTotalIndicator" style="font-size:12px;font-weight:700;"></span>
         </div>
 
@@ -2771,34 +2779,56 @@ Thank you in advance.</textarea>
 
     // The single source of truth for "what invoice event(s) does this
     // project have coming up, and for how much". If a payment plan is
-    // saved, splits Project Value into its dated installments.
+    // saved, splits into its dated installments — each either a % of
+    // Project Value (the normal 30/30/40-style terms) or a fixed dollar
+    // amount (for change orders, materials, PO extensions — extras that
+    // aren't a percentage of the original contract value).
     //
-    // "invoiced" is derived automatically from % invoiced — which comes
-    // straight from Business Central on every Excel re-import — rather
-    // than a manually-toggled flag: each installment's cumulative share
-    // of the total (30%, then 30+30=60%, etc.) is compared against the
-    // project's actual % invoiced. Once BC's own number crosses that
-    // threshold, the installment is automatically considered invoiced.
-    // A small tolerance absorbs floating-point rounding from Excel.
+    // "invoiced" is derived automatically from Invoiced Value — which
+    // comes straight from Business Central on every Excel re-import —
+    // rather than a manually-toggled flag: each installment's cumulative
+    // dollar total is compared against the project's actual invoiced
+    // dollars. Once BC's own number crosses that threshold, the
+    // installment is automatically considered invoiced.
+    //
+    // The dollar amount shown for installments still due is capped so
+    // their sum never exceeds Remaining Inv — without this, a plan
+    // whose percentages no longer match reality (e.g. extra amounts
+    // invoiced outside the plan) could show a single installment worth
+    // more than what's actually left to invoice.
     function getProjectInvoiceEvents(p) {
       const code = p['Project Code'];
       const plan = projectPaymentPlans[code];
 
       if (plan && plan.installments && plan.installments.length) {
-        const actualPctInvoiced = p['% invoiced'] || 0;
-        const EPSILON = 0.5;
-        let cumulativePct = 0;
+        const actualInvoiced = p['Invoiced Value'] || 0;
+        const DOLLAR_EPSILON = 1;
+        let cumulativeNominal = 0;
+        let runningBudget = Math.max(0, p['Remaining Inv'] || 0);
 
         return plan.installments.map((inst, i) => {
           const date = resolveInstallmentDate(inst, p);
-          const amount = (p['Project Value'] || 0) * (parseFloat(inst.pct) || 0) / 100;
-          cumulativePct += (parseFloat(inst.pct) || 0);
-          const invoiced = actualPctInvoiced >= (cumulativePct - EPSILON);
+          const isFixed = inst.amount_type === 'fixed';
+          const nominalAmount = isFixed
+            ? (parseFloat(inst.fixed_amount) || 0)
+            : (p['Project Value'] || 0) * (parseFloat(inst.pct) || 0) / 100;
+
+          cumulativeNominal += nominalAmount;
+          const invoiced = actualInvoiced >= (cumulativeNominal - DOLLAR_EPSILON);
+
+          let amount = nominalAmount;
+          if (!invoiced) {
+            amount = Math.min(nominalAmount, runningBudget);
+            runningBudget -= amount;
+          }
+
           return {
             date,
             amount,
+            nominalAmount,
             label: inst.label || `Installment ${i + 1}`,
             pct: inst.pct,
+            amountType: isFixed ? 'fixed' : 'pct',
             invoiced,
             isPlan: true,
             isManual: false,
@@ -4867,12 +4897,17 @@ Thank you in advance.</textarea>
         showToast('Choose a template first', 'error');
         return;
       }
-      editingInstallments = JSON.parse(JSON.stringify(tmpl.installments)).map(inst => ({
+      const pctRows = JSON.parse(JSON.stringify(tmpl.installments)).map(inst => ({
         pct: inst.pct,
         milestone: inst.milestone,
         label: inst.label || '',
-        custom_date: inst.custom_date || ''
+        custom_date: inst.custom_date || '',
+        amount_type: 'pct'
       }));
+      // Applying a template replaces the % terms but keeps any fixed
+      // dollar extras (change orders etc.) you'd already added.
+      const existingFixedRows = editingInstallments.filter(i => i.amount_type === 'fixed');
+      editingInstallments = pctRows.concat(existingFixedRows);
       const proj = projects.find(p => p['Project Code'] === editingProjectCode);
       renderPlanInstallments(proj);
     }
@@ -4884,15 +4919,18 @@ Thank you in advance.</textarea>
       // "Paid" is computed live from % invoiced (updates automatically on
       // every Excel re-import) rather than a manual checkbox — matches
       // the same logic getProjectInvoiceEvents() uses everywhere else.
-      const actualPctInvoiced = proj['% invoiced'] || 0;
-      const EPSILON = 0.5;
-      let cumulativePct = 0;
+      const actualInvoiced = proj['Invoiced Value'] || 0;
+      const DOLLAR_EPSILON = 1;
+      let cumulativeNominal = 0;
 
       if (!editingInstallments.length) {
         container.innerHTML = '<div style="font-size:11.5px;color:var(--ink-muted);padding:8px 0;">No installments yet — apply a template above, or add one manually.</div>';
       } else {
         container.innerHTML = editingInstallments.map((inst, i) => {
-          const amount = (proj['Project Value'] || 0) * (parseFloat(inst.pct) || 0) / 100;
+          const isFixed = inst.amount_type === 'fixed';
+          const amount = isFixed
+            ? (parseFloat(inst.fixed_amount) || 0)
+            : (proj['Project Value'] || 0) * (parseFloat(inst.pct) || 0) / 100;
           const resolved = inst.milestone === 'start' ? parseFlexibleDate(proj['Project Start'])
             : inst.milestone === 'end' ? parseFlexibleDate(proj['Project End'])
             : null;
@@ -4900,21 +4938,24 @@ Thank you in advance.</textarea>
           const dateCell = inst.milestone === 'custom'
             ? `<input type="date" class="plan-input" value="${inst.custom_date || ''}" onchange="updatePlanRow(${i},'custom_date',this.value)">`
             : `<span style="font-size:11px;color:var(--ink-muted);">${dateDisplay}</span>`;
-          cumulativePct += (parseFloat(inst.pct) || 0);
-          const invoiced = actualPctInvoiced >= (cumulativePct - EPSILON);
+          cumulativeNominal += amount;
+          const invoiced = actualInvoiced >= (cumulativeNominal - DOLLAR_EPSILON);
           const paidCell = invoiced
-            ? `<span style="color:var(--upcoming);font-weight:700;font-size:12px;" title="% invoiced from your latest import covers this installment">✓</span>`
-            : `<span style="color:var(--ink-muted);font-size:11px;" title="Not yet covered by % invoiced">—</span>`;
+            ? `<span style="color:var(--upcoming);font-weight:700;font-size:12px;" title="Invoiced Value from your latest import covers this installment">✓</span>`
+            : `<span style="color:var(--ink-muted);font-size:11px;" title="Not yet covered by Invoiced Value">—</span>`;
+          const firstCell = isFixed
+            ? `<input type="number" min="0" step="0.01" class="plan-input" value="${inst.fixed_amount || 0}" title="Fixed dollar amount" onchange="updatePlanRow(${i},'fixed_amount',this.value)">`
+            : `<input type="number" min="0" max="100" class="plan-input" value="${inst.pct}" title="% of Project Value" onchange="updatePlanRow(${i},'pct',this.value)">`;
           return `
-            <div class="plan-table-row ${invoiced ? 'is-invoiced' : ''}">
-              <input type="number" min="0" max="100" class="plan-input" value="${inst.pct}" onchange="updatePlanRow(${i},'pct',this.value)">
+            <div class="plan-table-row ${invoiced ? 'is-invoiced' : ''} ${isFixed ? 'is-fixed' : ''}">
+              ${firstCell}
               <select class="plan-select" onchange="updatePlanRow(${i},'milestone',this.value)">
                 <option value="start" ${inst.milestone === 'start' ? 'selected' : ''}>Project Start</option>
                 <option value="end" ${inst.milestone === 'end' ? 'selected' : ''}>Project End</option>
                 <option value="custom" ${inst.milestone === 'custom' ? 'selected' : ''}>Custom Date</option>
               </select>
               ${dateCell}
-              <input type="text" class="plan-input" value="${escapeHtml(inst.label || '')}" placeholder="Label" onchange="updatePlanRow(${i},'label',this.value)">
+              <input type="text" class="plan-input" value="${escapeHtml(inst.label || '')}" placeholder="${isFixed ? 'e.g. Change Order #1' : 'Label'}" onchange="updatePlanRow(${i},'label',this.value)">
               <span class="plan-amount-display">${formatCurrency(amount)}</span>
               <span class="plan-invoiced-check">${paidCell}</span>
               <button class="plan-remove-btn" title="Remove" onclick="removePlanInstallmentRow(${i})">✕</button>
@@ -4923,23 +4964,35 @@ Thank you in advance.</textarea>
         }).join('');
       }
 
-      const total = editingInstallments.reduce((s, i) => s + (parseFloat(i.pct) || 0), 0);
+      const pctTotal = editingInstallments.filter(i => i.amount_type !== 'fixed').reduce((s, i) => s + (parseFloat(i.pct) || 0), 0);
+      const fixedTotal = editingInstallments.filter(i => i.amount_type === 'fixed').reduce((s, i) => s + (parseFloat(i.fixed_amount) || 0), 0);
       const indicator = document.getElementById('planTotalIndicator');
       if (indicator) {
-        indicator.textContent = `Total: ${total}%` + (total === 100 ? ' ✓' : total > 100 ? ' — over 100%' : ' — under 100%');
-        indicator.style.color = total === 100 ? 'var(--upcoming)' : 'var(--overdue)';
+        let text = `% terms: ${pctTotal}%` + (pctTotal === 100 ? ' ✓' : pctTotal > 100 ? ' — over 100%' : ' — under 100%');
+        if (fixedTotal > 0) text += ` &nbsp;+&nbsp; ${formatCurrency(fixedTotal)} fixed`;
+        indicator.innerHTML = text;
+        indicator.style.color = pctTotal === 100 ? 'var(--upcoming)' : 'var(--overdue)';
       }
     }
 
     function updatePlanRow(i, field, value) {
       if (!editingInstallments[i]) return;
       if (field === 'pct') editingInstallments[i].pct = parseFloat(value) || 0;
+      else if (field === 'fixed_amount') editingInstallments[i].fixed_amount = parseFloat(value) || 0;
       else editingInstallments[i][field] = value;
       renderPlanInstallments(projects.find(p => p['Project Code'] === editingProjectCode));
     }
 
     function addPlanInstallmentRow() {
-      editingInstallments.push({ pct: 0, milestone: 'custom', label: `Installment ${editingInstallments.length + 1}`, custom_date: '' });
+      editingInstallments.push({ pct: 0, milestone: 'custom', label: `Installment ${editingInstallments.length + 1}`, custom_date: '', amount_type: 'pct' });
+      renderPlanInstallments(projects.find(p => p['Project Code'] === editingProjectCode));
+    }
+
+    // A fixed dollar amount on top of the % terms above — for change
+    // orders, materials, PO extensions, or any other extra that isn't a
+    // percentage of the original Project Value.
+    function addFixedAmountRow() {
+      editingInstallments.push({ pct: 0, fixed_amount: 0, milestone: 'custom', label: 'Change Order', custom_date: '', amount_type: 'fixed' });
       renderPlanInstallments(projects.find(p => p['Project Code'] === editingProjectCode));
     }
 
@@ -4954,9 +5007,9 @@ Thank you in advance.</textarea>
         showToast('Add at least one installment, or use Clear Plan to remove it', 'error');
         return;
       }
-      const total = editingInstallments.reduce((s, i) => s + (parseFloat(i.pct) || 0), 0);
-      if (Math.round(total) !== 100) {
-        showToast('Installment percentages must add up to 100%', 'error');
+      const pctTotal = editingInstallments.filter(i => i.amount_type !== 'fixed').reduce((s, i) => s + (parseFloat(i.pct) || 0), 0);
+      if (Math.round(pctTotal) !== 100) {
+        showToast('The % terms must add up to 100% (fixed amounts are extra, on top)', 'error');
         return;
       }
 
