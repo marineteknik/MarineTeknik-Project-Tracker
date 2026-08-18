@@ -649,7 +649,23 @@
       font-size: 13px;
       font-weight: 700;
       color: var(--navy-800);
-      margin-bottom: 10px;
+      margin-bottom: 4px;
+      text-align: center;
+    }
+
+    .cal-month-total {
+      text-align: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--brass-dark);
+      background: #fef0d6;
+      border-radius: 999px;
+      padding: 3px 10px;
+      display: inline-block;
+      margin: 0 auto 10px;
+    }
+
+    .cal-month-total-wrap {
       text-align: center;
     }
 
@@ -1194,10 +1210,10 @@
 
     .plan-table-header {
       display: grid;
-      grid-template-columns: 44px 106px 84px 1fr 76px 40px 22px;
-      gap: 8px;
-      padding: 0 8px 6px;
-      font-size: 9px;
+      grid-template-columns: 60px 140px 120px 1fr 100px 56px 26px;
+      gap: 10px;
+      padding: 0 10px 8px;
+      font-size: 10px;
       text-transform: uppercase;
       letter-spacing: 0.4px;
       font-weight: 700;
@@ -1211,13 +1227,13 @@
 
     .plan-table-row {
       display: grid;
-      grid-template-columns: 44px 106px 84px 1fr 76px 40px 22px;
-      gap: 8px;
+      grid-template-columns: 60px 140px 120px 1fr 100px 56px 26px;
+      gap: 10px;
       align-items: center;
       background: var(--bg);
       border-radius: 8px;
-      padding: 7px 8px;
-      margin-bottom: 6px;
+      padding: 9px 10px;
+      margin-bottom: 8px;
     }
 
     .plan-table-row.is-invoiced {
@@ -1230,10 +1246,10 @@
     }
 
     .plan-input, .plan-select {
-      padding: 6px;
+      padding: 8px;
       border: 1px solid var(--border);
       border-radius: 6px;
-      font-size: 11.5px;
+      font-size: 12.5px;
       font-family: inherit;
       width: 100%;
       box-sizing: border-box;
@@ -2037,7 +2053,7 @@
 
   <!-- Invoice Amount / Payment Plan Modal -->
   <div class="modal" id="invoiceAmountModal">
-    <div class="modal-content" style="max-width:680px;">
+    <div class="modal-content" style="max-width:900px;">
       <div class="modal-header">
         <h2>Invoicing Plan</h2>
         <p id="invoiceAmountProjectInfo"></p>
@@ -2092,6 +2108,7 @@
           </div>
           <span id="planTotalIndicator" style="font-size:12px;font-weight:700;"></span>
         </div>
+        <div id="planAdjustedValue" style="display:none;font-size:11px;color:var(--ink-muted);margin-top:6px;text-align:right;"></div>
 
         <div style="display:flex;gap:8px;margin-top:16px;">
           <button class="btn-cancel" style="color:var(--overdue);border-color:var(--overdue);" onclick="clearPaymentPlan()">Clear Plan</button>
@@ -2803,8 +2820,21 @@ Thank you in advance.</textarea>
       if (plan && plan.installments && plan.installments.length) {
         const actualInvoiced = p['Invoiced Value'] || 0;
         const DOLLAR_EPSILON = 1;
+
+        // Fixed amounts (change orders, materials, PO extensions) are
+        // real additional money on top of the original contract — they
+        // expand the total, not compete with it. BC's own Project Value
+        // / Remaining Inv won't reflect that until BC itself is updated,
+        // so the app computes its own "effective" total here instead of
+        // trusting BC's Remaining Inv directly.
+        const fixedTotal = plan.installments
+          .filter(i => i.amount_type === 'fixed')
+          .reduce((s, i) => s + (parseFloat(i.fixed_amount) || 0), 0);
+        const effectiveProjectValue = (p['Project Value'] || 0) + fixedTotal;
+        const effectiveRemaining = Math.max(0, effectiveProjectValue - actualInvoiced);
+
         let cumulativeNominal = 0;
-        let runningBudget = Math.max(0, p['Remaining Inv'] || 0);
+        let runningBudget = effectiveRemaining;
 
         return plan.installments.map((inst, i) => {
           const date = resolveInstallmentDate(inst, p);
@@ -3381,6 +3411,7 @@ Thank you in advance.</textarea>
       const daysInMonth = new Date(year, month + 1, 0).getDate();
       const statusRank = { 'OVERDUE': 0, 'DUE SOON': 1, 'Upcoming': 2 };
       const maxShown = 2;
+      let monthTotal = 0;
 
       let cells = '';
       for (let i = 0; i < firstDay; i++) {
@@ -3389,6 +3420,7 @@ Thank you in advance.</textarea>
       for (let d = 1; d <= daysInMonth; d++) {
         const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
         const dayInvoices = invoicesByDay[dateKey] || [];
+        monthTotal += dayInvoices.reduce((s, x) => s + (x.amount || 0), 0);
         let cellClass = 'cal-cell';
         if (dateKey === todayKey) cellClass += ' cal-today';
 
@@ -3414,6 +3446,7 @@ Thank you in advance.</textarea>
       return `
         <div class="cal-month">
           <div class="cal-month-title">${monthName}</div>
+          <div class="cal-month-total-wrap"><span class="cal-month-total" title="Total of every not-yet-invoiced amount due this month">Expected: ${formatCurrency(monthTotal)}</span></div>
           <div class="cal-grid">
             <div class="cal-dow">Su</div><div class="cal-dow">Mo</div><div class="cal-dow">Tu</div><div class="cal-dow">We</div><div class="cal-dow">Th</div><div class="cal-dow">Fr</div><div class="cal-dow">Sa</div>
             ${cells}
@@ -4972,6 +5005,17 @@ Thank you in advance.</textarea>
         if (fixedTotal > 0) text += ` &nbsp;+&nbsp; ${formatCurrency(fixedTotal)} fixed`;
         indicator.innerHTML = text;
         indicator.style.color = pctTotal === 100 ? 'var(--upcoming)' : 'var(--overdue)';
+      }
+
+      const adjustedEl = document.getElementById('planAdjustedValue');
+      if (adjustedEl) {
+        if (fixedTotal > 0) {
+          const adjustedValue = (proj['Project Value'] || 0) + fixedTotal;
+          adjustedEl.style.display = 'block';
+          adjustedEl.innerHTML = `Adjusted project value: <strong>${formatCurrency(adjustedValue)}</strong> (${formatCurrency(proj['Project Value'] || 0)} original + ${formatCurrency(fixedTotal)} fixed extras)`;
+        } else {
+          adjustedEl.style.display = 'none';
+        }
       }
     }
 
