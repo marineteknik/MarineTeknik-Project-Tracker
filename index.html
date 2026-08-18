@@ -2771,23 +2771,35 @@ Thank you in advance.</textarea>
 
     // The single source of truth for "what invoice event(s) does this
     // project have coming up, and for how much". If a payment plan is
-    // saved, splits Project Value into its dated installments (skipping
-    // ones already marked invoiced). Otherwise falls back to the single
-    // Next Invoice Date event using the existing estimate/manual tier.
+    // saved, splits Project Value into its dated installments.
+    //
+    // "invoiced" is derived automatically from % invoiced — which comes
+    // straight from Business Central on every Excel re-import — rather
+    // than a manually-toggled flag: each installment's cumulative share
+    // of the total (30%, then 30+30=60%, etc.) is compared against the
+    // project's actual % invoiced. Once BC's own number crosses that
+    // threshold, the installment is automatically considered invoiced.
+    // A small tolerance absorbs floating-point rounding from Excel.
     function getProjectInvoiceEvents(p) {
       const code = p['Project Code'];
       const plan = projectPaymentPlans[code];
 
       if (plan && plan.installments && plan.installments.length) {
+        const actualPctInvoiced = p['% invoiced'] || 0;
+        const EPSILON = 0.5;
+        let cumulativePct = 0;
+
         return plan.installments.map((inst, i) => {
           const date = resolveInstallmentDate(inst, p);
           const amount = (p['Project Value'] || 0) * (parseFloat(inst.pct) || 0) / 100;
+          cumulativePct += (parseFloat(inst.pct) || 0);
+          const invoiced = actualPctInvoiced >= (cumulativePct - EPSILON);
           return {
             date,
             amount,
             label: inst.label || `Installment ${i + 1}`,
             pct: inst.pct,
-            invoiced: !!inst.invoiced,
+            invoiced,
             isPlan: true,
             isManual: false,
             index: i
@@ -3490,9 +3502,6 @@ Thank you in advance.</textarea>
         const statusBadge = ev.invoiced
           ? `<span class="status-badge status-upcoming">✓ Complete</span>`
           : `<span class="status-badge ${getStatusClass(status)}">${status}</span>`;
-        const toggleBtn = ev.isPlan
-          ? `<button class="btn" style="padding:4px 9px;font-size:9.5px;cursor:pointer;border-radius:999px;white-space:nowrap;${ev.invoiced ? 'background:var(--surface);color:var(--ink-muted);border:1px solid var(--border);' : 'background:var(--upcoming);color:#fff;border:1px solid var(--upcoming);'}" onclick="toggleInstallmentInvoiced('${escapeHtml(code)}', ${ev.index})">${ev.invoiced ? 'Undo' : 'Mark Paid'}</button>`
-          : '';
         return `
           <tr${ev.invoiced ? ' style="opacity:0.6;"' : ''}>
             <td style="text-align:left;font-weight:600">${escapeHtml(code)}</td>
@@ -3502,8 +3511,7 @@ Thank you in advance.</textarea>
             <td>${statusBadge}</td>
             <td class="currency">${formatCurrency(p['Remaining Inv'])}</td>
             <td class="currency" style="color:${notEstimated ? 'var(--ink)' : 'var(--ink-muted)'};font-weight:${notEstimated ? '700' : '500'};">${amtLabel}</td>
-            <td style="display:flex;gap:5px;justify-content:center;align-items:center;flex-wrap:wrap;">
-              ${toggleBtn}
+            <td style="text-align:center;">
               <button class="btn" style="padding:5px 9px;font-size:10.5px;cursor:pointer;background:var(--navy-700);color:#fff;border-radius:999px;" onclick="openInvoiceAmountModal('${escapeHtml(code)}')">✏️</button>
             </td>
           </tr>
@@ -3516,32 +3524,6 @@ Thank you in advance.</textarea>
     function onHideCompletedToggle(checked) {
       hideCompletedInstallments = checked;
       renderDashboard();
-    }
-
-    // Flips a single installment's invoiced/paid flag directly from the
-    // Invoice Schedule table, without needing to open the full modal.
-    async function toggleInstallmentInvoiced(code, index) {
-      const plan = projectPaymentPlans[code];
-      if (!plan || !plan.installments || !plan.installments[index]) return;
-
-      plan.installments[index].invoiced = !plan.installments[index].invoiced;
-      const now = new Date().toISOString();
-      try {
-        const { error } = await supabaseClient.from('project_payment_terms').upsert({
-          project_code: code,
-          installments: plan.installments,
-          updated_at: now
-        }, { onConflict: 'project_code' });
-        if (error) throw error;
-      } catch (e) {
-        console.error('Toggle invoiced error:', e);
-        showToast(explainSupabaseError(e, 'Error updating installment'), 'error');
-        plan.installments[index].invoiced = !plan.installments[index].invoiced; // revert on failure
-        return;
-      }
-
-      renderDashboard();
-      showToast(plan.installments[index].invoiced ? '✓ Marked as paid' : '↺ Marked as not yet paid');
     }
 
     // --- Project Status page ------------------------------------------
@@ -4889,8 +4871,7 @@ Thank you in advance.</textarea>
         pct: inst.pct,
         milestone: inst.milestone,
         label: inst.label || '',
-        custom_date: inst.custom_date || '',
-        invoiced: false
+        custom_date: inst.custom_date || ''
       }));
       const proj = projects.find(p => p['Project Code'] === editingProjectCode);
       renderPlanInstallments(proj);
@@ -4899,6 +4880,13 @@ Thank you in advance.</textarea>
     function renderPlanInstallments(proj) {
       const container = document.getElementById('planInstallmentsContainer');
       if (!container || !proj) return;
+
+      // "Paid" is computed live from % invoiced (updates automatically on
+      // every Excel re-import) rather than a manual checkbox — matches
+      // the same logic getProjectInvoiceEvents() uses everywhere else.
+      const actualPctInvoiced = proj['% invoiced'] || 0;
+      const EPSILON = 0.5;
+      let cumulativePct = 0;
 
       if (!editingInstallments.length) {
         container.innerHTML = '<div style="font-size:11.5px;color:var(--ink-muted);padding:8px 0;">No installments yet — apply a template above, or add one manually.</div>';
@@ -4912,8 +4900,13 @@ Thank you in advance.</textarea>
           const dateCell = inst.milestone === 'custom'
             ? `<input type="date" class="plan-input" value="${inst.custom_date || ''}" onchange="updatePlanRow(${i},'custom_date',this.value)">`
             : `<span style="font-size:11px;color:var(--ink-muted);">${dateDisplay}</span>`;
+          cumulativePct += (parseFloat(inst.pct) || 0);
+          const invoiced = actualPctInvoiced >= (cumulativePct - EPSILON);
+          const paidCell = invoiced
+            ? `<span style="color:var(--upcoming);font-weight:700;font-size:12px;" title="% invoiced from your latest import covers this installment">✓</span>`
+            : `<span style="color:var(--ink-muted);font-size:11px;" title="Not yet covered by % invoiced">—</span>`;
           return `
-            <div class="plan-table-row ${inst.invoiced ? 'is-invoiced' : ''}">
+            <div class="plan-table-row ${invoiced ? 'is-invoiced' : ''}">
               <input type="number" min="0" max="100" class="plan-input" value="${inst.pct}" onchange="updatePlanRow(${i},'pct',this.value)">
               <select class="plan-select" onchange="updatePlanRow(${i},'milestone',this.value)">
                 <option value="start" ${inst.milestone === 'start' ? 'selected' : ''}>Project Start</option>
@@ -4923,7 +4916,7 @@ Thank you in advance.</textarea>
               ${dateCell}
               <input type="text" class="plan-input" value="${escapeHtml(inst.label || '')}" placeholder="Label" onchange="updatePlanRow(${i},'label',this.value)">
               <span class="plan-amount-display">${formatCurrency(amount)}</span>
-              <span class="plan-invoiced-check"><input type="checkbox" title="Mark as invoiced" ${inst.invoiced ? 'checked' : ''} onchange="updatePlanRow(${i},'invoiced',this.checked)"></span>
+              <span class="plan-invoiced-check">${paidCell}</span>
               <button class="plan-remove-btn" title="Remove" onclick="removePlanInstallmentRow(${i})">✕</button>
             </div>
           `;
@@ -4941,13 +4934,12 @@ Thank you in advance.</textarea>
     function updatePlanRow(i, field, value) {
       if (!editingInstallments[i]) return;
       if (field === 'pct') editingInstallments[i].pct = parseFloat(value) || 0;
-      else if (field === 'invoiced') editingInstallments[i].invoiced = value;
       else editingInstallments[i][field] = value;
       renderPlanInstallments(projects.find(p => p['Project Code'] === editingProjectCode));
     }
 
     function addPlanInstallmentRow() {
-      editingInstallments.push({ pct: 0, milestone: 'custom', label: `Installment ${editingInstallments.length + 1}`, custom_date: '', invoiced: false });
+      editingInstallments.push({ pct: 0, milestone: 'custom', label: `Installment ${editingInstallments.length + 1}`, custom_date: '' });
       renderPlanInstallments(projects.find(p => p['Project Code'] === editingProjectCode));
     }
 
