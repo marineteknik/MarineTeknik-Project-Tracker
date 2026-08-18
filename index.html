@@ -2821,9 +2821,8 @@ Thank you in advance.</textarea>
     //
     // The dollar amount shown for installments still due is capped so
     // their sum never exceeds Remaining Inv — without this, a plan
-    // whose percentages no longer match reality (e.g. extra amounts
-    // invoiced outside the plan) could show a single installment worth
-    // more than what's actually left to invoice.
+    // whose percentages no longer match reality could show a single
+    // installment worth more than what's actually left to invoice.
     function getProjectInvoiceEvents(p) {
       const code = p['Project Code'];
       const plan = projectPaymentPlans[code];
@@ -2833,26 +2832,25 @@ Thank you in advance.</textarea>
         const DOLLAR_EPSILON = 1;
 
         // Fixed amounts (change orders, materials, PO extensions) are
-        // real additional money on top of the original contract — they
-        // expand the total, not compete with it. BC's own Project Value
-        // / Remaining Inv won't reflect that until BC itself is updated,
-        // so the app computes its own "effective" total here instead of
-        // trusting BC's Remaining Inv directly.
+        // carved OUT of Project Value, not stacked on top of it — BC's
+        // Project Value already includes them once approved. So the %
+        // terms apply to the original base (Project Value minus the
+        // fixed extras), and the fixed rows make up the rest. Total
+        // always reconciles to exactly Project Value, never more.
         const fixedTotal = plan.installments
           .filter(i => i.amount_type === 'fixed')
           .reduce((s, i) => s + (parseFloat(i.fixed_amount) || 0), 0);
-        const effectiveProjectValue = (p['Project Value'] || 0) + fixedTotal;
-        const effectiveRemaining = Math.max(0, effectiveProjectValue - actualInvoiced);
+        const pctBase = Math.max(0, (p['Project Value'] || 0) - fixedTotal);
 
         let cumulativeNominal = 0;
-        let runningBudget = effectiveRemaining;
+        let runningBudget = Math.max(0, p['Remaining Inv'] || 0);
 
         return plan.installments.map((inst, i) => {
           const date = resolveInstallmentDate(inst, p);
           const isFixed = inst.amount_type === 'fixed';
           const nominalAmount = isFixed
             ? (parseFloat(inst.fixed_amount) || 0)
-            : (p['Project Value'] || 0) * (parseFloat(inst.pct) || 0) / 100;
+            : pctBase * (parseFloat(inst.pct) || 0) / 100;
 
           cumulativeNominal += nominalAmount;
           const invoiced = actualInvoiced >= (cumulativeNominal - DOLLAR_EPSILON);
@@ -4390,7 +4388,7 @@ Thank you in advance.</textarea>
       const rows = Math.ceil(totalCells / 7);
       const gridW = pageWidth - marginX * 2;
       const cellW = gridW / 7;
-      const cellH = 96;
+      const cellH = 105;
       const dowLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
       let y = startY;
@@ -4403,6 +4401,14 @@ Thank you in advance.</textarea>
         doc.text(lbl, marginX + i * cellW + cellW / 2, y + 14, { align: 'center' });
       });
       y += 20;
+
+      // Each entry needs 3 lines (code / PM / amount), so only 2 fit per
+      // cell without overflowing — the previous version allowed 4 lines
+      // of 2-line entries into a cell too short for them, which spilled
+      // the last entry's text down into the row below (the overlapping
+      // text this replaces).
+      const maxLines = 2;
+      const entryH = 33;
 
       let dayCounter = 1;
       for (let r = 0; r < rows; r++) {
@@ -4424,27 +4430,29 @@ Thank you in advance.</textarea>
             const dayInvoices = invoicesByDay[dateKey] || [];
             if (dayInvoices.length) {
               const sorted = dayInvoices.slice().sort((a, b) => (statusRank[a.status] ?? 3) - (statusRank[b.status] ?? 3));
-              const maxLines = 4;
               const shown = sorted.slice(0, maxLines);
-              let ty = y + 27;
+              let ty = y + 22;
               shown.forEach(inv => {
                 const sc = colors.STATUS_COLORS[inv.status] || colors.STATUS_COLORS.Upcoming;
                 doc.setFillColor(...sc.bg);
-                doc.roundedRect(cellX + 4, ty - 11, cellW - 8, 18, 2, 2, 'F');
+                doc.roundedRect(cellX + 4, ty, cellW - 8, entryH - 4, 2, 2, 'F');
                 doc.setTextColor(...sc.text);
                 doc.setFont('helvetica', 'bold');
                 doc.setFontSize(7);
-                doc.text(String(inv.code), cellX + cellW / 2, ty - 3, { align: 'center', maxWidth: cellW - 12 });
+                doc.text(String(inv.code), cellX + cellW / 2, ty + 9, { align: 'center', maxWidth: cellW - 12 });
                 doc.setFont('helvetica', 'normal');
-                doc.setFontSize(6.2);
-                doc.text(String(inv.pm || 'Unassigned'), cellX + cellW / 2, ty + 6, { align: 'center', maxWidth: cellW - 12 });
-                ty += 22;
+                doc.setFontSize(5.8);
+                doc.text(String(inv.pm || 'Unassigned'), cellX + cellW / 2, ty + 16.5, { align: 'center', maxWidth: cellW - 12 });
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(6.5);
+                doc.text(formatAbbrevCurrency(inv.amount), cellX + cellW / 2, ty + 24, { align: 'center', maxWidth: cellW - 12 });
+                ty += entryH;
               });
               if (sorted.length > maxLines) {
                 doc.setFont('helvetica', 'italic');
                 doc.setFontSize(6.5);
                 doc.setTextColor(...colors.MUTED);
-                doc.text(`+${sorted.length - maxLines} more`, cellX + cellW / 2, ty - 3, { align: 'center' });
+                doc.text(`+${sorted.length - maxLines} more`, cellX + cellW / 2, ty + 7, { align: 'center' });
               }
             }
             dayCounter++;
@@ -4462,24 +4470,48 @@ Thank you in advance.</textarea>
         if (!seen.has(p['Project Code'])) { seen.add(p['Project Code']); data.push(p); }
       }));
 
-      const dated = data
-        .map(p => ({ p, d: parseFlexibleDate(p['Next Invoice Date']) }))
-        .filter(x => x.d);
+      // Same source of truth as the on-screen calendar/schedule — payment
+      // plans, fixed change-order amounts, budget-capped amounts, and
+      // invoiced status derived from actual $ invoiced, not raw
+      // Next Invoice Date. Previously this export bypassed all of that.
+      const allEvents = [];
+      data.forEach(p => {
+        getProjectInvoiceEvents(p).forEach(ev => {
+          if (!ev.date) return;
+          allEvents.push({ p, ev, status: getStatusForDate(ev.date) });
+        });
+      });
 
-      if (!dated.length) {
+      if (!allEvents.length) {
         showToast('No projects with invoice dates match the selected filters', 'error');
         return;
       }
 
       const invoicesByDay = {};
-      dated.forEach(({ p, d }) => {
-        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-        if (!invoicesByDay[key]) invoicesByDay[key] = [];
-        invoicesByDay[key].push({ code: p['Project Code'], name: p['Project Name'], status: p.invoiceStatus, pm: p['Person Responsible'] || 'Unassigned' });
-      });
+      const monthStats = {}; // 'YYYY-M' -> { total, behind }, same logic as the on-screen calendar
+      let minD = allEvents[0].ev.date, maxD = allEvents[0].ev.date;
 
-      let minD = dated[0].d, maxD = dated[0].d;
-      dated.forEach(({ d }) => { if (d < minD) minD = d; if (d > maxD) maxD = d; });
+      allEvents.forEach(({ p, ev, status }) => {
+        if (ev.date < minD) minD = ev.date;
+        if (ev.date > maxD) maxD = ev.date;
+
+        const monthKey = `${ev.date.getFullYear()}-${ev.date.getMonth()}`;
+        if (!monthStats[monthKey]) monthStats[monthKey] = { total: 0, behind: 0 };
+        monthStats[monthKey].total += ev.amount || 0;
+        if (!ev.invoiced && status === 'OVERDUE') monthStats[monthKey].behind += ev.amount || 0;
+
+        if (ev.invoiced) return;
+        const key = `${ev.date.getFullYear()}-${String(ev.date.getMonth() + 1).padStart(2, '0')}-${String(ev.date.getDate()).padStart(2, '0')}`;
+        if (!invoicesByDay[key]) invoicesByDay[key] = [];
+        invoicesByDay[key].push({
+          code: p['Project Code'],
+          name: p['Project Name'],
+          status,
+          pm: p['Person Responsible'] || 'Unassigned',
+          amount: ev.amount,
+          label: ev.label
+        });
+      });
 
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'a3' });
@@ -4538,7 +4570,29 @@ Thank you in advance.</textarea>
         doc.text(`Generated: ${generatedOn}`, pageWidth - marginX, 26, { align: 'right' });
         doc.text(`Scope: ${scopeLabel}`, pageWidth - marginX, 40, { align: 'right' });
 
-        pdfDrawCalendarMonth(doc, cursorMonth.getFullYear(), cursorMonth.getMonth(), invoicesByDay, 96, marginX, pageWidth, colors, statusRank);
+        // Behind / Total badges — same figures as the on-screen calendar
+        const stats = monthStats[`${cursorMonth.getFullYear()}-${cursorMonth.getMonth()}`] || { total: 0, behind: 0 };
+        const badgeY = 86;
+        let badgeX = marginX;
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10.5);
+        if (stats.behind > 0) {
+          const behindLabel = `Behind: ${formatCurrency(stats.behind)}`;
+          const w = doc.getTextWidth(behindLabel) + 22;
+          doc.setFillColor(254, 226, 226);
+          doc.roundedRect(badgeX, badgeY, w, 22, 11, 11, 'F');
+          doc.setTextColor(220, 38, 38);
+          doc.text(behindLabel, badgeX + w / 2, badgeY + 15, { align: 'center' });
+          badgeX += w + 10;
+        }
+        const totalLabel = `Total: ${formatCurrency(stats.total)}`;
+        const w2 = doc.getTextWidth(totalLabel) + 22;
+        doc.setFillColor(254, 240, 214);
+        doc.roundedRect(badgeX, badgeY, w2, 22, 11, 11, 'F');
+        doc.setTextColor(180, 83, 9);
+        doc.text(totalLabel, badgeX + w2 / 2, badgeY + 15, { align: 'center' });
+
+        pdfDrawCalendarMonth(doc, cursorMonth.getFullYear(), cursorMonth.getMonth(), invoicesByDay, 122, marginX, pageWidth, colors, statusRank);
 
         const legendY = pageHeight - 42;
         let lx = marginX;
@@ -4559,7 +4613,7 @@ Thank you in advance.</textarea>
         doc.setFont('helvetica', 'italic');
         doc.setFontSize(8);
         doc.setTextColor(...colors.MUTED);
-        doc.text('Second line under each code is the assigned PM.', lx + 10, legendY);
+        doc.text('Each entry: code / PM / amount due. "Total" includes already-invoiced items; "Behind" is overdue only.', lx + 10, legendY);
 
         doc.setFont('helvetica', 'italic');
         doc.setFontSize(8);
@@ -4985,6 +5039,12 @@ Thank you in advance.</textarea>
       const DOLLAR_EPSILON = 1;
       let cumulativeNominal = 0;
 
+      // % terms apply to Project Value minus any fixed extras already in
+      // the plan — those are carved out, not added on top — so the plan
+      // always totals to exactly Project Value.
+      const fixedTotalForBase = editingInstallments.filter(i => i.amount_type === 'fixed').reduce((s, i) => s + (parseFloat(i.fixed_amount) || 0), 0);
+      const pctBase = Math.max(0, (proj['Project Value'] || 0) - fixedTotalForBase);
+
       if (!editingInstallments.length) {
         container.innerHTML = '<div style="font-size:11.5px;color:var(--ink-muted);padding:8px 0;">No installments yet — apply a template above, or add one manually.</div>';
       } else {
@@ -4992,7 +5052,7 @@ Thank you in advance.</textarea>
           const isFixed = inst.amount_type === 'fixed';
           const amount = isFixed
             ? (parseFloat(inst.fixed_amount) || 0)
-            : (proj['Project Value'] || 0) * (parseFloat(inst.pct) || 0) / 100;
+            : pctBase * (parseFloat(inst.pct) || 0) / 100;
           const resolved = inst.milestone === 'start' ? parseFlexibleDate(proj['Project Start'])
             : inst.milestone === 'end' ? parseFlexibleDate(proj['Project End'])
             : null;
@@ -5007,7 +5067,7 @@ Thank you in advance.</textarea>
             : `<span style="color:var(--ink-muted);font-size:11px;" title="Not yet covered by Invoiced Value">—</span>`;
           const firstCell = isFixed
             ? `<input type="number" min="0" step="0.01" class="plan-input" value="${inst.fixed_amount || 0}" title="Fixed dollar amount" onchange="updatePlanRow(${i},'fixed_amount',this.value)">`
-            : `<input type="number" min="0" max="100" class="plan-input" value="${inst.pct}" title="% of Project Value" onchange="updatePlanRow(${i},'pct',this.value)">`;
+            : `<input type="number" min="0" max="100" class="plan-input" value="${inst.pct}" title="% of Project Value minus fixed extras" onchange="updatePlanRow(${i},'pct',this.value)">`;
           return `
             <div class="plan-table-row ${invoiced ? 'is-invoiced' : ''} ${isFixed ? 'is-fixed' : ''}">
               ${firstCell}
@@ -5039,9 +5099,8 @@ Thank you in advance.</textarea>
       const adjustedEl = document.getElementById('planAdjustedValue');
       if (adjustedEl) {
         if (fixedTotal > 0) {
-          const adjustedValue = (proj['Project Value'] || 0) + fixedTotal;
           adjustedEl.style.display = 'block';
-          adjustedEl.innerHTML = `Adjusted project value: <strong>${formatCurrency(adjustedValue)}</strong> (${formatCurrency(proj['Project Value'] || 0)} original + ${formatCurrency(fixedTotal)} fixed extras)`;
+          adjustedEl.innerHTML = `% terms apply to <strong>${formatCurrency(pctBase)}</strong> (${formatCurrency(proj['Project Value'] || 0)} Project Value − ${formatCurrency(fixedTotal)} fixed/COR) — total still reconciles to Project Value exactly.`;
         } else {
           adjustedEl.style.display = 'none';
         }
