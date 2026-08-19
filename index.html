@@ -529,6 +529,12 @@
       text-align: right;
     }
 
+    .plan-set-badge {
+      font-size: 11px;
+      margin-left: 5px;
+      cursor: default;
+    }
+
     .flag-btn {
       padding: 4px 8px;
       border: 1px solid var(--border);
@@ -663,16 +669,37 @@
     }
 
     .cal-month-badge {
-      font-size: 11px;
+      font-size: 10.5px;
       font-weight: 700;
       border-radius: 999px;
-      padding: 3px 10px;
+      padding: 3px 9px;
       display: inline-block;
+      white-space: nowrap;
+    }
+
+    .cal-month-overdue {
+      color: var(--overdue);
+      background: var(--overdue-bg);
+    }
+
+    .cal-month-duesoon {
+      color: var(--duesoon);
+      background: var(--duesoon-bg);
+    }
+
+    .cal-month-upcoming {
+      color: var(--upcoming);
+      background: var(--upcoming-bg);
+    }
+
+    .cal-month-invoiced {
+      color: var(--navy-700);
+      background: #e3ecf7;
     }
 
     .cal-month-behind {
-      color: var(--overdue);
-      background: var(--overdue-bg);
+      color: #ffffff;
+      background: #991b1b;
     }
 
     .cal-month-total {
@@ -762,6 +789,7 @@
     .cal-code-overdue { background: var(--overdue-bg); color: var(--overdue); }
     .cal-code-duesoon { background: var(--duesoon-bg); color: var(--duesoon); }
     .cal-code-upcoming { background: var(--upcoming-bg); color: var(--upcoming); }
+    .cal-code-invoiced { background: #e3ecf7; color: var(--navy-700); opacity: 0.85; }
 
     .cal-code-more {
       font-size: 8.5px;
@@ -1291,6 +1319,47 @@
       padding: 0;
     }
 
+    .sched-sub-container {
+      background: var(--bg);
+      padding: 8px 16px 8px 40px;
+      border-top: 1px dashed var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sched-sub-row {
+      display: grid;
+      grid-template-columns: 1fr 90px 110px 100px;
+      gap: 10px;
+      align-items: center;
+      padding: 5px 0;
+      font-size: 11px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sched-sub-row:last-child {
+      border-bottom: none;
+    }
+
+    .sched-sub-row.is-invoiced {
+      opacity: 0.6;
+    }
+
+    .sched-sub-label {
+      color: var(--ink-soft);
+      font-weight: 600;
+    }
+
+    .sched-sub-date {
+      color: var(--ink-muted);
+      text-align: center;
+    }
+
+    .sched-sub-amt {
+      text-align: right;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
     .plan-template-row {
       display: grid;
       grid-template-columns: 44px 106px 1fr 22px;
@@ -1742,6 +1811,8 @@
       <button class="filter-btn" data-filter="nodate" onclick="setFilter(event, 'nodate')">No Due Date</button>
       <button class="filter-btn" data-filter="contracts" onclick="setFilter(event, 'contracts')">🚩 Contracts</button>
       <button class="filter-btn" data-filter="estimation" onclick="setFilter(event, 'estimation')">🚩 Estimation</button>
+      <button class="filter-btn" data-filter="hasplan" onclick="setFilter(event, 'hasplan')">📋 Has Payment Terms</button>
+      <button class="filter-btn" data-filter="noplan" onclick="setFilter(event, 'noplan')">No Payment Terms</button>
     </div>
     <div class="dropdown-wrapper">
       <button class="dropdown-btn" id="pmBtn" onclick="togglePMDropdown()">All PMs <span>▾</span></button>
@@ -1874,7 +1945,7 @@
       <div class="dashboard-section-title">Invoice Timing</div>
 
       <div class="chart-card" style="margin-bottom:18px;">
-        <div class="chart-title" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+        <div class="chart-title" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:8px;">
           <span>Invoice Calendar</span>
           <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
             <button class="filter-btn" onclick="calendarShiftMonths(-3)">« 3mo</button>
@@ -1886,21 +1957,27 @@
             <button class="filter-btn" onclick="calendarGoToOldestOverdue()" style="border-color:var(--overdue);color:var(--overdue);">Jump to Oldest Overdue</button>
           </div>
         </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+          <span style="font-size:11px;color:var(--ink-muted);font-weight:600;">View:</span>
+          <button class="filter-btn active" id="calViewForecastBtn" onclick="setCalendarView('forecast')" title="Only invoices still due — for forecasting what's coming up">Invoice Forecast</button>
+          <button class="filter-btn" id="calViewHistoryBtn" onclick="setCalendarView('history')" title="Everything scheduled this month, including what's already been invoiced — for cash-flow tracking">Cash Flow / History</button>
+        </div>
         <div id="invoiceCalendar" class="cal-wrapper"></div>
         <div class="cal-legend">
           <div class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--overdue)"></span> Overdue</div>
           <div class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--duesoon)"></span> Due Soon (≤30 days)</div>
           <div class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--upcoming)"></span> Upcoming</div>
-          <div class="cal-legend-item">Each chip shows the project code and $ amount due that day. <strong>*</strong> = auto-estimated (no manual amount entered yet). Hover a day for full details.</div>
+          <div class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--navy-700)"></span> Invoiced (Cash Flow / History view only)</div>
+          <div class="cal-legend-item">Each chip shows the project code and $ amount. <strong>*</strong> = auto-estimated. Hover a day for full details.</div>
         </div>
       </div>
 
       <div class="chart-card">
         <div class="chart-title" style="margin-bottom:4px;">Invoice Schedule</div>
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
-          <div style="font-size:11px;color:var(--ink-muted);">Shows every invoice/installment — <strong>✓ Complete</strong> ones included, so you can see progress at a glance. Amount is auto-estimated unless a single amount or payment plan is set — click ✏️ to set one.</div>
+          <div style="font-size:11px;color:var(--ink-muted);">One row per project — click <strong>▸</strong> on a project with multiple installments to see all of them. Amount is auto-estimated unless a single amount or payment plan is set — click ✏️ to set one.</div>
           <label style="display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--ink-soft);font-weight:600;white-space:nowrap;cursor:pointer;">
-            <input type="checkbox" id="hideCompletedToggle" onchange="onHideCompletedToggle(this.checked)"> Hide completed
+            <input type="checkbox" id="hideCompletedToggle" onchange="onHideCompletedToggle(this.checked)"> Hide fully-invoiced projects
           </label>
         </div>
         <div class="table-container" style="box-shadow:none;border:1px solid var(--border);">
@@ -2108,7 +2185,7 @@
         </div>
 
         <div class="plan-table-header">
-          <span>%</span><span>Milestone</span><span>Date</span><span>Label</span><span>Amount</span><span>Paid</span><span></span>
+          <span>%</span><span>Milestone</span><span>Date</span><span>Label</span><span>Amount</span><span>Invoiced</span><span></span>
         </div>
         <div id="planInstallmentsContainer"></div>
 
@@ -3003,6 +3080,8 @@ Thank you in advance.</textarea>
             if (filter === 'nodate') return p.invoiceStatus === 'No Date';
             if (filter === 'contracts') return flags[p['Project Code']]?.contracts;
             if (filter === 'estimation') return flags[p['Project Code']]?.estimation;
+            if (filter === 'hasplan') return !!(projectPaymentPlans[p['Project Code']] && projectPaymentPlans[p['Project Code']].installments && projectPaymentPlans[p['Project Code']].installments.length);
+            if (filter === 'noplan') return !(projectPaymentPlans[p['Project Code']] && projectPaymentPlans[p['Project Code']].installments && projectPaymentPlans[p['Project Code']].installments.length);
             return true;
           });
         });
@@ -3054,9 +3133,11 @@ Thank you in advance.</textarea>
 
       tbodyFrozen.innerHTML = rows.map((p, i) => {
         const code = p['Project Code'];
+        const hasPlan = !!(projectPaymentPlans[code] && projectPaymentPlans[code].installments && projectPaymentPlans[code].installments.length);
+        const planBadge = hasPlan ? '<span class="plan-set-badge" title="Payment terms are set for this project">📋</span>' : '';
         return `
           <tr data-row="${i}">
-            <td><strong>${escapeHtml(code)}</strong></td>
+            <td><strong>${escapeHtml(code)}</strong>${planBadge}</td>
             <td>${escapeHtml(p['Project Name'])}</td>
             <td>${escapeHtml(p['Person Responsible'])}</td>
           </tr>
@@ -3413,12 +3494,14 @@ Thank you in advance.</textarea>
 
     // Builds one month's calendar grid, listing the project code(s) due
     // each day (color-coded by status: overdue beats due-soon beats
-    // upcoming for sort order). Hovering a day shows full project names.
-    function buildCalendarMonth(year, month, invoicesByDay, todayKey, monthStats) {
+    // upcoming beats invoiced for sort order). Hovering a day shows full
+    // project names. monthStats badges are non-overlapping by design:
+    // Overdue + Due Soon + Upcoming + Invoiced always sum to Total.
+    function buildCalendarMonth(year, month, invoicesByDay, todayKey, monthStats, portfolioBehind) {
       const monthName = new Date(year, month, 1).toLocaleString('en-US', { month: 'long', year: 'numeric' });
       const firstDay = new Date(year, month, 1).getDay();
       const daysInMonth = new Date(year, month + 1, 0).getDate();
-      const statusRank = { 'OVERDUE': 0, 'DUE SOON': 1, 'Upcoming': 2 };
+      const statusRank = { 'OVERDUE': 0, 'DUE SOON': 1, 'Upcoming': 2, 'INVOICED': 3 };
       const maxShown = 2;
 
       let cells = '';
@@ -3434,32 +3517,41 @@ Thank you in advance.</textarea>
         let codesHtml = '';
         if (dayInvoices.length) {
           cellClass += ' cal-has-invoice';
-          const sorted = dayInvoices.slice().sort((a, b) => (statusRank[a.status] ?? 3) - (statusRank[b.status] ?? 3));
+          const sorted = dayInvoices.slice().sort((a, b) => (statusRank[a.status] ?? 4) - (statusRank[b.status] ?? 4));
           const shown = sorted.slice(0, maxShown);
           const extra = sorted.length - shown.length;
           const codeSpans = shown.map(x => {
-            const cls = x.status === 'OVERDUE' ? 'cal-code-overdue' : x.status === 'DUE SOON' ? 'cal-code-duesoon' : 'cal-code-upcoming';
-            const amtLabel = formatAbbrevCurrency(x.amount) + (x.isManual ? '' : '*');
+            const cls = x.status === 'OVERDUE' ? 'cal-code-overdue' : x.status === 'DUE SOON' ? 'cal-code-duesoon' : x.status === 'INVOICED' ? 'cal-code-invoiced' : 'cal-code-upcoming';
+            const amtLabel = (x.status === 'INVOICED' ? '✓ ' : '') + formatAbbrevCurrency(x.amount) + (x.isManual ? '' : '*');
             return `<span class="cal-code ${cls}"><span class="cal-code-name">${escapeHtml(x.code)}</span><span class="cal-code-amt">${amtLabel}</span></span>`;
           }).join('');
           const moreHtml = extra > 0 ? `<span class="cal-code-more">+${extra} more</span>` : '';
-          const titleText = sorted.map(x => `${x.code} — ${x.name} (PM: ${x.pm || 'Unassigned'}) — ${x.label ? x.label + ': ' : ''}${formatCurrency(x.amount)}${x.isManual ? '' : ' (estimated)'}`).join('\n');
+          const titleText = sorted.map(x => `${x.code} — ${x.name} (PM: ${x.pm || 'Unassigned'}) — ${x.label ? x.label + ': ' : ''}${formatCurrency(x.amount)}${x.status === 'INVOICED' ? ' (already invoiced)' : x.isManual ? '' : ' (estimated)'}`).join('\n');
           codesHtml = `<div class="cal-codes" title="${escapeHtml(titleText)}">${codeSpans}${moreHtml}</div>`;
         }
 
         cells += `<div class="${cellClass}"><span class="cal-daynum">${d}</span>${codesHtml}</div>`;
       }
 
-      const stats = monthStats || { total: 0, behind: 0 };
-      const behindBadge = stats.behind > 0
-        ? `<span class="cal-month-badge cal-month-behind" title="Overdue and not yet invoiced, due this month">Behind: ${formatCurrency(stats.behind)}</span>`
+      const emptyStat = { count: 0, amt: 0 };
+      const stats = monthStats || { overdue: emptyStat, duesoon: emptyStat, upcoming: emptyStat, invoiced: emptyStat, total: emptyStat };
+      const behind = portfolioBehind || emptyStat;
+      const badge = (cls, label, s, title) => s.count > 0
+        ? `<span class="cal-month-badge ${cls}" title="${title}">${label}: ${formatCurrency(s.amt)} (${s.count})</span>`
         : '';
-      const totalBadge = `<span class="cal-month-badge cal-month-total" title="Total of everything scheduled to invoice this month, invoiced or not">Total: ${formatCurrency(stats.total)}</span>`;
+      const badges = [
+        badge('cal-month-overdue', 'Overdue', stats.overdue, 'Due THIS month, past due, not yet invoiced'),
+        badge('cal-month-duesoon', 'Due Soon', stats.duesoon, 'Due within 30 days, not yet invoiced'),
+        badge('cal-month-upcoming', 'Upcoming', stats.upcoming, 'Due beyond 30 days, not yet invoiced'),
+        badge('cal-month-invoiced', 'Invoiced', stats.invoiced, 'Already invoiced — kept visible for cash-flow history'),
+        badge('cal-month-behind', 'Behind', behind, 'Portfolio-wide backlog: every overdue, not-yet-invoiced item across ALL months (not just this one). Not part of Total below.'),
+        `<span class="cal-month-badge cal-month-total" title="This month only: Overdue + Due Soon + Upcoming + Invoiced">Total: ${formatCurrency(stats.total.amt)} (${stats.total.count})</span>`
+      ].join('');
 
       return `
         <div class="cal-month">
           <div class="cal-month-title">${monthName}</div>
-          <div class="cal-month-total-wrap">${behindBadge}${totalBadge}</div>
+          <div class="cal-month-total-wrap">${badges}</div>
           <div class="cal-grid">
             <div class="cal-dow">Su</div><div class="cal-dow">Mo</div><div class="cal-dow">Tu</div><div class="cal-dow">We</div><div class="cal-dow">Th</div><div class="cal-dow">Fr</div><div class="cal-dow">Sa</div>
             ${cells}
@@ -3468,10 +3560,29 @@ Thank you in advance.</textarea>
       `;
     }
 
+    let calendarShowInvoiced = false;
+
+    function setCalendarView(mode) {
+      calendarShowInvoiced = mode === 'history';
+      const forecastBtn = document.getElementById('calViewForecastBtn');
+      const historyBtn = document.getElementById('calViewHistoryBtn');
+      if (forecastBtn) forecastBtn.classList.toggle('active', !calendarShowInvoiced);
+      if (historyBtn) historyBtn.classList.toggle('active', calendarShowInvoiced);
+      renderInvoiceCalendar(currentCalendarData);
+    }
+
     // Shows a 3-month window centered on calendarCenterDate (defaults to
     // the current month). The window can be navigated with the Prev/Next/
     // Today/Jump-to-Oldest-Overdue controls so any month in the data —
     // past or future — is reachable, not just the current quarter.
+    //
+    // Two views: "Invoice Forecast" (default) shows only what's still
+    // due — Overdue/Due Soon/Upcoming. "Cash Flow / History" also shows
+    // already-invoiced items, so projects don't just vanish once fully
+    // invoiced — they stay visible for cash-flow tracking. Either way,
+    // the monthly badges always cover everything (Overdue + Due Soon +
+    // Upcoming + Invoiced = Total), so the summary never depends on
+    // which view is showing.
     function renderInvoiceCalendar(dashData) {
       const container = document.getElementById('invoiceCalendar');
       if (!container) return;
@@ -3484,29 +3595,51 @@ Thank you in advance.</textarea>
       }
 
       const invoicesByDay = {};
-      const monthStats = {}; // 'YYYY-M' -> { total, behind } — total covers EVERY
-      // event scheduled that month (invoiced or not); behind is only the
-      // overdue, not-yet-invoiced portion. Day cells below still only show
-      // pending items — already-invoiced ones only count toward Total.
+      const monthStats = {}; // 'YYYY-M' -> { overdue, duesoon, upcoming, invoiced, total }, each { count, amt }
+      const portfolioBehind = { count: 0, amt: 0 }; // every overdue, not-yet-invoiced item across the WHOLE portfolio, not just the visible months
+
+      const bump = (monthKey, bucket, amt) => {
+        if (!monthStats[monthKey]) {
+          monthStats[monthKey] = {
+            overdue: { count: 0, amt: 0 },
+            duesoon: { count: 0, amt: 0 },
+            upcoming: { count: 0, amt: 0 },
+            invoiced: { count: 0, amt: 0 },
+            total: { count: 0, amt: 0 }
+          };
+        }
+        monthStats[monthKey][bucket].count++;
+        monthStats[monthKey][bucket].amt += amt || 0;
+        monthStats[monthKey].total.count++;
+        monthStats[monthKey].total.amt += amt || 0;
+      };
+
       dashData.forEach(p => {
         const events = getProjectInvoiceEvents(p);
         events.forEach(ev => {
           if (!ev.date) return;
           const monthKey = `${ev.date.getFullYear()}-${ev.date.getMonth()}`;
-          if (!monthStats[monthKey]) monthStats[monthKey] = { total: 0, behind: 0 };
-          monthStats[monthKey].total += ev.amount || 0;
           const status = getStatusForDate(ev.date);
-          if (!ev.invoiced && status === 'OVERDUE') {
-            monthStats[monthKey].behind += ev.amount || 0;
+
+          if (ev.invoiced) {
+            bump(monthKey, 'invoiced', ev.amount);
+          } else if (status === 'OVERDUE') {
+            bump(monthKey, 'overdue', ev.amount);
+            portfolioBehind.count++;
+            portfolioBehind.amt += ev.amount || 0;
+          } else if (status === 'DUE SOON') {
+            bump(monthKey, 'duesoon', ev.amount);
+          } else {
+            bump(monthKey, 'upcoming', ev.amount);
           }
 
-          if (ev.invoiced) return;
+          if (ev.invoiced && !calendarShowInvoiced) return;
           const key = `${ev.date.getFullYear()}-${String(ev.date.getMonth() + 1).padStart(2, '0')}-${String(ev.date.getDate()).padStart(2, '0')}`;
           if (!invoicesByDay[key]) invoicesByDay[key] = [];
           invoicesByDay[key].push({
             code: p['Project Code'],
             name: p['Project Name'],
-            status,
+            status: ev.invoiced ? 'INVOICED' : status,
             pm: p['Person Responsible'] || 'Unassigned',
             amount: ev.amount,
             isManual: ev.isPlan || ev.isManual,
@@ -3521,7 +3654,7 @@ Thank you in advance.</textarea>
       for (let offset = -1; offset <= 1; offset++) {
         const d = new Date(calendarCenterDate.getFullYear(), calendarCenterDate.getMonth() + offset, 1);
         const monthKey = `${d.getFullYear()}-${d.getMonth()}`;
-        html += buildCalendarMonth(d.getFullYear(), d.getMonth(), invoicesByDay, todayKey, monthStats[monthKey]);
+        html += buildCalendarMonth(d.getFullYear(), d.getMonth(), invoicesByDay, todayKey, monthStats[monthKey], portfolioBehind);
       }
       container.innerHTML = html;
 
@@ -3562,53 +3695,128 @@ Thank you in advance.</textarea>
 
     // Chronological list of every project with a next invoice date
     // (soonest/most overdue first), followed by projects with no date set.
+    // One row per PROJECT, not per installment — previously every
+    // payment-plan installment got its own row, so a project with a
+    // 5-line plan repeated its code 5 times. Each project now shows its
+    // nearest pending item inline, with a ▸ toggle to expand and see
+    // every installment (pending and already-invoiced) when there's
+    // more than one.
     function renderScheduleTable(dashData) {
       const tbody = document.getElementById('scheduleTableBody');
       if (!tbody) return;
 
-      const dated = [];
-      const undated = [];
-
-      dashData.forEach(p => {
-        getProjectInvoiceEvents(p).forEach(ev => {
-          if (hideCompletedInstallments && ev.invoiced) return;
-          if (ev.date) dated.push({ p, ev });
-          else undated.push({ p, ev });
-        });
+      const projectRows = dashData.map(p => {
+        const events = getProjectInvoiceEvents(p);
+        const datedEvents = events.filter(e => e.date);
+        const pendingSorted = datedEvents.filter(e => !e.invoiced).sort((a, b) => a.date - b.date);
+        const allInvoiced = datedEvents.length > 0 && datedEvents.every(e => e.invoiced);
+        const nextEvent = pendingSorted[0] || null;
+        return { p, events, nextEvent, allInvoiced, hasMultiple: events.length > 1 };
       });
 
-      dated.sort((a, b) => a.ev.date - b.ev.date);
+      const visibleRows = hideCompletedInstallments
+        ? projectRows.filter(r => !r.allInvoiced)
+        : projectRows;
 
-      if (!dated.length && !undated.length) {
+      if (!visibleRows.length) {
         tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><div class="empty-text">No projects to show</div></td></tr>';
         return;
       }
 
-      const buildRow = ({ p, ev }, hasDate) => {
+      visibleRows.sort((a, b) => {
+        const aDate = a.nextEvent ? a.nextEvent.date : null;
+        const bDate = b.nextEvent ? b.nextEvent.date : null;
+        if (aDate && bDate) return aDate - bDate;
+        if (aDate) return -1;
+        if (bDate) return 1;
+        return 0;
+      });
+
+      tbody.innerHTML = visibleRows.map((row, idx) => {
+        const { p, events, nextEvent, allInvoiced, hasMultiple } = row;
         const code = p['Project Code'];
-        const status = hasDate ? getStatusForDate(ev.date) : 'No Date';
-        const notEstimated = ev.isPlan || ev.isManual;
-        const amtLabel = formatCurrency(ev.amount) + (notEstimated ? '' : ' *');
-        const statusBadge = ev.invoiced
-          ? `<span class="status-badge status-upcoming">✓ Complete</span>`
-          : `<span class="status-badge ${getStatusClass(status)}">${status}</span>`;
-        return `
-          <tr${ev.invoiced ? ' style="opacity:0.6;"' : ''}>
+        const rowId = `sched-row-${idx}`;
+
+        let statusBadge, dateCell, amtCell;
+        if (nextEvent) {
+          const status = getStatusForDate(nextEvent.date);
+          const notEstimated = nextEvent.isPlan || nextEvent.isManual;
+          statusBadge = `<span class="status-badge ${getStatusClass(status)}">${status}</span>`;
+          dateCell = `${formatDateObj(nextEvent.date)}<div style="font-size:9.5px;color:var(--ink-muted);font-weight:500;">${escapeHtml(nextEvent.label || '')}</div>`;
+          amtCell = `<span style="color:${notEstimated ? 'var(--ink)' : 'var(--ink-muted)'};font-weight:${notEstimated ? '700' : '500'};">${formatCurrency(nextEvent.amount)}${notEstimated ? '' : ' *'}</span>`;
+        } else if (allInvoiced) {
+          statusBadge = `<span class="status-badge status-upcoming">✓ All Invoiced</span>`;
+          dateCell = `—<div style="font-size:9.5px;color:var(--ink-muted);">Kept for cash-flow history</div>`;
+          amtCell = `<span style="color:var(--ink-muted);">—</span>`;
+        } else {
+          statusBadge = `<span class="status-badge status-nodate">No Date</span>`;
+          dateCell = '—';
+          amtCell = `<span style="color:var(--ink-muted);">—</span>`;
+        }
+
+        const expandBtn = hasMultiple
+          ? `<button class="btn" id="${rowId}-btn" style="padding:4px 8px;font-size:10px;cursor:pointer;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--ink-soft);white-space:nowrap;" onclick="toggleScheduleExpand('${rowId}')">▸ ${events.length}</button>`
+          : '';
+
+        const mainRow = `
+          <tr>
             <td style="text-align:left;font-weight:600">${escapeHtml(code)}</td>
             <td style="text-align:left">${escapeHtml(p['Project Name'])}</td>
             <td style="text-align:left">${escapeHtml(p['Person Responsible'])}</td>
-            <td>${hasDate ? formatDateObj(ev.date) : '—'}<div style="font-size:9.5px;color:var(--ink-muted);font-weight:500;">${escapeHtml(ev.label || '')}</div></td>
+            <td>${dateCell}</td>
             <td>${statusBadge}</td>
             <td class="currency">${formatCurrency(p['Remaining Inv'])}</td>
-            <td class="currency" style="color:${notEstimated ? 'var(--ink)' : 'var(--ink-muted)'};font-weight:${notEstimated ? '700' : '500'};">${amtLabel}</td>
-            <td style="text-align:center;">
+            <td class="currency">${amtCell}</td>
+            <td style="display:flex;gap:5px;justify-content:center;align-items:center;flex-wrap:wrap;">
+              ${expandBtn}
               <button class="btn" style="padding:5px 9px;font-size:10.5px;cursor:pointer;background:var(--navy-700);color:#fff;border-radius:999px;" onclick="openInvoiceAmountModal('${escapeHtml(code)}')">✏️</button>
             </td>
           </tr>
         `;
-      };
 
-      tbody.innerHTML = dated.map(r => buildRow(r, true)).join('') + undated.map(r => buildRow(r, false)).join('');
+        let subRow = '';
+        if (hasMultiple) {
+          const sortedEvents = events.slice().sort((a, b) => {
+            if (!a.date && !b.date) return 0;
+            if (!a.date) return 1;
+            if (!b.date) return -1;
+            return a.date - b.date;
+          });
+          const subRows = sortedEvents.map(ev => {
+            const s = ev.date ? getStatusForDate(ev.date) : 'No Date';
+            const badge = ev.invoiced
+              ? `<span class="status-badge status-upcoming">✓ Invoiced</span>`
+              : `<span class="status-badge ${getStatusClass(s)}">${s}</span>`;
+            const notEstimated = ev.isPlan || ev.isManual;
+            return `
+              <div class="sched-sub-row${ev.invoiced ? ' is-invoiced' : ''}">
+                <span class="sched-sub-label">${escapeHtml(ev.label || '')}</span>
+                <span class="sched-sub-date">${ev.date ? formatDateObj(ev.date) : '—'}</span>
+                <span>${badge}</span>
+                <span class="sched-sub-amt">${formatCurrency(ev.amount)}${notEstimated ? '' : ' *'}</span>
+              </div>
+            `;
+          }).join('');
+          subRow = `
+            <tr class="sched-sub-wrap" id="${rowId}" style="display:none;">
+              <td colspan="8" style="padding:0;">
+                <div class="sched-sub-container">${subRows}</div>
+              </td>
+            </tr>
+          `;
+        }
+
+        return mainRow + subRow;
+      }).join('');
+    }
+
+    function toggleScheduleExpand(rowId) {
+      const row = document.getElementById(rowId);
+      const btn = document.getElementById(rowId + '-btn');
+      if (!row || !btn) return;
+      const isOpen = row.style.display !== 'none';
+      row.style.display = isOpen ? 'none' : 'table-row';
+      btn.textContent = btn.textContent.replace(isOpen ? '▾' : '▸', isOpen ? '▸' : '▾');
     }
 
     function onHideCompletedToggle(checked) {
@@ -4445,7 +4653,8 @@ Thank you in advance.</textarea>
                 doc.text(String(inv.pm || 'Unassigned'), cellX + cellW / 2, ty + 16.5, { align: 'center', maxWidth: cellW - 12 });
                 doc.setFont('helvetica', 'bold');
                 doc.setFontSize(6.5);
-                doc.text(formatAbbrevCurrency(inv.amount), cellX + cellW / 2, ty + 24, { align: 'center', maxWidth: cellW - 12 });
+                const amtText = (inv.status === 'INVOICED' ? '✓ ' : '') + formatAbbrevCurrency(inv.amount);
+                doc.text(amtText, cellX + cellW / 2, ty + 24, { align: 'center', maxWidth: cellW - 12 });
                 ty += entryH;
               });
               if (sorted.length > maxLines) {
@@ -4487,26 +4696,51 @@ Thank you in advance.</textarea>
         return;
       }
 
+      // The PDF always includes invoiced items (styled distinctly, navy) —
+      // it's a static snapshot for management, so it covers both invoice
+      // forecasting AND cash-flow history in one document rather than
+      // needing the on-screen Forecast/History toggle.
       const invoicesByDay = {};
-      const monthStats = {}; // 'YYYY-M' -> { total, behind }, same logic as the on-screen calendar
+      const monthStats = {}; // 'YYYY-M' -> { overdue, duesoon, upcoming, invoiced, total }, each { count, amt }
+      const portfolioBehind = { count: 0, amt: 0 }; // every overdue, not-yet-invoiced item across the WHOLE portfolio
       let minD = allEvents[0].ev.date, maxD = allEvents[0].ev.date;
+
+      const bump = (monthKey, bucket, amt) => {
+        if (!monthStats[monthKey]) {
+          monthStats[monthKey] = {
+            overdue: { count: 0, amt: 0 },
+            duesoon: { count: 0, amt: 0 },
+            upcoming: { count: 0, amt: 0 },
+            invoiced: { count: 0, amt: 0 },
+            total: { count: 0, amt: 0 }
+          };
+        }
+        monthStats[monthKey][bucket].count++;
+        monthStats[monthKey][bucket].amt += amt || 0;
+        monthStats[monthKey].total.count++;
+        monthStats[monthKey].total.amt += amt || 0;
+      };
 
       allEvents.forEach(({ p, ev, status }) => {
         if (ev.date < minD) minD = ev.date;
         if (ev.date > maxD) maxD = ev.date;
 
         const monthKey = `${ev.date.getFullYear()}-${ev.date.getMonth()}`;
-        if (!monthStats[monthKey]) monthStats[monthKey] = { total: 0, behind: 0 };
-        monthStats[monthKey].total += ev.amount || 0;
-        if (!ev.invoiced && status === 'OVERDUE') monthStats[monthKey].behind += ev.amount || 0;
+        if (ev.invoiced) {
+          bump(monthKey, 'invoiced', ev.amount);
+        } else if (status === 'OVERDUE') {
+          bump(monthKey, 'overdue', ev.amount);
+          portfolioBehind.count++;
+          portfolioBehind.amt += ev.amount || 0;
+        } else if (status === 'DUE SOON') bump(monthKey, 'duesoon', ev.amount);
+        else bump(monthKey, 'upcoming', ev.amount);
 
-        if (ev.invoiced) return;
         const key = `${ev.date.getFullYear()}-${String(ev.date.getMonth() + 1).padStart(2, '0')}-${String(ev.date.getDate()).padStart(2, '0')}`;
         if (!invoicesByDay[key]) invoicesByDay[key] = [];
         invoicesByDay[key].push({
           code: p['Project Code'],
           name: p['Project Name'],
-          status,
+          status: ev.invoiced ? 'INVOICED' : status,
           pm: p['Person Responsible'] || 'Unassigned',
           amount: ev.amount,
           label: ev.label
@@ -4529,10 +4763,11 @@ Thank you in advance.</textarea>
         STATUS_COLORS: {
           'OVERDUE': { bg: [254, 226, 226], text: [220, 38, 38] },
           'DUE SOON': { bg: [254, 243, 199], text: [217, 119, 6] },
-          'Upcoming': { bg: [209, 250, 229], text: [5, 150, 105] }
+          'Upcoming': { bg: [209, 250, 229], text: [5, 150, 105] },
+          'INVOICED': { bg: [227, 236, 247], text: [22, 104, 193] }
         }
       };
-      const statusRank = { 'OVERDUE': 0, 'DUE SOON': 1, 'Upcoming': 2 };
+      const statusRank = { 'OVERDUE': 0, 'DUE SOON': 1, 'Upcoming': 2, 'INVOICED': 3 };
 
       const generatedOn = new Date().toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
       const scopeLabel = sections.length === 1 ? sections[0].label : sections.map(s => s.label).join('  •  ');
@@ -4570,27 +4805,35 @@ Thank you in advance.</textarea>
         doc.text(`Generated: ${generatedOn}`, pageWidth - marginX, 26, { align: 'right' });
         doc.text(`Scope: ${scopeLabel}`, pageWidth - marginX, 40, { align: 'right' });
 
-        // Behind / Total badges — same figures as the on-screen calendar
-        const stats = monthStats[`${cursorMonth.getFullYear()}-${cursorMonth.getMonth()}`] || { total: 0, behind: 0 };
+        // 6 non-overlapping badges — same figures and definitions as the
+        // on-screen calendar: Overdue + Due Soon + Upcoming + Invoiced = Total (this month only).
+        // Behind is portfolio-wide (all months), shown for constant context.
+        const emptyStat = { count: 0, amt: 0 };
+        const stats = monthStats[`${cursorMonth.getFullYear()}-${cursorMonth.getMonth()}`]
+          || { overdue: emptyStat, duesoon: emptyStat, upcoming: emptyStat, invoiced: emptyStat, total: emptyStat };
+        const badgeDefs = [
+          { key: 'overdue', label: 'Overdue', bg: [254, 226, 226], text: [220, 38, 38], stat: stats.overdue },
+          { key: 'duesoon', label: 'Due Soon', bg: [254, 243, 199], text: [217, 119, 6], stat: stats.duesoon },
+          { key: 'upcoming', label: 'Upcoming', bg: [209, 250, 229], text: [5, 150, 105], stat: stats.upcoming },
+          { key: 'invoiced', label: 'Invoiced', bg: [227, 236, 247], text: [22, 104, 193], stat: stats.invoiced },
+          { key: 'behind', label: 'Behind', bg: [153, 27, 27], text: [255, 255, 255], stat: portfolioBehind },
+          { key: 'total', label: 'Total', bg: [254, 240, 214], text: [180, 83, 9], stat: stats.total }
+        ];
         const badgeY = 86;
         let badgeX = marginX;
         doc.setFont('helvetica', 'bold');
-        doc.setFontSize(10.5);
-        if (stats.behind > 0) {
-          const behindLabel = `Behind: ${formatCurrency(stats.behind)}`;
-          const w = doc.getTextWidth(behindLabel) + 22;
-          doc.setFillColor(254, 226, 226);
-          doc.roundedRect(badgeX, badgeY, w, 22, 11, 11, 'F');
-          doc.setTextColor(220, 38, 38);
-          doc.text(behindLabel, badgeX + w / 2, badgeY + 15, { align: 'center' });
-          badgeX += w + 10;
-        }
-        const totalLabel = `Total: ${formatCurrency(stats.total)}`;
-        const w2 = doc.getTextWidth(totalLabel) + 22;
-        doc.setFillColor(254, 240, 214);
-        doc.roundedRect(badgeX, badgeY, w2, 22, 11, 11, 'F');
-        doc.setTextColor(180, 83, 9);
-        doc.text(totalLabel, badgeX + w2 / 2, badgeY + 15, { align: 'center' });
+        doc.setFontSize(9.5);
+        badgeDefs.forEach(def => {
+          const s = def.stat;
+          if (def.key !== 'total' && s.count === 0) return;
+          const label = `${def.label}: ${formatCurrency(s.amt)} (${s.count})`;
+          const w = doc.getTextWidth(label) + 20;
+          doc.setFillColor(...def.bg);
+          doc.roundedRect(badgeX, badgeY, w, 21, 10.5, 10.5, 'F');
+          doc.setTextColor(...def.text);
+          doc.text(label, badgeX + w / 2, badgeY + 14.5, { align: 'center' });
+          badgeX += w + 8;
+        });
 
         pdfDrawCalendarMonth(doc, cursorMonth.getFullYear(), cursorMonth.getMonth(), invoicesByDay, 122, marginX, pageWidth, colors, statusRank);
 
@@ -4599,7 +4842,8 @@ Thank you in advance.</textarea>
         const legendItems = [
           { label: 'Overdue', color: colors.STATUS_COLORS['OVERDUE'].text },
           { label: 'Due Soon (\u226430 days)', color: colors.STATUS_COLORS['DUE SOON'].text },
-          { label: 'Upcoming', color: colors.STATUS_COLORS['Upcoming'].text }
+          { label: 'Upcoming', color: colors.STATUS_COLORS['Upcoming'].text },
+          { label: 'Invoiced', color: colors.STATUS_COLORS['INVOICED'].text }
         ];
         legendItems.forEach(item => {
           doc.setFillColor(...item.color);
@@ -4608,12 +4852,12 @@ Thank you in advance.</textarea>
           doc.setFontSize(8.5);
           doc.setTextColor(...colors.MUTED);
           doc.text(item.label, lx + 11, legendY);
-          lx += doc.getTextWidth(item.label) + 40;
+          lx += doc.getTextWidth(item.label) + 34;
         });
         doc.setFont('helvetica', 'italic');
         doc.setFontSize(8);
         doc.setTextColor(...colors.MUTED);
-        doc.text('Each entry: code / PM / amount due. "Total" includes already-invoiced items; "Behind" is overdue only.', lx + 10, legendY);
+        doc.text('Each entry: code / PM / amount. Invoiced items are kept visible for cash-flow history, not removed once billed.', lx + 10, legendY);
 
         doc.setFont('helvetica', 'italic');
         doc.setFontSize(8);
@@ -5032,7 +5276,7 @@ Thank you in advance.</textarea>
       const container = document.getElementById('planInstallmentsContainer');
       if (!container || !proj) return;
 
-      // "Paid" is computed live from % invoiced (updates automatically on
+      // "Invoiced" is computed live from % invoiced (updates automatically on
       // every Excel re-import) rather than a manual checkbox — matches
       // the same logic getProjectInvoiceEvents() uses everywhere else.
       const actualInvoiced = proj['Invoiced Value'] || 0;
@@ -5062,7 +5306,7 @@ Thank you in advance.</textarea>
             : `<span style="font-size:11px;color:var(--ink-muted);">${dateDisplay}</span>`;
           cumulativeNominal += amount;
           const invoiced = actualInvoiced >= (cumulativeNominal - DOLLAR_EPSILON);
-          const paidCell = invoiced
+          const invoicedCell = invoiced
             ? `<span style="color:var(--upcoming);font-weight:700;font-size:12px;" title="Invoiced Value from your latest import covers this installment">✓</span>`
             : `<span style="color:var(--ink-muted);font-size:11px;" title="Not yet covered by Invoiced Value">—</span>`;
           const firstCell = isFixed
@@ -5079,7 +5323,7 @@ Thank you in advance.</textarea>
               ${dateCell}
               <input type="text" class="plan-input" value="${escapeHtml(inst.label || '')}" placeholder="${isFixed ? 'e.g. Change Order #1' : 'Label'}" onchange="updatePlanRow(${i},'label',this.value)">
               <span class="plan-amount-display">${formatCurrency(amount)}</span>
-              <span class="plan-invoiced-check">${paidCell}</span>
+              <span class="plan-invoiced-check">${invoicedCell}</span>
               <button class="plan-remove-btn" title="Remove" onclick="removePlanInstallmentRow(${i})">✕</button>
             </div>
           `;
