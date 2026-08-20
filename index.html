@@ -710,92 +710,93 @@
     .cal-grid {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
-      gap: 4px;
+      gap: 0;
+      border-top: 1px solid var(--border);
+      border-left: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
     }
 
     .cal-dow {
-      font-size: 10px;
-      font-weight: 700;
+      font-size: 11.5px;
+      font-weight: 600;
       text-align: center;
-      color: var(--ink-muted);
-      padding-bottom: 4px;
-      text-transform: uppercase;
+      color: var(--ink-soft);
+      padding: 10px 4px;
+      background: #fbfbfd;
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
     }
 
     .cal-cell {
       position: relative;
-      min-height: 84px;
-      border-radius: 8px;
-      background: var(--bg);
+      min-height: 96px;
+      background: #ffffff;
       display: flex;
       flex-direction: column;
       align-items: stretch;
-      padding: 4px 4px 6px;
+      padding: 8px;
       font-size: 10px;
       color: var(--ink-soft);
-      border: 1.5px solid transparent;
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
       overflow: hidden;
+      box-sizing: border-box;
     }
 
     .cal-cell.cal-empty {
-      background: transparent;
+      background: #fafbfc;
     }
 
     .cal-cell.cal-today {
-      border-color: var(--brass);
+      background: #fffaf0;
+    }
+
+    .cal-cell.cal-today .cal-daynum {
+      color: var(--brass-dark);
+      font-weight: 700;
     }
 
     .cal-daynum {
-      font-weight: 700;
-      font-size: 10px;
+      font-weight: 500;
+      font-size: 13px;
       color: var(--ink-muted);
       text-align: right;
-      margin-bottom: 2px;
+      margin-bottom: 6px;
     }
 
     .cal-codes {
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 3px;
       overflow: hidden;
     }
 
     .cal-code {
-      display: flex;
-      flex-direction: column;
-      padding: 2px 4px;
-      border-radius: 4px;
+      display: block;
+      padding: 5px 7px;
+      border-radius: 6px;
       cursor: default;
       overflow: hidden;
-    }
-
-    .cal-code .cal-code-name {
-      font-size: 9px;
-      font-weight: 700;
       white-space: nowrap;
-      overflow: hidden;
       text-overflow: ellipsis;
-    }
-
-    .cal-code .cal-code-amt {
-      font-size: 7.5px;
+      font-size: 10.5px;
       font-weight: 700;
-      opacity: 0.85;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      color: #ffffff;
+      line-height: 1.3;
     }
 
-    .cal-code-overdue { background: var(--overdue-bg); color: var(--overdue); }
-    .cal-code-duesoon { background: var(--duesoon-bg); color: var(--duesoon); }
-    .cal-code-upcoming { background: var(--upcoming-bg); color: var(--upcoming); }
-    .cal-code-invoiced { background: #e3ecf7; color: var(--navy-700); opacity: 0.85; }
+    .cal-code-overdue { background: var(--overdue); }
+    .cal-code-duesoon { background: var(--duesoon); }
+    .cal-code-upcoming { background: var(--upcoming); }
+    .cal-code-invoiced { background: var(--navy-700); }
 
     .cal-code-more {
       font-size: 8.5px;
       color: var(--ink-muted);
       font-weight: 600;
       padding-left: 3px;
+      margin-top: 1px;
     }
 
     .cal-legend {
@@ -1981,7 +1982,7 @@
             <button class="dropdown-btn" id="cfYearBtn" onclick="toggleCashflowYearDropdown()">All Years <span>▾</span></button>
             <div class="dropdown-menu" id="cfYearMenu"></div>
           </div>
-          <span style="font-size:12px;color:var(--ink-muted)">Totals, collection %, and full invoice history — separate from the Dashboard's forecast/scheduling view.</span>
+          <span style="font-size:12px;color:var(--ink-muted)">Totals, collection %, and monthly cash-flow position — separate from the Dashboard's forecast/scheduling view. See what's due next on the Dashboard's <strong>Invoices To Issue</strong> table.</span>
         </div>
       </div>
 
@@ -2014,56 +2015,33 @@
         </div>
       </div>
 
-      <div class="dashboard-section-title">Cash Flow Calendar</div>
+      <div class="dashboard-section-title">Cash Flow by Month</div>
 
       <div class="chart-card" style="margin-bottom:18px;">
-        <div class="chart-title" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:8px;">
-          <span>Invoice Calendar — Cash Flow / History</span>
-          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-            <button class="filter-btn" onclick="calendarShiftMonths('cashflow', -3)">« 3mo</button>
-            <button class="filter-btn" onclick="calendarShiftMonths('cashflow', -1)">‹ Prev</button>
-            <span id="cashflowRangeLabel" style="min-width:140px;text-align:center;color:var(--ink-muted);font-size:11.5px;font-weight:600;"></span>
-            <button class="filter-btn" onclick="calendarShiftMonths('cashflow', 1)">Next ›</button>
-            <button class="filter-btn" onclick="calendarShiftMonths('cashflow', 3)">3mo »</button>
-            <button class="filter-btn" onclick="calendarGoToday('cashflow')">Today</button>
-            <button class="filter-btn" onclick="calendarGoToOldestOverdue('cashflow')" style="border-color:var(--overdue);color:var(--overdue);">Jump to Oldest Overdue</button>
-          </div>
-        </div>
-        <div style="font-size:11.5px;color:var(--ink-muted);margin-bottom:12px;">Everything scheduled each month — invoiced or not — with monthly totals below. Nothing disappears once invoiced; it's kept here for cash-flow tracking.</div>
-        <div id="cashflowCalendar" class="cal-wrapper"></div>
-        <div class="cal-legend">
-          <div class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--overdue)"></span> Overdue</div>
-          <div class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--duesoon)"></span> Due Soon (≤30 days)</div>
-          <div class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--upcoming)"></span> Upcoming</div>
-          <div class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--navy-700)"></span> Invoiced</div>
-          <div class="cal-legend-item">Each chip shows the project code and $ amount. <strong>*</strong> = auto-estimated. Hover a day for full details.</div>
+        <div class="chart-title" style="margin-bottom:8px;">Monthly Cash Flow</div>
+        <div style="font-size:11.5px;color:var(--ink-muted);margin-bottom:12px;">Stacked by status, one bar per month. <strong>Click a bar</strong> to list exactly which projects make it up, below.</div>
+        <div class="chart-container" style="height:320px;">
+          <canvas id="cashflowBarChart"></canvas>
         </div>
       </div>
 
       <div class="chart-card">
-        <div class="chart-title" style="margin-bottom:4px;">Invoice History</div>
-        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
-          <div style="font-size:11px;color:var(--ink-muted);">Every project — one row per project, click <strong>▸</strong> to see every installment, invoiced or not.</div>
-          <label style="display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--ink-soft);font-weight:600;white-space:nowrap;cursor:pointer;">
-            <input type="checkbox" id="hideCompletedToggle" onchange="onHideCompletedToggle(this.checked)"> Hide fully-invoiced projects
-          </label>
-        </div>
+        <div class="chart-title" style="margin-bottom:4px;">Month Detail: <span id="cashflowMonthDetailTitle" style="color:var(--navy-700);">—</span></div>
+        <div style="font-size:11px;color:var(--ink-muted);margin-bottom:14px;">Every invoice scheduled in the selected month, invoiced or not.</div>
         <div class="table-container" style="box-shadow:none;border:1px solid var(--border);">
           <table style="table-layout:fixed;width:100%;">
             <thead>
               <tr>
-                <th style="width:10%;text-align:left">Code</th>
-                <th style="width:18%;text-align:left">Project</th>
-                <th style="width:11%;text-align:left">PM</th>
-                <th style="width:11%">Invoice Event</th>
-                <th style="width:12%">Status</th>
-                <th style="width:10%">Remaining</th>
-                <th style="width:12%">Amount</th>
-                <th style="width:16%">Actions</th>
+                <th style="width:12%;text-align:left">Code</th>
+                <th style="width:24%;text-align:left">Project</th>
+                <th style="width:14%;text-align:left">PM</th>
+                <th style="width:16%">Date</th>
+                <th style="width:16%">Status</th>
+                <th style="width:18%">Amount</th>
               </tr>
             </thead>
-            <tbody id="scheduleTableBody">
-              <tr><td colspan="8" class="empty-state"></td></tr>
+            <tbody id="cashflowMonthDetailBody">
+              <tr><td colspan="6" class="empty-state"></td></tr>
             </tbody>
           </table>
         </div>
@@ -2083,7 +2061,7 @@
             <button class="dropdown-btn" id="statusRemainingBtn" onclick="toggleStatusRemainingDropdown()">All Projects <span>▾</span></button>
             <div class="dropdown-menu" id="statusRemainingMenu"></div>
           </div>
-          <span style="font-size:12px;color:var(--ink-muted)">Filters everything on this page. Year is read from the project code (e.g. 25xxx → 2025, INS-26 → 2026).</span>
+          <span style="font-size:12px;color:var(--ink-muted)">Filters everything on this page. Second filter is by <strong>Project Value</strong>. Year is read from the project code (e.g. 25xxx → 2025, INS-26 → 2026).</span>
         </div>
       </div>
 
@@ -2466,13 +2444,10 @@ Thank you in advance.</textarea>
     let dashboardYear = null;
     let cashflowPM = null;
     let cashflowYear = null;
-    let hideCompletedInstallments = false;
-    // Two independent calendar instances so Dashboard (forecast-only) and
-    // Cash Flow (full history) can be navigated separately without
-    // interfering with each other.
+    // Dashboard's forecast calendar — the Cash Flow tab now uses a bar
+    // chart instead of a calendar, so only one instance is needed.
     const calendarInstances = {
-      forecast: { centerDate: null, data: [], containerId: 'invoiceCalendar', rangeLabelId: 'calendarRangeLabel', showInvoiced: false, showBadges: false },
-      cashflow: { centerDate: null, data: [], containerId: 'cashflowCalendar', rangeLabelId: 'cashflowRangeLabel', showInvoiced: true, showBadges: true }
+      forecast: { centerDate: null, data: [], containerId: 'invoiceCalendar', rangeLabelId: 'calendarRangeLabel', showInvoiced: false, showBadges: false }
     };
     let sortCol = 'invoiceStatus';
     let sortDir = 'asc';
@@ -3493,8 +3468,134 @@ Thank you in advance.</textarea>
       charts.cfCollection.$centerText = { value: collectPct + '%', label: 'INVOICED' };
       charts.cfCollection.update();
 
-      renderInvoiceCalendar('cashflow', cfData);
-      renderScheduleTable(cfData);
+      renderCashFlowChart(cfData);
+    }
+
+    // Stacked bar chart, one bar per month, segments = Overdue/Due
+    // Soon/Upcoming/Invoiced (pulls from the exact same
+    // getProjectInvoiceEvents() as everywhere else). Clicking a bar
+    // drills into exactly which projects make it up, in the table below —
+    // this replaces the old flat "Invoice History" table entirely.
+    function renderCashFlowChart(cfData) {
+      const canvas = document.getElementById('cashflowBarChart');
+      if (!canvas) return;
+
+      const monthBuckets = {}; // 'YYYY-M' -> { overdue, duesoon, upcoming, invoiced, events: [] }
+      let minMonth = null, maxMonth = null;
+
+      cfData.forEach(p => {
+        getProjectInvoiceEvents(p).forEach(ev => {
+          if (!ev.date) return;
+          const monthKey = `${ev.date.getFullYear()}-${ev.date.getMonth()}`;
+          const status = getStatusForDate(ev.date);
+          if (!monthBuckets[monthKey]) {
+            monthBuckets[monthKey] = { overdue: 0, duesoon: 0, upcoming: 0, invoiced: 0, events: [] };
+          }
+          const bucket = monthBuckets[monthKey];
+          if (ev.invoiced) bucket.invoiced += ev.amount || 0;
+          else if (status === 'OVERDUE') bucket.overdue += ev.amount || 0;
+          else if (status === 'DUE SOON') bucket.duesoon += ev.amount || 0;
+          else bucket.upcoming += ev.amount || 0;
+          bucket.events.push({ p, ev, status });
+
+          const d = new Date(ev.date.getFullYear(), ev.date.getMonth(), 1);
+          if (!minMonth || d < minMonth) minMonth = d;
+          if (!maxMonth || d > maxMonth) maxMonth = d;
+        });
+      });
+
+      if (!minMonth) {
+        if (charts.cfBar) { charts.cfBar.destroy(); charts.cfBar = null; }
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        renderCashFlowMonthDetail(null, '—', null);
+        return;
+      }
+
+      // Cap so a stray far-out date can't stretch the chart into
+      // hundreds of unreadable bars.
+      const MAX_MONTHS = 18;
+      const months = [];
+      let cursor = new Date(minMonth);
+      while (cursor <= maxMonth && months.length < MAX_MONTHS) {
+        months.push(new Date(cursor));
+        cursor = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1);
+      }
+
+      const labels = months.map(d => d.toLocaleString('en-US', { month: 'short', year: '2-digit' }));
+      const monthKeys = months.map(d => `${d.getFullYear()}-${d.getMonth()}`);
+      const dataFor = (key) => monthKeys.map(k => (monthBuckets[k] ? monthBuckets[k][key] : 0));
+
+      if (charts.cfBar) charts.cfBar.destroy();
+      charts.cfBar = new Chart(canvas, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            { label: 'Overdue', data: dataFor('overdue'), backgroundColor: '#dc2626', stack: 's' },
+            { label: 'Due Soon', data: dataFor('duesoon'), backgroundColor: '#d97706', stack: 's' },
+            { label: 'Upcoming', data: dataFor('upcoming'), backgroundColor: '#059669', stack: 's' },
+            { label: 'Invoiced', data: dataFor('invoiced'), backgroundColor: '#1668c1', stack: 's' }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          onHover: (evt, elements) => { evt.native.target.style.cursor = elements.length ? 'pointer' : 'default'; },
+          plugins: {
+            legend: { position: 'bottom', labels: { usePointStyle: true, pointStyle: 'circle', boxWidth: 8, padding: 14, font: { size: 11, weight: '600' } } },
+            tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${formatCurrency(ctx.parsed.y)}` } }
+          },
+          scales: {
+            x: { stacked: true, grid: { display: false }, border: { display: false }, ticks: { font: { size: 10.5, weight: '600' } } },
+            y: { stacked: true, beginAtZero: true, grid: { color: '#eef0f7' }, border: { display: false }, ticks: { callback: (v) => '$' + (v >= 1000 ? (v / 1000).toFixed(0) + 'k' : v), font: { size: 10 } } }
+          },
+          onClick: (evt, elements) => {
+            if (!elements.length) return;
+            const idx = elements[0].index;
+            const monthKey = monthKeys[idx];
+            const monthLabel = months[idx].toLocaleString('en-US', { month: 'long', year: 'numeric' });
+            renderCashFlowMonthDetail(monthKey, monthLabel, monthBuckets[monthKey]);
+          }
+        }
+      });
+
+      // Default the detail table to the current month if it has data,
+      // otherwise the first month shown.
+      const todayKey = `${new Date().getFullYear()}-${new Date().getMonth()}`;
+      const defaultIdx = monthKeys.includes(todayKey) ? monthKeys.indexOf(todayKey) : 0;
+      renderCashFlowMonthDetail(monthKeys[defaultIdx], months[defaultIdx].toLocaleString('en-US', { month: 'long', year: 'numeric' }), monthBuckets[monthKeys[defaultIdx]]);
+    }
+
+    function renderCashFlowMonthDetail(monthKey, monthLabel, bucket) {
+      const titleEl = document.getElementById('cashflowMonthDetailTitle');
+      const tbody = document.getElementById('cashflowMonthDetailBody');
+      if (titleEl) titleEl.textContent = monthLabel;
+      if (!tbody) return;
+
+      const events = (bucket && bucket.events) || [];
+      if (!events.length) {
+        tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><div class="empty-text">No invoices scheduled this month</div></td></tr>';
+        return;
+      }
+
+      const sorted = events.slice().sort((a, b) => a.ev.date - b.ev.date);
+      tbody.innerHTML = sorted.map(({ p, ev, status }) => {
+        const badge = ev.invoiced
+          ? `<span class="status-badge status-upcoming">✓ Invoiced</span>`
+          : `<span class="status-badge ${getStatusClass(status)}">${status}</span>`;
+        const notEstimated = ev.isPlan || ev.isManual;
+        return `
+          <tr${ev.invoiced ? ' style="opacity:0.6;"' : ''}>
+            <td style="text-align:left;font-weight:600">${escapeHtml(p['Project Code'])}</td>
+            <td style="text-align:left">${escapeHtml(p['Project Name'])}</td>
+            <td style="text-align:left">${escapeHtml(p['Person Responsible'])}</td>
+            <td>${formatDateObj(ev.date)}<div style="font-size:9.5px;color:var(--ink-muted);font-weight:500;">${escapeHtml(ev.label || '')}</div></td>
+            <td>${badge}</td>
+            <td class="currency">${formatCurrency(ev.amount)}${notEstimated ? '' : ' *'}</td>
+          </tr>
+        `;
+      }).join('');
     }
 
     function buildDashboardPMDropdown() {
@@ -3685,7 +3786,7 @@ Thank you in advance.</textarea>
           const codeSpans = shown.map(x => {
             const cls = x.status === 'OVERDUE' ? 'cal-code-overdue' : x.status === 'DUE SOON' ? 'cal-code-duesoon' : x.status === 'INVOICED' ? 'cal-code-invoiced' : 'cal-code-upcoming';
             const amtLabel = (x.status === 'INVOICED' ? '✓ ' : '') + formatAbbrevCurrency(x.amount) + (x.isManual ? '' : '*');
-            return `<span class="cal-code ${cls}"><span class="cal-code-name">${escapeHtml(x.code)}</span><span class="cal-code-amt">${amtLabel}</span></span>`;
+            return `<span class="cal-code ${cls}">${escapeHtml(x.code)} · ${amtLabel}</span>`;
           }).join('');
           const moreHtml = extra > 0 ? `<span class="cal-code-more">+${extra} more</span>` : '';
           const titleText = sorted.map(x => `${x.code} — ${x.name} (PM: ${x.pm || 'Unassigned'}) — ${x.label ? x.label + ': ' : ''}${formatCurrency(x.amount)}${x.status === 'INVOICED' ? ' (already invoiced)' : x.isManual ? '' : ' (estimated)'}`).join('\n');
@@ -3719,7 +3820,7 @@ Thank you in advance.</textarea>
           <div class="cal-month-title">${monthName}</div>
           ${badgeWrap}
           <div class="cal-grid">
-            <div class="cal-dow">Su</div><div class="cal-dow">Mo</div><div class="cal-dow">Tu</div><div class="cal-dow">We</div><div class="cal-dow">Th</div><div class="cal-dow">Fr</div><div class="cal-dow">Sa</div>
+            <div class="cal-dow">Sun</div><div class="cal-dow">Mon</div><div class="cal-dow">Tue</div><div class="cal-dow">Wed</div><div class="cal-dow">Thu</div><div class="cal-dow">Fri</div><div class="cal-dow">Sat</div>
             ${cells}
           </div>
         </div>
@@ -3851,123 +3952,6 @@ Thank you in advance.</textarea>
       renderInvoiceCalendar(instanceKey, inst.data);
     }
 
-    // Chronological list of every project with a next invoice date
-    // (soonest/most overdue first), followed by projects with no date set.
-    // One row per PROJECT, not per installment — previously every
-    // payment-plan installment got its own row, so a project with a
-    // 5-line plan repeated its code 5 times. Each project now shows its
-    // nearest pending item inline, with a ▸ toggle to expand and see
-    // every installment (pending and already-invoiced) when there's
-    // more than one.
-    function renderScheduleTable(dashData) {
-      const tbody = document.getElementById('scheduleTableBody');
-      if (!tbody) return;
-
-      const projectRows = dashData.map(p => {
-        const events = getProjectInvoiceEvents(p);
-        const datedEvents = events.filter(e => e.date);
-        const pendingSorted = datedEvents.filter(e => !e.invoiced).sort((a, b) => a.date - b.date);
-        const allInvoiced = datedEvents.length > 0 && datedEvents.every(e => e.invoiced);
-        const nextEvent = pendingSorted[0] || null;
-        return { p, events, nextEvent, allInvoiced, hasMultiple: events.length > 1 };
-      });
-
-      const visibleRows = hideCompletedInstallments
-        ? projectRows.filter(r => !r.allInvoiced)
-        : projectRows;
-
-      if (!visibleRows.length) {
-        tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><div class="empty-text">No projects to show</div></td></tr>';
-        return;
-      }
-
-      visibleRows.sort((a, b) => {
-        const aDate = a.nextEvent ? a.nextEvent.date : null;
-        const bDate = b.nextEvent ? b.nextEvent.date : null;
-        if (aDate && bDate) return aDate - bDate;
-        if (aDate) return -1;
-        if (bDate) return 1;
-        return 0;
-      });
-
-      tbody.innerHTML = visibleRows.map((row, idx) => {
-        const { p, events, nextEvent, allInvoiced, hasMultiple } = row;
-        const code = p['Project Code'];
-        const rowId = `sched-row-${idx}`;
-
-        let statusBadge, dateCell, amtCell;
-        if (nextEvent) {
-          const status = getStatusForDate(nextEvent.date);
-          const notEstimated = nextEvent.isPlan || nextEvent.isManual;
-          statusBadge = `<span class="status-badge ${getStatusClass(status)}">${status}</span>`;
-          dateCell = `${formatDateObj(nextEvent.date)}<div style="font-size:9.5px;color:var(--ink-muted);font-weight:500;">${escapeHtml(nextEvent.label || '')}</div>`;
-          amtCell = `<span style="color:${notEstimated ? 'var(--ink)' : 'var(--ink-muted)'};font-weight:${notEstimated ? '700' : '500'};">${formatCurrency(nextEvent.amount)}${notEstimated ? '' : ' *'}</span>`;
-        } else if (allInvoiced) {
-          statusBadge = `<span class="status-badge status-upcoming">✓ All Invoiced</span>`;
-          dateCell = `—<div style="font-size:9.5px;color:var(--ink-muted);">Kept for cash-flow history</div>`;
-          amtCell = `<span style="color:var(--ink-muted);">—</span>`;
-        } else {
-          statusBadge = `<span class="status-badge status-nodate">No Date</span>`;
-          dateCell = '—';
-          amtCell = `<span style="color:var(--ink-muted);">—</span>`;
-        }
-
-        const expandBtn = hasMultiple
-          ? `<button class="btn" id="${rowId}-btn" style="padding:4px 8px;font-size:10px;cursor:pointer;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--ink-soft);white-space:nowrap;" onclick="toggleScheduleExpand('${rowId}')">▸ ${events.length}</button>`
-          : '';
-
-        const mainRow = `
-          <tr>
-            <td style="text-align:left;font-weight:600">${escapeHtml(code)}</td>
-            <td style="text-align:left">${escapeHtml(p['Project Name'])}</td>
-            <td style="text-align:left">${escapeHtml(p['Person Responsible'])}</td>
-            <td>${dateCell}</td>
-            <td>${statusBadge}</td>
-            <td class="currency">${formatCurrency(p['Remaining Inv'])}</td>
-            <td class="currency">${amtCell}</td>
-            <td style="display:flex;gap:5px;justify-content:center;align-items:center;flex-wrap:wrap;">
-              ${expandBtn}
-              <button class="btn" style="padding:5px 9px;font-size:10.5px;cursor:pointer;background:var(--navy-700);color:#fff;border-radius:999px;" onclick="openInvoiceAmountModal('${escapeHtml(code)}')">✏️</button>
-            </td>
-          </tr>
-        `;
-
-        let subRow = '';
-        if (hasMultiple) {
-          const sortedEvents = events.slice().sort((a, b) => {
-            if (!a.date && !b.date) return 0;
-            if (!a.date) return 1;
-            if (!b.date) return -1;
-            return a.date - b.date;
-          });
-          const subRows = sortedEvents.map(ev => {
-            const s = ev.date ? getStatusForDate(ev.date) : 'No Date';
-            const badge = ev.invoiced
-              ? `<span class="status-badge status-upcoming">✓ Invoiced</span>`
-              : `<span class="status-badge ${getStatusClass(s)}">${s}</span>`;
-            const notEstimated = ev.isPlan || ev.isManual;
-            return `
-              <div class="sched-sub-row${ev.invoiced ? ' is-invoiced' : ''}">
-                <span class="sched-sub-label">${escapeHtml(ev.label || '')}</span>
-                <span class="sched-sub-date">${ev.date ? formatDateObj(ev.date) : '—'}</span>
-                <span>${badge}</span>
-                <span class="sched-sub-amt">${formatCurrency(ev.amount)}${notEstimated ? '' : ' *'}</span>
-              </div>
-            `;
-          }).join('');
-          subRow = `
-            <tr class="sched-sub-wrap" id="${rowId}" style="display:none;">
-              <td colspan="8" style="padding:0;">
-                <div class="sched-sub-container">${subRows}</div>
-              </td>
-            </tr>
-          `;
-        }
-
-        return mainRow + subRow;
-      }).join('');
-    }
-
     // Dashboard's forecast table — only projects with something still to
     // schedule. Fully-invoiced projects simply don't appear here at all
     // (nothing left to do); see them on the Cash Flow tab instead.
@@ -4075,11 +4059,6 @@ Thank you in advance.</textarea>
       btn.textContent = btn.textContent.replace(isOpen ? '▾' : '▸', isOpen ? '▸' : '▾');
     }
 
-    function onHideCompletedToggle(checked) {
-      hideCompletedInstallments = checked;
-      renderCashFlow();
-    }
-
     // --- Project Status page ------------------------------------------
     // A second dashboard view styled like a classic "Project Status"
     // template. It's built entirely from the same 15 Excel-import
@@ -4105,16 +4084,16 @@ Thank you in advance.</textarea>
     }
 
     let statusYear = null;
-    let statusMaxRemaining = 0;
+    let statusMaxProjectValue = 0;
 
-    const STATUS_REMAINING_PRESETS = [
+    const STATUS_VALUE_PRESETS = [
       { value: 0, label: 'All Projects' },
-      { value: 1, label: 'Outstanding Only (> $0)' },
       { value: 10000, label: '< $10,000' },
       { value: 50000, label: '< $50,000' },
       { value: 100000, label: '< $100,000' },
       { value: 250000, label: '< $250,000' },
-      { value: 500000, label: '< $500,000' }
+      { value: 500000, label: '< $500,000' },
+      { value: 1000000, label: '< $1,000,000' }
     ];
 
     function buildStatusYearDropdown() {
@@ -4149,16 +4128,16 @@ Thank you in advance.</textarea>
     function buildStatusRemainingDropdown() {
       const menu = document.getElementById('statusRemainingMenu');
       if (!menu) return;
-      menu.innerHTML = STATUS_REMAINING_PRESETS.map(opt => `
-        <div class="dropdown-item ${statusMaxRemaining === opt.value ? 'selected' : ''}" onclick="selectStatusMaxRemaining(${opt.value})">
+      menu.innerHTML = STATUS_VALUE_PRESETS.map(opt => `
+        <div class="dropdown-item ${statusMaxProjectValue === opt.value ? 'selected' : ''}" onclick="selectStatusMaxProjectValue(${opt.value})">
           <span style="color:#b8902e">✓</span> ${opt.label}
         </div>
       `).join('');
     }
 
-    function selectStatusMaxRemaining(value) {
-      statusMaxRemaining = value;
-      const preset = STATUS_REMAINING_PRESETS.find(o => o.value === value);
+    function selectStatusMaxProjectValue(value) {
+      statusMaxProjectValue = value;
+      const preset = STATUS_VALUE_PRESETS.find(o => o.value === value);
       const btn = document.getElementById('statusRemainingBtn');
       if (btn) btn.textContent = (preset ? preset.label : 'All Projects') + ' ▾';
       const menu = document.getElementById('statusRemainingMenu');
@@ -4177,9 +4156,7 @@ Thank you in advance.</textarea>
 
       const dashData = projects.filter(p => {
         if (statusYear && getProjectYearFromCode(p['Project Code']) !== statusYear) return false;
-        const remaining = p['Remaining Inv'] || 0;
-        if (statusMaxRemaining === 1 && !(remaining > 0)) return false;
-        if (statusMaxRemaining > 1 && !(remaining < statusMaxRemaining)) return false;
+        if (statusMaxProjectValue > 0 && !((p['Project Value'] || 0) < statusMaxProjectValue)) return false;
         return true;
       });
 
