@@ -1717,13 +1717,17 @@
       </div>
       <form id="loginForm" onsubmit="handleLoginSubmit(event)">
         <div class="login-field">
-          <label for="loginPassword">Team Password</label>
-          <input type="password" id="loginPassword" autocomplete="current-password" required placeholder="••••••••" autofocus>
+          <label for="loginEmail">Email</label>
+          <input type="email" id="loginEmail" autocomplete="username" required placeholder="you@marineteknik.com" autofocus>
+        </div>
+        <div class="login-field">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" autocomplete="current-password" required placeholder="••••••••">
         </div>
         <div id="loginError" class="login-error" style="display:none;"></div>
         <button type="submit" id="loginSubmitBtn" class="login-submit">Sign In</button>
       </form>
-      <p class="login-footnote">Shared team access. Contact your administrator if you don't have the password.</p>
+      <p class="login-footnote">Access is by invitation only. Contact your administrator if you need an account.</p>
     </div>
   </div>
 
@@ -1737,7 +1741,7 @@
     </div>
     <div class="header-right">
       <div style="display:flex;align-items:center;gap:10px;margin-right:6px;">
-        <span style="font-size:11.5px;color:#c9d9ec;">🔒 Signed In</span>
+        <span style="font-size:11.5px;color:#c9d9ec;" id="currentUserEmail"></span>
         <button class="btn btn-secondary" onclick="handleLogout()">Sign Out</button>
       </div>
       <button class="btn btn-secondary" onclick="clearAllData()">Clear</button>
@@ -1749,8 +1753,8 @@
 
   <div class="tabs">
     <button class="tab active" onclick="switchTab('tracker')">Tracker</button>
-    <button class="tab" onclick="switchTab('dashboard')">Dashboard</button>
-    <button class="tab" onclick="switchTab('cashflow')">Cash Flow</button>
+    <button class="tab" onclick="switchTab('dashboard')">Invoice Scheduler</button>
+    <button class="tab" onclick="switchTab('cashflow')">Invoice Amount Forecasts</button>
     <button class="tab" onclick="switchTab('status')">Project Status</button>
   </div>
 
@@ -1813,8 +1817,6 @@
       <button class="filter-btn" data-filter="nodate" onclick="setFilter(event, 'nodate')">No Due Date</button>
       <button class="filter-btn" data-filter="contracts" onclick="setFilter(event, 'contracts')">🚩 Contracts</button>
       <button class="filter-btn" data-filter="estimation" onclick="setFilter(event, 'estimation')">🚩 Estimation</button>
-      <button class="filter-btn" data-filter="hasplan" onclick="setFilter(event, 'hasplan')">📋 Has Payment Terms</button>
-      <button class="filter-btn" data-filter="noplan" onclick="setFilter(event, 'noplan')">No Payment Terms</button>
     </div>
     <div class="dropdown-wrapper">
       <button class="dropdown-btn" id="pmBtn" onclick="togglePMDropdown()">All PMs <span>▾</span></button>
@@ -1887,7 +1889,7 @@
             <div class="dropdown-menu" id="dashYearMenu"></div>
           </div>
           <button class="btn" style="padding:7px 14px;background:var(--surface);border:1px solid var(--border);color:var(--ink-soft);border-radius:999px;font-weight:600;cursor:pointer;font-size:11.5px;" onclick="openTemplateManagerModal()">Payment Templates</button>
-          <span style="font-size:12px;color:var(--ink-muted)">Invoice scheduling &amp; forecasting only. For totals, collection %, and invoice history, see the <strong>Cash Flow</strong> tab.</span>
+          <span style="font-size:12px;color:var(--ink-muted)">Invoice scheduling &amp; forecasting only. For totals, collection %, and invoice history, see the <strong>Invoice Amount Forecasts</strong> tab.</span>
         </div>
       </div>
 
@@ -1935,7 +1937,7 @@
             <button class="filter-btn" onclick="calendarGoToOldestOverdue('forecast')" style="border-color:var(--overdue);color:var(--overdue);">Jump to Oldest Overdue</button>
           </div>
         </div>
-        <div style="font-size:11.5px;color:var(--ink-muted);margin-bottom:12px;">Which invoices need to be issued, and when. Already-invoiced items don't show here — see the <strong>Cash Flow</strong> tab for totals and history.</div>
+        <div style="font-size:11.5px;color:var(--ink-muted);margin-bottom:12px;">Which invoices need to be issued, and when. Already-invoiced items don't show here — see the <strong>Invoice Amount Forecasts</strong> tab for totals and history.</div>
         <div id="invoiceCalendar" class="cal-wrapper"></div>
         <div class="cal-legend">
           <div class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--overdue)"></span> Overdue</div>
@@ -1945,9 +1947,19 @@
         </div>
       </div>
 
+      <div class="controls" style="margin-bottom:14px;">
+        <div class="controls-row" style="justify-content:flex-start;">
+          <span style="font-size:12px;color:var(--ink-muted);font-weight:600;">Filter Invoices To Issue:</span>
+          <div class="filter-group">
+            <button class="filter-btn" id="dashPlanHasBtn" onclick="toggleDashboardPlanFilter('has')">📋 Has Payment Terms</button>
+            <button class="filter-btn" id="dashPlanNoBtn" onclick="toggleDashboardPlanFilter('no')">No Payment Terms</button>
+          </div>
+        </div>
+      </div>
+
       <div class="chart-card">
         <div class="chart-title" style="margin-bottom:4px;">Invoices To Issue</div>
-        <div style="font-size:11px;color:var(--ink-muted);margin-bottom:14px;">One row per project that still has something due — click <strong>▸</strong> to see all pending installments. Amount is auto-estimated unless a single amount or payment plan is set — click ✏️ to set one. Fully-invoiced projects move to the Cash Flow tab.</div>
+        <div style="font-size:11px;color:var(--ink-muted);margin-bottom:14px;">One row per project that still has something due — click <strong>▸</strong> to see all pending installments. Amount is auto-estimated unless a single amount or payment plan is set — click ✏️ to set one. Fully-invoiced projects move to the Invoice Amount Forecasts tab.</div>
         <div class="table-container" style="box-shadow:none;border:1px solid var(--border);">
           <table style="table-layout:fixed;width:100%;">
             <thead>
@@ -1982,7 +1994,7 @@
             <button class="dropdown-btn" id="cfYearBtn" onclick="toggleCashflowYearDropdown()">All Years <span>▾</span></button>
             <div class="dropdown-menu" id="cfYearMenu"></div>
           </div>
-          <span style="font-size:12px;color:var(--ink-muted)">Totals, collection %, and monthly cash-flow position — separate from the Dashboard's forecast/scheduling view. See what's due next on the Dashboard's <strong>Invoices To Issue</strong> table.</span>
+          <span style="font-size:12px;color:var(--ink-muted)">Totals, collection %, and monthly cash-flow position — separate from the Invoice Scheduler's forecast/scheduling view. See what's due next on the Invoice Scheduler's <strong>Invoices To Issue</strong> table.</span>
         </div>
       </div>
 
@@ -2421,18 +2433,6 @@ Thank you in advance.</textarea>
     const SUPABASE_URL = 'https://mpvsentuomxnyijhrwli.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wdnNlbnR1b214bnlpamhyd2xpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3Njg5MTUsImV4cCI6MjA4OTM0NDkxNX0.yL2YDH-fx12oR03-JFDxj651mWZRQoPywv8ilebzox0';
 
-    // Supabase Auth needs an email/password pair internally for the one
-    // shared team account — nobody types or sees it, the login screen
-    // only asks for the password. Must exactly match the email the
-    // account was created with in Supabase (Authentication > Users).
-    // Deliberately NOT using anonymous sign-in here: it isn't gated by
-    // the password check at all (they're separate API calls), so it
-    // would let anyone with the public anon key bypass the password
-    // entirely. signInWithPassword ties verification and session
-    // issuance together server-side, which is what actually matters
-    // for sensitive data.
-    const SHARED_LOGIN_EMAIL = 'team-access@marineteknik.internal';
-
     let supabaseClient;
     let projects = [];
     let comments = {};
@@ -2447,6 +2447,7 @@ Thank you in advance.</textarea>
     let currentPM = null;
     let dashboardPM = null;
     let dashboardYear = null;
+    let dashboardPlanFilter = null; // null | 'has' | 'no'
     let cashflowPM = null;
     let cashflowYear = null;
     // Dashboard's forecast calendar — the Cash Flow tab now uses a bar
@@ -2515,6 +2516,9 @@ Thank you in advance.</textarea>
       if (session && session.user) {
         loginScreen.style.display = 'none';
         appShell.style.display = 'block';
+
+        const emailEl = document.getElementById('currentUserEmail');
+        if (emailEl) emailEl.textContent = session.user.email || '';
 
         if (!dataLoadedForSession) {
           dataLoadedForSession = true;
@@ -3135,8 +3139,6 @@ Thank you in advance.</textarea>
             if (filter === 'nodate') return p.invoiceStatus === 'No Date';
             if (filter === 'contracts') return flags[p['Project Code']]?.contracts;
             if (filter === 'estimation') return flags[p['Project Code']]?.estimation;
-            if (filter === 'hasplan') return !!(projectPaymentPlans[p['Project Code']] && projectPaymentPlans[p['Project Code']].installments && projectPaymentPlans[p['Project Code']].installments.length);
-            if (filter === 'noplan') return !(projectPaymentPlans[p['Project Code']] && projectPaymentPlans[p['Project Code']].installments && projectPaymentPlans[p['Project Code']].installments.length);
             return true;
           });
         });
@@ -3311,6 +3313,21 @@ Thank you in advance.</textarea>
       if (tab === 'status') renderProjectStatusDashboard();
     }
 
+    // Shared check for whether a project has any saved installment plan —
+    // used by the Dashboard's Has/No Payment Terms filter.
+    function projectHasPaymentPlan(code) {
+      return !!(projectPaymentPlans[code] && projectPaymentPlans[code].installments && projectPaymentPlans[code].installments.length);
+    }
+
+    function toggleDashboardPlanFilter(which) {
+      dashboardPlanFilter = (dashboardPlanFilter === which) ? null : which;
+      const hasBtn = document.getElementById('dashPlanHasBtn');
+      const noBtn = document.getElementById('dashPlanNoBtn');
+      if (hasBtn) hasBtn.classList.toggle('active', dashboardPlanFilter === 'has');
+      if (noBtn) noBtn.classList.toggle('active', dashboardPlanFilter === 'no');
+      renderDashboard();
+    }
+
     function renderDashboard() {
       buildDashboardPMDropdown();
       buildDashboardYearDropdown();
@@ -3318,6 +3335,9 @@ Thank you in advance.</textarea>
       const dashData = projects.filter(p => {
         if (dashboardPM && (p['Person Responsible'] || '(None)') !== dashboardPM) return false;
         if (dashboardYear && getProjectYearFromCode(p['Project Code']) !== dashboardYear) return false;
+        const hasPlan = projectHasPaymentPlan(p['Project Code']);
+        if (dashboardPlanFilter === 'has' && !hasPlan) return false;
+        if (dashboardPlanFilter === 'no' && hasPlan) return false;
         return true;
       });
 
