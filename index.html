@@ -2421,11 +2421,16 @@ Thank you in advance.</textarea>
     const SUPABASE_URL = 'https://mpvsentuomxnyijhrwli.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wdnNlbnR1b214bnlpamhyd2xpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3Njg5MTUsImV4cCI6MjA4OTM0NDkxNX0.yL2YDH-fx12oR03-JFDxj651mWZRQoPywv8ilebzox0';
 
-    // Supabase Auth still needs an email/password pair internally — this
-    // is a fixed, internal-only address for the one shared team account.
-    // Nobody types or sees it; the login screen only asks for the
-    // password. Must exactly match the email you use when creating that
-    // one user in Supabase (Authentication > Users > Add user).
+    // Supabase Auth needs an email/password pair internally for the one
+    // shared team account — nobody types or sees it, the login screen
+    // only asks for the password. Must exactly match the email the
+    // account was created with in Supabase (Authentication > Users).
+    // Deliberately NOT using anonymous sign-in here: it isn't gated by
+    // the password check at all (they're separate API calls), so it
+    // would let anyone with the public anon key bypass the password
+    // entirely. signInWithPassword ties verification and session
+    // issuance together server-side, which is what actually matters
+    // for sensitive data.
     const SHARED_LOGIN_EMAIL = 'team-access@marineteknik.internal';
 
     let supabaseClient;
