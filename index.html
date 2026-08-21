@@ -772,18 +772,30 @@
       overflow: hidden;
     }
 
-    .cal-code {
+        .cal-code {
       display: block;
       padding: 5px 7px;
       border-radius: 6px;
       cursor: default;
       overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
+      white-space: normal;
       font-size: 10.5px;
       font-weight: 700;
       color: #ffffff;
       line-height: 1.3;
+    }
+
+    .cal-code-line1, .cal-code-line2 {
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .cal-code-line2 {
+      font-weight: 600;
+      font-size: 9px;
+      opacity: 0.92;
     }
 
     .cal-code-overdue { background: var(--overdue); }
@@ -3808,10 +3820,10 @@ Thank you in advance.</textarea>
           const sorted = dayInvoices.slice().sort((a, b) => (statusRank[a.status] ?? 4) - (statusRank[b.status] ?? 4));
           const shown = sorted.slice(0, maxShown);
           const extra = sorted.length - shown.length;
-          const codeSpans = shown.map(x => {
+                    const codeSpans = shown.map(x => {
             const cls = x.status === 'OVERDUE' ? 'cal-code-overdue' : x.status === 'DUE SOON' ? 'cal-code-duesoon' : x.status === 'INVOICED' ? 'cal-code-invoiced' : 'cal-code-upcoming';
             const amtLabel = (x.status === 'INVOICED' ? '✓ ' : '') + formatAbbrevCurrency(x.amount) + (x.isManual ? '' : '*');
-            return `<span class="cal-code ${cls}">${escapeHtml(x.code)} · ${amtLabel}</span>`;
+            return `<span class="cal-code ${cls}"><span class="cal-code-line1">${escapeHtml(x.code)} · ${amtLabel}</span><span class="cal-code-line2">${escapeHtml(x.pm || 'Unassigned')}</span></span>`;
           }).join('');
           const moreHtml = extra > 0 ? `<span class="cal-code-more">+${extra} more</span>` : '';
           const titleText = sorted.map(x => `${x.code} — ${x.name} (PM: ${x.pm || 'Unassigned'}) — ${x.label ? x.label + ': ' : ''}${formatCurrency(x.amount)}${x.status === 'INVOICED' ? ' (already invoiced)' : x.isManual ? '' : ' (estimated)'}`).join('\n');
@@ -3994,14 +4006,15 @@ Thank you in advance.</textarea>
         return { p, pendingDated, nextEvent, allInvoiced, hasMultiplePending: pendingDated.length > 1 };
       });
 
-      const visibleRows = projectRows.filter(r => !r.allInvoiced);
+            const visibleRows = projectRows; // show every project, including fully-invoiced ones, so the ✏️ edit action stays reachable
 
       if (!visibleRows.length) {
-        tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><div class="empty-text">Nothing left to schedule 🎉</div></td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><div class="empty-text">No projects to show</div></td></tr>';
         return;
       }
 
       visibleRows.sort((a, b) => {
+        if (a.allInvoiced !== b.allInvoiced) return a.allInvoiced ? 1 : -1;
         const aDate = a.nextEvent ? a.nextEvent.date : null;
         const bDate = b.nextEvent ? b.nextEvent.date : null;
         if (aDate && bDate) return aDate - bDate;
@@ -4010,13 +4023,17 @@ Thank you in advance.</textarea>
         return 0;
       });
 
-      tbody.innerHTML = visibleRows.map((row, idx) => {
-        const { p, pendingDated, nextEvent, hasMultiplePending } = row;
+            tbody.innerHTML = visibleRows.map((row, idx) => {
+        const { p, pendingDated, nextEvent, hasMultiplePending, allInvoiced } = row;
         const code = p['Project Code'];
         const rowId = `fcst-row-${idx}`;
 
         let statusBadge, dateCell, amtCell;
-        if (nextEvent) {
+        if (allInvoiced) {
+          statusBadge = `<span class="status-badge status-upcoming">✓ Fully Invoiced</span>`;
+          dateCell = '—';
+          amtCell = `<span style="color:var(--ink-muted);">—</span>`;
+        } else if (nextEvent) {
           const status = getStatusForDate(nextEvent.date);
           const notEstimated = nextEvent.isPlan || nextEvent.isManual;
           statusBadge = `<span class="status-badge ${getStatusClass(status)}">${status}</span>`;
@@ -4032,8 +4049,8 @@ Thank you in advance.</textarea>
           ? `<button class="btn" id="${rowId}-btn" style="padding:4px 8px;font-size:10px;cursor:pointer;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--ink-soft);white-space:nowrap;" onclick="toggleScheduleExpand('${rowId}')">▸ ${pendingDated.length}</button>`
           : '';
 
-        const mainRow = `
-          <tr>
+                const mainRow = `
+          <tr${allInvoiced ? ' style="opacity:0.6;"' : ''}>
             <td style="text-align:left;font-weight:600">${escapeHtml(code)}</td>
             <td style="text-align:left">${escapeHtml(p['Project Name'])}</td>
             <td style="text-align:left">${escapeHtml(p['Person Responsible'])}</td>
