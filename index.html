@@ -2216,9 +2216,10 @@
         <h2>Invoicing Plan</h2>
         <p id="invoiceAmountProjectInfo"></p>
       </div>
-      <div id="planSchemaWarning" style="display:none;background:var(--overdue-bg);color:var(--overdue);border-radius:8px;padding:10px 12px;font-size:11.5px;font-weight:600;margin-bottom:16px;">
+           <div id="planSchemaWarning" style="display:none;background:var(--overdue-bg);color:var(--overdue);border-radius:8px;padding:10px 12px;font-size:11.5px;font-weight:600;margin-bottom:16px;">
         ⚠ Setup needed — the payment plan tables don't exist in this Supabase project yet. Run the setup SQL (payment_and_invoice_setup.sql), then reload this page. Nothing you enter here will save until that's done.
       </div>
+      <div id="planValueChangeWarning" style="display:none;background:var(--duesoon-bg);color:var(--duesoon);border-radius:8px;padding:10px 12px;font-size:11.5px;font-weight:600;margin-bottom:16px;"></div>
       <input type="hidden" id="invoiceAmountProjectCode">
 
       <div class="plan-mode-tabs">
@@ -2815,9 +2816,13 @@ Thank you in advance.</textarea>
         const { data, error } = await supabaseClient.from('project_payment_terms').select('*');
         if (error) throw error;
         projectPaymentPlans = {};
-        (data || []).forEach(r => {
+                (data || []).forEach(r => {
           if (r.project_code) {
-            projectPaymentPlans[r.project_code] = { installments: r.installments || [], templateName: r.template_name || '' };
+            projectPaymentPlans[r.project_code] = {
+              installments: r.installments || [],
+              templateName: r.template_name || '',
+              valueAtSave: (r.project_value_at_save === null || r.project_value_at_save === undefined) ? null : parseFloat(r.project_value_at_save)
+            };
           }
         });
         console.log('Loaded project payment plans from Supabase');
@@ -5458,9 +5463,23 @@ Thank you in advance.</textarea>
       document.getElementById('invoiceAmountProjectInfo').textContent = proj['Project Name'] || code;
       document.getElementById('invoiceAmountEstimateDisplay').textContent = formatCurrency(estimateInvoiceAmount(proj));
 
-      const manualInput = document.getElementById('invoiceAmountManualInput');
+            const manualInput = document.getElementById('invoiceAmountManualInput');
       const plan = projectPaymentPlans[code];
       manualInput.value = (!plan && info.isManual) ? info.amount : '';
+
+      const valueWarning = document.getElementById('planValueChangeWarning');
+      if (valueWarning) {
+        const savedVal = plan ? plan.valueAtSave : null;
+        const currentVal = proj['Project Value'] || 0;
+        if (plan && plan.installments && plan.installments.length && savedVal !== null && savedVal !== undefined && Math.abs(currentVal - savedVal) >= 1) {
+          const diff = currentVal - savedVal;
+          const sign = diff > 0 ? '+' : '−';
+          valueWarning.textContent = `⚠ Project Value has changed by ${sign}${formatCurrency(Math.abs(diff))} since you last saved this plan (${formatCurrency(savedVal)} → ${formatCurrency(currentVal)}) — check whether that's a new change order.`;
+          valueWarning.style.display = 'block';
+        } else {
+          valueWarning.style.display = 'none';
+        }
+      }
 
       editingInstallments = plan ? JSON.parse(JSON.stringify(plan.installments)) : [];
       renderPlanTemplateOptions();
@@ -5659,7 +5678,7 @@ Thank you in advance.</textarea>
       renderPlanInstallments(projects.find(p => p['Project Code'] === editingProjectCode));
     }
 
-    async function savePaymentPlan() {
+        async function savePaymentPlan() {
       const code = editingProjectCode;
       if (!editingInstallments.length) {
         showToast('Add at least one installment, or use Clear Plan to remove it', 'error');
@@ -5671,11 +5690,15 @@ Thank you in advance.</textarea>
         return;
       }
 
+      const proj = projects.find(p => p['Project Code'] === code);
+      const currentValue = proj ? (proj['Project Value'] || 0) : null;
+
       const now = new Date().toISOString();
       try {
         const { error } = await supabaseClient.from('project_payment_terms').upsert({
           project_code: code,
           installments: editingInstallments,
+          project_value_at_save: currentValue,
           updated_at: now
         }, { onConflict: 'project_code' });
         if (error) throw error;
@@ -5685,7 +5708,9 @@ Thank you in advance.</textarea>
         return;
       }
 
-      projectPaymentPlans[code] = { installments: editingInstallments };
+      projectPaymentPlans[code] = { installments: editingInstallments, valueAtSave: currentValue };
+      const valueWarning = document.getElementById('planValueChangeWarning');
+      if (valueWarning) valueWarning.style.display = 'none';
       renderDashboard();
       showToast('✓ Payment plan saved');
     }
@@ -5700,8 +5725,10 @@ Thank you in advance.</textarea>
         showToast(explainSupabaseError(e, 'Error clearing payment plan'), 'error');
         return;
       }
-      delete projectPaymentPlans[code];
+            delete projectPaymentPlans[code];
       editingInstallments = [];
+      const valueWarning = document.getElementById('planValueChangeWarning');
+      if (valueWarning) valueWarning.style.display = 'none';
       renderPlanInstallments(projects.find(p => p['Project Code'] === code));
       renderDashboard();
       showToast('✓ Payment plan cleared');
