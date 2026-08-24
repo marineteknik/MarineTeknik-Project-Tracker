@@ -164,7 +164,6 @@
     .status-issue-duesoon { background: var(--duesoon); }
     .status-issue-nodate { background: #9ca3af; }
     .status-side-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px; }
-    .status-bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 18px; }
     .activity-list, .issue-list { display: flex; flex-direction: column; gap: 11px; max-height: 220px; overflow-y: auto; }
     .activity-row { display: flex; flex-direction: column; gap: 4px; }
     .activity-row-top { display: flex; justify-content: space-between; font-size: 11.5px; font-weight: 600; color: var(--ink); }
@@ -192,13 +191,6 @@
     .gantt-bar-fill { position: absolute; top: 0; left: 0; bottom: 0; border-radius: 6px 0 0 6px; opacity: 0.85; }
     .gantt-bar-label { position: absolute; left: 6px; top: 50%; transform: translateY(-50%); font-size: 9.5px; font-weight: 700; color: var(--ink); white-space: nowrap; z-index: 1; pointer-events: none; text-shadow: 0 0 3px #fff, 0 0 3px #fff; }
     .gantt-today-line { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--brass); z-index: 2; }
-    .mini-timeline-wrapper { position: relative; height: 220px; overflow-x: auto; overflow-y: hidden; padding: 0 16px; }
-    .mini-timeline-track { position: absolute; left: 0; right: 0; top: 50%; height: 2px; background: var(--border); }
-    .mini-timeline-point { position: absolute; top: 50%; width: 11px; height: 11px; border-radius: 999px; transform: translate(-50%, -50%); border: 2px solid #fff; box-shadow: 0 0 0 1px var(--border); cursor: default; }
-    .mini-timeline-stem { position: absolute; width: 1px; background: var(--border); transform: translateX(-50%); }
-    .mini-timeline-label { position: absolute; width: 100px; text-align: center; font-size: 9.5px; transform: translateX(-50%); }
-    .mini-timeline-label .mt-code { font-weight: 700; color: var(--ink); display: block; }
-    .mini-timeline-label .mt-date { color: var(--ink-muted); display: block; font-size: 8.5px; margin-top: 1px; }
     .plan-mode-tabs { display: flex; gap: 6px; background: var(--bg); padding: 4px; border-radius: 10px; margin-bottom: 18px; }
     .plan-mode-tab { flex: 1; padding: 9px 10px; border: none; border-radius: 8px; background: transparent; color: var(--ink-muted); font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.15s ease; font-family: inherit; }
     .plan-mode-tab:hover { color: var(--navy-700); }
@@ -701,32 +693,6 @@
           <div class="cal-legend-item"><span class="cal-legend-dot" style="background:#d97706"></span> Partially invoiced</div>
           <div class="cal-legend-item"><span class="cal-legend-dot" style="background:#059669"></span> Fully invoiced (100%)</div>
           <div class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--brass)"></span> Today</div>
-        </div>
-      </div>
-
-      <div class="status-bottom-grid">
-        <div class="chart-card" style="border-top:3px solid #2563eb;">
-          <div class="chart-header">
-            <div class="chart-header-text">
-              <div class="chart-title">Remaining Value Burndown</div>
-              <div class="chart-subtitle">Portfolio backlog by month, vs. an even-pace plan</div>
-            </div>
-            <div class="chart-icon" style="background:#dbeafe;color:#2563eb;">◆</div>
-          </div>
-          <div class="chart-container" style="height:270px;">
-            <canvas id="burndownChart"></canvas>
-          </div>
-        </div>
-
-        <div class="chart-card" style="border-top:3px solid var(--upcoming);">
-          <div class="chart-header">
-            <div class="chart-header-text">
-              <div class="chart-title">Project Timeline</div>
-              <div class="chart-subtitle">Nearest overdue &amp; upcoming invoice dates</div>
-            </div>
-            <div class="chart-icon" style="background:#d1fae5;color:#059669;">▲</div>
-          </div>
-          <div class="mini-timeline-wrapper" id="invoiceMilestoneTimeline"></div>
         </div>
       </div>
     </div>
@@ -2629,8 +2595,6 @@ Thank you in advance.</textarea>
       renderStatusHeader(dashData);
       renderStatusSideLists(dashData);
       renderGanttChart(dashData);
-      renderBurndownChart(dashData);
-      renderInvoiceMilestoneTimeline(dashData);
     }
 
     function renderStatusHeader(dashData) {
@@ -2809,129 +2773,6 @@ Thank you in advance.</textarea>
           ${rowsHtml}
         </div>
       `;
-    }
-
-    function renderBurndownChart(dashData) {
-      const canvas = document.getElementById('burndownChart');
-      if (!canvas) return;
-
-      const dated = dashData
-        .map(p => ({ d: parseFlexibleDate(p['Next Invoice Date']), rem: p['Remaining Inv'] || 0 }))
-        .filter(x => x.d && x.rem > 0);
-
-      const totalRemaining = dated.reduce((s, x) => s + x.rem, 0);
-
-      const byMonth = {};
-      dated.forEach(x => {
-        const key = `${x.d.getFullYear()}-${String(x.d.getMonth() + 1).padStart(2, '0')}`;
-        byMonth[key] = (byMonth[key] || 0) + x.rem;
-      });
-      const monthKeys = Object.keys(byMonth).sort();
-
-      const labels = ['Today'];
-      const actual = [totalRemaining];
-      let running = totalRemaining;
-      monthKeys.forEach(key => {
-        running = Math.max(0, running - byMonth[key]);
-        const [y, m] = key.split('-');
-        labels.push(new Date(parseInt(y, 10), parseInt(m, 10) - 1, 1).toLocaleString('en-US', { month: 'short', year: '2-digit' }));
-        actual.push(running);
-      });
-
-      const n = actual.length - 1;
-      const planned = actual.map((_, i) => n > 0 ? Math.round(totalRemaining * (1 - i / n)) : 0);
-
-      if (charts.burndown) charts.burndown.destroy();
-      charts.burndown = new Chart(canvas, {
-        type: 'line',
-        data: {
-          labels,
-          datasets: [
-            {
-              label: 'Planned (even pace)',
-              data: planned,
-              borderColor: '#9ca3af',
-              borderDash: [5, 4],
-              pointRadius: 0,
-              borderWidth: 2,
-              tension: 0
-            },
-            {
-              label: 'Actual Backlog',
-              data: actual,
-              borderColor: '#dc2626',
-              backgroundColor: 'rgba(220,38,38,0.08)',
-              fill: true,
-              pointRadius: 3,
-              pointBackgroundColor: '#dc2626',
-              pointBorderColor: '#fff',
-              borderWidth: 2.5,
-              tension: 0.15
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { position: 'bottom', labels: { usePointStyle: true, pointStyle: 'circle', boxWidth: 8, font: { size: 10.5, weight: '600' } } },
-            tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${formatCurrency(ctx.parsed.y)}` } }
-          },
-          scales: {
-            x: { ticks: { maxTicksLimit: 8, font: { size: 9.5 } }, grid: { display: false }, border: { display: false } },
-            y: { beginAtZero: true, ticks: { callback: (v) => '$' + (v >= 1000 ? (v / 1000).toFixed(0) + 'k' : v), font: { size: 10 } }, grid: { color: '#eef0f7' }, border: { display: false } }
-          }
-        }
-      });
-    }
-
-    function renderInvoiceMilestoneTimeline(dashData) {
-      const wrapper = document.getElementById('invoiceMilestoneTimeline');
-      if (!wrapper) return;
-
-      const dated = dashData
-        .map(p => ({ code: p['Project Code'], d: parseFlexibleDate(p['Next Invoice Date']), status: p.invoiceStatus }))
-        .filter(x => x.d);
-
-      const overdueSorted = dated.filter(x => x.status === 'OVERDUE').sort((a, b) => a.d - b.d).slice(-4);
-      const upcomingSorted = dated.filter(x => x.status !== 'OVERDUE').sort((a, b) => a.d - b.d).slice(0, 7);
-      const points = overdueSorted.concat(upcomingSorted).sort((a, b) => a.d - b.d);
-
-      if (!points.length) {
-        wrapper.innerHTML = '<div class="empty-state"><div class="empty-text">No scheduled invoice dates</div></div>';
-        return;
-      }
-
-      let minDate = points[0].d, maxDate = points[0].d;
-      points.forEach(p => {
-        if (p.d < minDate) minDate = p.d;
-        if (p.d > maxDate) maxDate = p.d;
-      });
-      const span = maxDate - minDate;
-      const trackWidth = Math.max(700, points.length * 110);
-
-      const pointsHtml = points.map((p, i) => {
-        const pct = span > 0
-          ? ((p.d - minDate) / span) * 100
-          : (points.length > 1 ? (i / (points.length - 1)) * 100 : 50);
-        const color = p.status === 'OVERDUE' ? '#dc2626' : p.status === 'DUE SOON' ? '#d97706' : '#059669';
-        const above = i % 2 === 0;
-        const labelTop = above ? '58px' : '132px';
-        const stemTop = above ? '84px' : '110px';
-        return `
-          <div class="mini-timeline-point" style="left:${pct}%;background:${color};" title="${escapeHtml(p.code)} — ${formatDateObj(p.d)}"></div>
-          <div class="mini-timeline-stem" style="left:${pct}%;top:${stemTop};height:26px;"></div>
-          <div class="mini-timeline-label" style="left:${pct}%;top:${labelTop};">
-            <span class="mt-code">${escapeHtml(p.code)}</span>
-            <span class="mt-date">${formatDateObj(p.d)}</span>
-          </div>
-        `;
-      }).join('');
-
-      wrapper.innerHTML = `<div style="position:relative;min-width:${trackWidth}px;height:100%;">
-        <div class="mini-timeline-track"></div>
-        ${pointsHtml}
-      </div>`;
     }
 
     function openExportModal() {
@@ -3172,10 +3013,11 @@ Thank you in advance.</textarea>
         doc.setFontSize(12);
         doc.setTextColor(...INK);
         doc.text(section.label, marginX + 12, cursorY + 12);
+        const labelWidth = doc.getTextWidth(section.label);
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(9);
         doc.setTextColor(...MUTED);
-        doc.text(`${section.data.length} project${section.data.length === 1 ? '' : 's'}`, marginX + 12 + doc.getTextWidth(section.label) + 14, cursorY + 12);
+        doc.text(`${section.data.length} project${section.data.length === 1 ? '' : 's'}`, marginX + 12 + labelWidth + 14, cursorY + 12);
         cursorY += 24;
 
         const tableColumns = ['Code', 'Project', 'PM', 'PO Number', 'Reference', 'Value', 'Invoiced', 'Remaining', '% Inv', 'Finance Notes'];
@@ -3434,7 +3276,7 @@ Thank you in advance.</textarea>
         let lx = marginX;
         const legendItems = [
           { label: 'Overdue', color: colors.STATUS_COLORS['OVERDUE'].text },
-          { label: 'Due Soon (\u226430 days)', color: colors.STATUS_COLORS['DUE SOON'].text },
+          { label: 'Due Soon (within 30 days)', color: colors.STATUS_COLORS['DUE SOON'].text },
           { label: 'Upcoming', color: colors.STATUS_COLORS['Upcoming'].text }
         ];
         legendItems.forEach(item => {
