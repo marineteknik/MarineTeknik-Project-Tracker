@@ -2121,7 +2121,7 @@ Thank you in advance.</textarea>
         doc.setFontSize(8);
         doc.setTextColor(255, 255, 255);
         yearGroups.forEach((grp, gi) => {
-          const xStart = marginX + labelColW + dayOffset(grp.months[0]) * ptPerDay;
+          const xStart = Math.max(marginX + labelColW + dayOffset(grp.months[0]) * ptPerDay, marginX + labelColW);
           const nextMonthAfterGroup = new Date(grp.months[grp.months.length - 1].getFullYear(), grp.months[grp.months.length - 1].getMonth() + 1, 1);
           const xEnd = marginX + labelColW + dayOffset(nextMonthAfterGroup) * ptPerDay;
           const xCenter = (xStart + xEnd) / 2;
@@ -2143,12 +2143,18 @@ Thank you in advance.</textarea>
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(7);
         doc.setTextColor(255, 255, 255);
+        const timelineLeftX = marginX + labelColW;
         months.forEach(m => {
-          const x = marginX + labelColW + dayOffset(m) * ptPerDay;
+          const rawX = marginX + labelColW + dayOffset(m) * ptPerDay;
+          const x = Math.max(rawX, timelineLeftX);
           doc.line(x, monthY, x, monthY + monthBandH);
-          const daysInThisMonth = new Date(m.getFullYear(), m.getMonth() + 1, 0).getDate();
-          const colWidth = daysInThisMonth * ptPerDay;
-          if (colWidth >= 13) {
+          // For the first (partial) month, the usable label width is only
+          // from minDate to month-end, not the full calendar month — using
+          // the full month's width would overestimate the room "Jun" has
+          // and let it render clipped behind the PROJECT column.
+          const monthEnd = new Date(m.getFullYear(), m.getMonth() + 1, 1);
+          const usableWidth = (marginX + labelColW + dayOffset(monthEnd) * ptPerDay) - x;
+          if (usableWidth >= 13) {
             doc.text(m.toLocaleString('en-US', { month: 'short' }), x + 2, monthY + monthBandH - 5);
           }
         });
@@ -2197,7 +2203,7 @@ Thank you in advance.</textarea>
         doc.text(`${x.pm} \u00b7 ${dateRange}`, marginX + 6, cursorY + 20, { maxWidth: labelColW - 10 });
 
         months.forEach(m => {
-          const gx = marginX + labelColW + dayOffset(m) * ptPerDay;
+          const gx = Math.max(marginX + labelColW + dayOffset(m) * ptPerDay, marginX + labelColW);
           doc.setDrawColor(...BORDER);
           doc.setLineWidth(0.3);
           doc.line(gx, cursorY, gx, cursorY + rowH);
