@@ -129,15 +129,13 @@
     .cal-month-total { color: var(--brass-dark); background: #fef0d6; }
     .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0; border-top: 1px solid var(--border); border-left: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
     .cal-dow { font-size: 11.5px; font-weight: 600; text-align: center; color: var(--ink-soft); padding: 10px 4px; background: #fbfbfd; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-    .cal-cell { position: relative; min-height: 96px; background: #ffffff; display: flex; flex-direction: column; align-items: stretch; padding: 8px; font-size: 10px; color: var(--ink-soft); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); overflow: hidden; box-sizing: border-box; }
+    .cal-cell { position: relative; min-height: 140px; background: #ffffff; display: flex; flex-direction: column; align-items: stretch; padding: 6px; font-size: 10px; color: var(--ink-soft); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); overflow: hidden; box-sizing: border-box; }
     .cal-cell.cal-empty { background: #fafbfc; }
     .cal-cell.cal-today { background: #fffaf0; }
     .cal-cell.cal-today .cal-daynum { color: var(--brass-dark); font-weight: 700; }
-    .cal-daynum { font-weight: 500; font-size: 13px; color: var(--ink-muted); text-align: right; margin-bottom: 6px; }
-    .cal-codes { display: flex; flex-direction: column; gap: 3px; overflow: hidden; }
-    .cal-code { display: block; padding: 5px 7px; border-radius: 6px; cursor: default; overflow: hidden; white-space: normal; font-size: 10.5px; font-weight: 700; color: #ffffff; line-height: 1.3; }
-    .cal-code-line1, .cal-code-line2 { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .cal-code-line2 { font-weight: 600; font-size: 9px; opacity: 0.92; }
+    .cal-daynum { font-weight: 500; font-size: 12px; color: var(--ink-muted); text-align: right; margin-bottom: 4px; }
+    .cal-codes { display: flex; flex-direction: column; gap: 2px; overflow: hidden; }
+    .cal-code { display: block; padding: 2.5px 5px; border-radius: 4px; cursor: default; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 8.5px; font-weight: 700; color: #ffffff; line-height: 1.35; }
     .cal-code-overdue { background: var(--overdue); }
     .cal-code-duesoon { background: var(--duesoon); }
     .cal-code-upcoming { background: var(--upcoming); }
@@ -1814,7 +1812,7 @@ Thank you in advance.</textarea>
       const firstDay = new Date(year, month, 1).getDay();
       const daysInMonth = new Date(year, month + 1, 0).getDate();
       const statusRank = { 'OVERDUE': 0, 'DUE SOON': 1, 'Upcoming': 2, 'INVOICED': 3 };
-      const maxShown = 2;
+      const maxShown = 5;
 
       let cells = '';
       for (let i = 0; i < firstDay; i++) {
@@ -1834,8 +1832,7 @@ Thank you in advance.</textarea>
           const extra = sorted.length - shown.length;
           const codeSpans = shown.map(x => {
             const cls = x.status === 'OVERDUE' ? 'cal-code-overdue' : x.status === 'DUE SOON' ? 'cal-code-duesoon' : x.status === 'INVOICED' ? 'cal-code-invoiced' : 'cal-code-upcoming';
-            const amtLabel = (x.status === 'INVOICED' ? '✓ ' : '') + formatAbbrevCurrency(x.amount) + (x.isManual ? '' : '*');
-            return `<span class="cal-code ${cls}"><span class="cal-code-line1">${escapeHtml(x.code)} · ${amtLabel}</span><span class="cal-code-line2">${escapeHtml(x.pm || 'Unassigned')}</span></span>`;
+            return `<span class="cal-code ${cls}">${escapeHtml(x.code)} · ${escapeHtml(x.pm || 'Unassigned')}</span>`;
           }).join('');
           const moreHtml = extra > 0 ? `<span class="cal-code-more">+${extra} more</span>` : '';
           const titleText = sorted.map(x => `${x.code} — ${x.name} (PM: ${x.pm || 'Unassigned'}) — ${x.label ? x.label + ': ' : ''}${formatCurrency(x.amount)}${x.status === 'INVOICED' ? ' (already invoiced)' : x.isManual ? '' : ' (estimated)'}`).join('\n');
@@ -2030,7 +2027,8 @@ Thank you in advance.</textarea>
       { min: 0, max: Infinity, label: 'All % Invoiced' },
       { min: 0, max: 30, label: '0% – 30% Invoiced' },
       { min: 30, max: 60, label: '30% – 60% Invoiced' },
-      { min: 60, max: 100.0001, label: '60% – 100% Invoiced' }
+      { min: 60, max: 100.0001, label: '60% – 100% Invoiced' },
+      { min: 0, max: 100, label: 'Exclude 100% Invoiced' }
     ];
 
     function buildStatusYearDropdown() {
