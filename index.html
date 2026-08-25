@@ -2035,7 +2035,12 @@ Thank you in advance.</textarea>
       const timelineAreaW = pageWidth - marginX * 2 - labelColW;
       const msPerDay = 86400000;
       const totalDays = Math.max(1, Math.round((maxDate - minDate) / msPerDay) + 1);
-      const ptPerDay = Math.max(1.2, timelineAreaW / totalDays);
+      // No artificial floor here — forcing a minimum pt/day for very
+      // long date ranges pushed the total timeline width past the page
+      // boundary, which is what was clipping the right-most months off
+      // the page entirely. Scaling to exactly fill timelineAreaW keeps
+      // everything on the page, however thin the bars get.
+      const ptPerDay = timelineAreaW / totalDays;
       const dayOffset = (d) => (d - minDate) / msPerDay;
 
       const months = [];
@@ -2048,7 +2053,9 @@ Thank you in advance.</textarea>
       const rowH = 26;
       const firstPageHeaderH = 78;   // navy chrome band on page 1 (title + filters)
       const contPageHeaderH = 46;    // shorter chrome band on continuation pages
-      const timelineHeaderH = 20;
+      const yearBandH = 14;
+      const monthBandH = 18;
+      const timelineHeaderH = yearBandH + monthBandH;
       const legendH = 26;
 
       // Fixed 10pt gap between the bottom of the navy chrome band and
@@ -2093,22 +2100,65 @@ Thank you in advance.</textarea>
       }
 
       function drawTimelineHeader(y) {
+        // Year band: one label per year, spanning every month that falls
+        // in it, instead of repeating "26" on every single month label —
+        // this is what was causing labels to crowd out and get clipped
+        // when a lot of months were in view.
+        const yearGroups = [];
+        months.forEach(m => {
+          const yr = m.getFullYear();
+          const last = yearGroups[yearGroups.length - 1];
+          if (last && last.year === yr) {
+            last.months.push(m);
+          } else {
+            yearGroups.push({ year: yr, months: [m] });
+          }
+        });
+
+        doc.setFillColor(...NAVY);
+        doc.rect(marginX + labelColW, y, timelineAreaW, yearBandH, 'F');
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(8);
+        doc.setTextColor(255, 255, 255);
+        yearGroups.forEach((grp, gi) => {
+          const xStart = marginX + labelColW + dayOffset(grp.months[0]) * ptPerDay;
+          const nextMonthAfterGroup = new Date(grp.months[grp.months.length - 1].getFullYear(), grp.months[grp.months.length - 1].getMonth() + 1, 1);
+          const xEnd = marginX + labelColW + dayOffset(nextMonthAfterGroup) * ptPerDay;
+          const xCenter = (xStart + xEnd) / 2;
+          doc.text(String(grp.year), xCenter, y + yearBandH - 4, { align: 'center' });
+          if (gi > 0) {
+            doc.setDrawColor(255, 255, 255);
+            doc.setLineWidth(0.6);
+            doc.line(xStart, y, xStart, y + yearBandH);
+          }
+        });
+
+        // Month band: abbreviation only (no year) so each label is short
+        // enough to fit even when many months are shown side by side.
+        const monthY = y + yearBandH;
         doc.setFillColor(...BLUE);
-        doc.rect(marginX + labelColW, y, timelineAreaW, timelineHeaderH, 'F');
+        doc.rect(marginX + labelColW, monthY, timelineAreaW, monthBandH, 'F');
         doc.setDrawColor(255, 255, 255);
         doc.setLineWidth(0.5);
         doc.setFont('helvetica', 'bold');
-        doc.setFontSize(7.5);
+        doc.setFontSize(7);
         doc.setTextColor(255, 255, 255);
         months.forEach(m => {
           const x = marginX + labelColW + dayOffset(m) * ptPerDay;
-          doc.line(x, y, x, y + timelineHeaderH);
-          doc.text(m.toLocaleString('en-US', { month: 'short', year: '2-digit' }), x + 3, y + 14);
+          doc.line(x, monthY, x, monthY + monthBandH);
+          const daysInThisMonth = new Date(m.getFullYear(), m.getMonth() + 1, 0).getDate();
+          const colWidth = daysInThisMonth * ptPerDay;
+          if (colWidth >= 13) {
+            doc.text(m.toLocaleString('en-US', { month: 'short' }), x + 2, monthY + monthBandH - 5);
+          }
         });
+
         doc.setFillColor(...MUTED);
         doc.rect(marginX, y, labelColW, timelineHeaderH, 'F');
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(7.5);
         doc.setTextColor(255, 255, 255);
-        doc.text('PROJECT', marginX + 6, y + 14);
+        doc.text('PROJECT', marginX + 6, y + timelineHeaderH / 2 + 3);
       }
 
       let cursorY = topOfFirstPage;
@@ -2671,7 +2721,7 @@ Thank you in advance.</textarea>
         STATUS_COLORS: {
           'OVERDUE': { bg: [254, 226, 226], text: [153, 27, 27] },
           'DUE SOON': { bg: [254, 243, 199], text: [146, 64, 14] },
-          'Upcoming': { bg: [219, 234, 254], text: [30, 64, 175] }
+          'Upcoming': { bg: [209, 250, 229], text: [4, 108, 78] }
         }
       };
       const statusRank = { 'OVERDUE': 0, 'DUE SOON': 1, 'Upcoming': 2 };
