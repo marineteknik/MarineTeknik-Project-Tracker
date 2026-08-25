@@ -272,7 +272,6 @@
       </div>
       <button class="btn btn-secondary" onclick="clearAllData()">Clear</button>
       <button class="btn btn-secondary" onclick="openImportModal()">Import</button>
-      <button class="btn btn-primary" onclick="openExportModal()">Export</button>
     </div>
   </div>
 </div>
@@ -331,7 +330,7 @@
       <span style="color:var(--ink-muted);font-size:13px">Search</span>
       <input type="text" id="searchInput" placeholder="Code, customer, ship, or project name..." onkeyup="filterTable()">
     </div>
-    <button class="btn" style="padding:9px 16px;background:var(--navy-800);color:white;border:none;border-radius:7px;font-weight:600;cursor:pointer;font-size:12.5px;margin-left:12px" onclick="copyTableToClipboard()">Copy Table</button>
+    <button class="btn btn-primary" style="margin-left:12px" onclick="openExportModal()">Export</button>
   </div>
   <div class="controls-row" style="margin-top:12px">
     <div class="filter-group">
@@ -414,6 +413,7 @@
             <div class="dropdown-menu" id="dashYearMenu"></div>
           </div>
           <span style="font-size:12px;color:var(--ink-muted)">Tracks each project's next invoice date, straight from the Tracker.</span>
+          <button class="btn btn-primary" style="margin-left:auto" onclick="generateCalendarPDF()">Export Calendar</button>
         </div>
       </div>
 
@@ -490,6 +490,7 @@
             <div class="dropdown-menu" id="statusPctInvoicedMenu"></div>
           </div>
           <span style="font-size:12px;color:var(--ink-muted)">Filters everything on this page. Filters are by <strong>Project Value</strong> and <strong>% Invoiced</strong>. Year is read from the project code (e.g. 25xxx → 2025, INS-26 → 2026).</span>
+          <button class="btn btn-primary" style="margin-left:auto" onclick="exportGanttPDF()">Export PDF</button>
         </div>
       </div>
 
@@ -591,7 +592,7 @@
   <div class="modal" id="exportModal">
     <div class="modal-content" style="max-width: 560px;">
       <div class="modal-header">
-        <h2>Export Report</h2>
+        <h2>Export Tracker Report</h2>
         <p>Choose what to include, then pick a format. Leave everything unchecked to include all projects.</p>
       </div>
       <div class="option-group">
@@ -653,20 +654,6 @@
           <div class="option-text">
             <div class="option-title">PDF Document (.pdf)</div>
             <div class="option-desc">Formatted management report, ready to email</div>
-          </div>
-        </div>
-        <div class="option">
-          <input type="radio" id="fmt-calendar" name="exportFormat" value="calendar">
-          <div class="option-text">
-            <div class="option-title">Invoice Calendar (.pdf)</div>
-            <div class="option-desc">Month-by-month calendar of pending (not yet invoiced) invoice dates — one month per page, ready to print or email</div>
-          </div>
-        </div>
-        <div class="option">
-          <input type="radio" id="fmt-gantt" name="exportFormat" value="gantt">
-          <div class="option-text">
-            <div class="option-title">Project Plan / Gantt (.pdf)</div>
-            <div class="option-desc">Timeline of Project Start → Project End, using the Year, Project Value, and % Invoiced filters currently set on the Project Status page</div>
           </div>
         </div>
       </div>
@@ -2223,7 +2210,6 @@ Thank you in advance.</textarea>
 
       const fileName = `MarineTeknik_Gantt_${new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }).replace(/\//g, '-')}.pdf`;
       doc.save(fileName);
-      closeExportModal();
       showToast('✓ Gantt exported');
     }
 
@@ -2366,10 +2352,6 @@ Thank you in advance.</textarea>
       const format = document.querySelector('input[name="exportFormat"]:checked').value;
       if (format === 'pdf') {
         generatePDF();
-      } else if (format === 'calendar') {
-        generateCalendarPDF();
-      } else if (format === 'gantt') {
-        exportGanttPDF();
       } else {
         generateExcel();
       }
@@ -2627,13 +2609,21 @@ Thank you in advance.</textarea>
       }
     }
 
+    // Plain-text summary of the Invoice Scheduler's own PM/Year filters,
+    // shown in the calendar PDF header so the export is self-documenting
+    // — same pattern as getStatusFilterSummary() for the Gantt export.
+    function getDashboardFilterSummary() {
+      const pmLabel = dashboardPM || 'All PMs';
+      const yearLabel = dashboardYear ? String(dashboardYear) : 'All Years';
+      return `${pmLabel}  •  ${yearLabel}`;
+    }
+
     function generateCalendarPDF() {
-      const sections = getReportSections();
-      const seen = new Set();
-      const data = [];
-      sections.forEach(s => s.data.forEach(p => {
-        if (!seen.has(p['Project Code'])) { seen.add(p['Project Code']); data.push(p); }
-      }));
+      const data = projects.filter(p => {
+        if (dashboardPM && (p['Person Responsible'] || '(None)') !== dashboardPM) return false;
+        if (dashboardYear && getProjectYearFromCode(p['Project Code']) !== dashboardYear) return false;
+        return true;
+      });
 
       // One entry per project, straight from Next Invoice Date — only
       // overdue / due soon / upcoming (a project with no date is skipped).
@@ -2687,7 +2677,7 @@ Thank you in advance.</textarea>
       const statusRank = { 'OVERDUE': 0, 'DUE SOON': 1, 'Upcoming': 2 };
 
       const generatedOn = new Date().toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-      const scopeLabel = sections.length === 1 ? sections[0].label : sections.map(s => s.label).join('  •  ');
+      const scopeLabel = getDashboardFilterSummary();
 
       const MAX_MONTHS = 24;
       let cursorMonth = new Date(minD.getFullYear(), minD.getMonth(), 1);
@@ -2765,11 +2755,10 @@ Thank you in advance.</textarea>
         doc.text(`Page ${i} of ${totalPages}`, pageWidth - marginX, pageHeight - 16, { align: 'right' });
       }
 
-      const reportLabel = reportFileLabel(sections);
-      const fileName = `MarineTeknik_Calendar_${reportLabel}_${new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }).replace(/\//g, '-')}.pdf`;
+      const scopeSlug = (dashboardPM ? dashboardPM.replace(/[^a-z0-9]+/gi, '_') : 'all') + '_' + (dashboardYear || 'all_years');
+      const fileName = `MarineTeknik_Calendar_${scopeSlug}_${new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }).replace(/\//g, '-')}.pdf`;
       doc.save(fileName);
-      closeExportModal();
-      showToast(wasCapped ? '✓ Calendar exported (range capped at 24 months)' : '✓ Calendar report exported');
+      showToast(wasCapped ? '✓ Calendar exported (range capped at 24 months)' : '✓ Calendar exported');
     }
 
     async function handleImport(event) {
@@ -2926,35 +2915,6 @@ Thank you in advance.</textarea>
       return String(text).replace(/[&<>"']/g, m => map[m]);
     }
 
-    function copyTableToClipboard() {
-      const table = document.querySelector('table');
-      if (!table) {
-        showToast('No table data to copy', 'error');
-        return;
-      }
-
-      const script = document.createElement('script');
-      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-      script.onload = function() {
-        html2canvas(table, {
-          backgroundColor: '#ffffff',
-          scale: 2,
-          useCORS: true
-        }).then(canvas => {
-          canvas.toBlob(blob => {
-            navigator.clipboard.write([
-              new ClipboardItem({ 'image/png': blob })
-            ]).then(() => {
-              showToast('✓ Table copied as image');
-            }).catch(err => {
-              showToast('Error copying table', 'error');
-              console.error(err);
-            });
-          });
-        });
-      };
-      document.head.appendChild(script);
-    }
 
     function showToast(message, type = 'success') {
       const toast = document.createElement('div');
