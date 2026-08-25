@@ -102,7 +102,6 @@
     .status-upcoming { background: var(--upcoming-bg); color: var(--upcoming); }
     .status-nodate { background: var(--nodate-bg); color: var(--nodate); }
     .currency { font-family: 'IBM Plex Mono', 'Courier New', monospace; font-weight: 500; font-size: 11.5px; color: var(--ink-soft); text-align: right; }
-    .plan-set-badge { font-size: 11px; margin-left: 5px; cursor: default; }
     .flag-btn { padding: 4px 8px; border: 1px solid var(--border); background: var(--surface); border-radius: 6px; cursor: pointer; font-size: 10px; font-weight: 600; transition: all 0.2s; color: #b6bec6; width: 32px; }
     .flag-btn.flagged { background: var(--overdue-bg); color: var(--overdue); border-color: var(--overdue); }
     .flag-btn:hover { border-color: var(--navy-700); color: var(--navy-700); }
@@ -189,28 +188,6 @@
     .gantt-bar-fill { position: absolute; top: 0; left: 0; bottom: 0; border-radius: 6px 0 0 6px; opacity: 0.85; }
     .gantt-bar-label { position: absolute; left: 6px; top: 50%; transform: translateY(-50%); font-size: 9.5px; font-weight: 700; color: var(--ink); white-space: nowrap; z-index: 1; pointer-events: none; text-shadow: 0 0 3px #fff, 0 0 3px #fff; }
     .gantt-today-line { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--brass); z-index: 2; }
-    .plan-mode-tabs { display: flex; gap: 6px; background: var(--bg); padding: 4px; border-radius: 10px; margin-bottom: 18px; }
-    .plan-mode-tab { flex: 1; padding: 9px 10px; border: none; border-radius: 8px; background: transparent; color: var(--ink-muted); font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.15s ease; font-family: inherit; }
-    .plan-mode-tab:hover { color: var(--navy-700); }
-    .plan-mode-tab.active { background: var(--surface); color: var(--navy-800); box-shadow: var(--shadow-sm); }
-    .plan-mode-panel { margin-bottom: 6px; }
-    .plan-table-header { display: grid; grid-template-columns: 60px 140px 120px 1fr 100px 56px 26px; gap: 10px; padding: 0 10px 8px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.4px; font-weight: 700; color: var(--ink-muted); }
-    .plan-table-header span:nth-child(5), .plan-table-header span:nth-child(6) { text-align: center; }
-    .plan-table-row { display: grid; grid-template-columns: 60px 140px 120px 1fr 100px 56px 26px; gap: 10px; align-items: center; background: var(--bg); border-radius: 8px; padding: 9px 10px; margin-bottom: 8px; }
-    .plan-table-row.is-invoiced { opacity: 0.55; }
-    .plan-table-row.is-fixed { background: #fef8ec; border: 1px dashed var(--brass); }
-    .plan-input, .plan-select { padding: 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 12.5px; font-family: inherit; width: 100%; box-sizing: border-box; background: var(--surface); }
-    .plan-amount-display { font-size: 12px; font-weight: 700; color: var(--navy-800); text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .plan-invoiced-check { display: flex; justify-content: center; }
-    .plan-remove-btn { border: none; background: none; color: var(--overdue); cursor: pointer; font-size: 14px; padding: 0; }
-    .sched-sub-container { background: var(--bg); padding: 8px 16px 8px 40px; border-top: 1px dashed var(--border); border-bottom: 1px solid var(--border); }
-    .sched-sub-row { display: grid; grid-template-columns: 1fr 90px 110px 100px; gap: 10px; align-items: center; padding: 5px 0; font-size: 11px; border-bottom: 1px solid var(--border); }
-    .sched-sub-row:last-child { border-bottom: none; }
-    .sched-sub-row.is-invoiced { opacity: 0.6; }
-    .sched-sub-label { color: var(--ink-soft); font-weight: 600; }
-    .sched-sub-date { color: var(--ink-muted); text-align: center; }
-    .sched-sub-amt { text-align: right; font-weight: 700; color: var(--ink); }
-    .plan-template-row { display: grid; grid-template-columns: 44px 106px 1fr 22px; gap: 8px; align-items: center; background: var(--bg); border-radius: 8px; padding: 7px 8px; margin-bottom: 6px; }
     .empty-state { text-align: center; padding: 60px 20px; }
     .empty-icon { font-size: 40px; margin-bottom: 14px; opacity: 0.5; }
     .empty-title { font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 6px; }
@@ -436,8 +413,7 @@
             <button class="dropdown-btn" id="dashYearBtn" onclick="toggleDashboardYearDropdown()">All Years <span>▾</span></button>
             <div class="dropdown-menu" id="dashYearMenu"></div>
           </div>
-          <button class="btn" style="padding:7px 14px;background:var(--surface);border:1px solid var(--border);color:var(--ink-soft);border-radius:999px;font-weight:600;cursor:pointer;font-size:11.5px;" onclick="openTemplateManagerModal()">Payment Templates</button>
-          <span style="font-size:12px;color:var(--ink-muted)">Tracks each project's next invoice date and amount.</span>
+          <span style="font-size:12px;color:var(--ink-muted)">Tracks each project's next invoice date, straight from the Tracker.</span>
         </div>
       </div>
 
@@ -513,7 +489,6 @@
             <button class="dropdown-btn" id="statusPctInvoicedBtn" onclick="toggleStatusPctInvoicedDropdown()">All % Invoiced <span>▾</span></button>
             <div class="dropdown-menu" id="statusPctInvoicedMenu"></div>
           </div>
-          <button class="filter-btn" id="statusExclude100RemBtn" onclick="toggleStatusExclude100Remaining()">Exclude 100% Remaining</button>
           <span style="font-size:12px;color:var(--ink-muted)">Filters everything on this page. Filters are by <strong>Project Value</strong> and <strong>% Invoiced</strong>. Year is read from the project code (e.g. 25xxx → 2025, INS-26 → 2026).</span>
         </div>
       </div>
@@ -573,10 +548,7 @@
             <div class="chart-title">Project Plan</div>
             <div class="chart-subtitle">Project Start → Project End, bar fill = % invoiced. Overlapping bars share time on the calendar.</div>
           </div>
-          <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
-            <button class="btn" style="padding:7px 14px;background:var(--navy-800);color:white;border:none;border-radius:7px;font-weight:600;cursor:pointer;font-size:11.5px;white-space:nowrap;" onclick="exportGanttPDF()">Export PDF</button>
-            <div class="chart-icon" style="background:#fef0d6;color:#b45309;">▦</div>
-          </div>
+          <div class="chart-icon" style="background:#fef0d6;color:#b45309;">▦</div>
         </div>
         <div class="gantt-outer" id="ganttOuter">
           <div class="empty-state"><div class="empty-text">No projects with both a Project Start and Project End date</div></div>
@@ -611,112 +583,6 @@
       <div class="modal-footer">
         <button class="btn-cancel" onclick="closeCommentModal()">Cancel</button>
         <button class="btn-export" onclick="saveComment()">Save</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Invoice Amount / Payment Plan Modal -->
-  <div class="modal" id="invoiceAmountModal">
-    <div class="modal-content" style="max-width:900px;">
-      <div class="modal-header">
-        <h2>Invoicing Plan</h2>
-        <p id="invoiceAmountProjectInfo"></p>
-      </div>
-           <div id="planSchemaWarning" style="display:none;background:var(--overdue-bg);color:var(--overdue);border-radius:8px;padding:10px 12px;font-size:11.5px;font-weight:600;margin-bottom:16px;">
-        ⚠ Setup needed — the payment plan tables don't exist in this Supabase project yet. Run the setup SQL (payment_and_invoice_setup.sql), then reload this page. Nothing you enter here will save until that's done.
-      </div>
-      <div id="planValueChangeWarning" style="display:none;background:var(--duesoon-bg);color:var(--duesoon);border-radius:8px;padding:10px 12px;font-size:11.5px;font-weight:600;margin-bottom:16px;"></div>
-      <input type="hidden" id="invoiceAmountProjectCode">
-
-      <div class="plan-mode-tabs">
-        <button type="button" class="plan-mode-tab" id="planTabEstimate" onclick="setPlanMode('estimate')">Auto-Estimate</button>
-        <button type="button" class="plan-mode-tab" id="planTabManual" onclick="setPlanMode('manual')">Single Amount</button>
-        <button type="button" class="plan-mode-tab" id="planTabPlan" onclick="setPlanMode('plan')">Payment Plan</button>
-      </div>
-
-      <!-- Auto-Estimate -->
-      <div class="plan-mode-panel" id="planPanelEstimate">
-        <div style="padding:20px;background:var(--bg);border-radius:10px;text-align:center;">
-          <div style="font-size:10.5px;text-transform:uppercase;letter-spacing:0.5px;color:var(--ink-muted);font-weight:700;margin-bottom:8px;">Estimated Next Invoice</div>
-          <div id="invoiceAmountEstimateDisplay" style="font-size:28px;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;color:var(--ink);"></div>
-        </div>
-        <div style="font-size:11.5px;color:var(--ink-muted);margin-top:12px;text-align:center;">Remaining Inv spread evenly to Project End. This is only used automatically when neither a single amount nor a payment plan is set below.</div>
-      </div>
-
-      <!-- Single Manual Amount -->
-      <div class="plan-mode-panel" id="planPanelManual" style="display:none;">
-        <label style="display:block;font-size:11px;font-weight:700;color:var(--navy-800);margin-bottom:8px;">Actual amount for the next invoice</label>
-        <div style="display:flex;gap:8px;">
-          <input type="number" id="invoiceAmountManualInput" step="0.01" min="0" placeholder="e.g. 45000" style="flex:1;padding:12px;border:1.5px solid var(--navy-700);border-radius:9px;font-size:15px;font-family:inherit;outline:none;background:var(--bg)">
-          <button class="btn-export" onclick="saveInvoiceAmountOverride()">Save</button>
-        </div>
-        <button class="btn-cancel" style="color:var(--overdue);border-color:var(--overdue);margin-top:10px;" onclick="clearInvoiceAmountOverride()">Clear override</button>
-        <div style="font-size:11.5px;color:var(--ink-muted);margin-top:12px;">A one-off number for a single upcoming invoice. Good for simple jobs that don't need a full payment plan.</div>
-      </div>
-
-      <!-- Payment Plan -->
-      <div class="plan-mode-panel" id="planPanelPlan" style="display:none;">
-        <div style="display:flex;gap:8px;align-items:center;margin-bottom:14px;">
-          <select id="planTemplateSelect" style="flex:1;padding:9px;border:1.5px solid var(--border);border-radius:8px;font-size:12.5px;background:var(--surface);font-family:inherit;"></select>
-          <button class="btn" style="padding:9px 16px;background:var(--brass);color:#3d2a00;border:none;border-radius:8px;font-size:12px;cursor:pointer;font-weight:700;white-space:nowrap;" onclick="applyPaymentTemplate()">Apply</button>
-        </div>
-
-        <div class="plan-table-header">
-          <span>%</span><span>Milestone</span><span>Date</span><span>Label</span><span>Amount</span><span>Invoiced</span><span></span>
-        </div>
-        <div id="planInstallmentsContainer"></div>
-
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;flex-wrap:wrap;gap:8px;">
-          <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <button class="btn" style="padding:7px 14px;background:var(--bg);border:1px dashed var(--border);border-radius:8px;font-size:11.5px;cursor:pointer;color:var(--ink-soft);" onclick="addPlanInstallmentRow()">+ Add Installment</button>
-            <button class="btn" style="padding:7px 14px;background:#fef0d6;border:1px dashed var(--brass-dark);border-radius:8px;font-size:11.5px;cursor:pointer;color:var(--brass-dark);font-weight:600;" onclick="addFixedAmountRow()" title="For change orders, materials, PO extensions — extras that aren't a % of Project Value">+ Add Fixed Amount</button>
-          </div>
-          <span id="planTotalIndicator" style="font-size:12px;font-weight:700;"></span>
-        </div>
-        <div id="planAdjustedValue" style="display:none;font-size:11px;color:var(--ink-muted);margin-top:6px;text-align:right;"></div>
-
-        <div style="display:flex;gap:8px;margin-top:16px;">
-          <button class="btn-cancel" style="color:var(--overdue);border-color:var(--overdue);" onclick="clearPaymentPlan()">Clear Plan</button>
-          <button class="btn-export" onclick="savePaymentPlan()">Save Plan</button>
-        </div>
-
-        <div style="margin-top:12px;text-align:right;">
-          <a href="#" onclick="openTemplateManagerModal();return false;" style="font-size:11px;color:var(--navy-700);font-weight:600;">Manage payment term templates ▸</a>
-        </div>
-      </div>
-
-      <div class="modal-footer">
-        <button class="btn-cancel" onclick="closeInvoiceAmountModal()">Close</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Payment Term Template Manager Modal -->
-  <div class="modal" id="templateManagerModal">
-    <div class="modal-content" style="max-width:600px;">
-      <div class="modal-header">
-        <h2>Payment Term Templates</h2>
-        <p>Reusable installment splits you can apply to any project's payment plan.</p>
-      </div>
-      <div id="templateSchemaWarning" style="display:none;background:var(--overdue-bg);color:var(--overdue);border-radius:8px;padding:10px 12px;font-size:11.5px;font-weight:600;margin-bottom:16px;">
-        ⚠ Setup needed — the payment plan tables don't exist in this Supabase project yet. Run the setup SQL (payment_and_invoice_setup.sql), then reload this page.
-      </div>
-      <div id="templateListContainer" style="max-height:220px;overflow-y:auto;margin-bottom:18px;"></div>
-      <div class="option-group">
-        <label style="color:var(--navy-800);font-weight:700">New Template</label>
-        <input type="text" id="newTemplateName" placeholder="Template name (e.g. 50/50 Order/End)" style="width:100%;padding:9px;border:1.5px solid var(--navy-700);border-radius:7px;font-size:12.5px;margin-bottom:10px;background:var(--bg);font-family:inherit;">
-        <div class="plan-table-header" style="grid-template-columns:44px 106px 1fr 22px;">
-          <span>%</span><span>Milestone</span><span>Label</span><span></span>
-        </div>
-        <div id="newTemplateInstallments"></div>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
-          <button class="btn" style="padding:6px 12px;background:var(--bg);border:1px dashed var(--border);border-radius:7px;font-size:11.5px;cursor:pointer;color:var(--ink-soft);" onclick="addNewTemplateRow()">+ Add Installment</button>
-          <span id="newTemplateTotalIndicator" style="font-size:11.5px;font-weight:700;"></span>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn-cancel" onclick="closeTemplateManagerModal()">Close</button>
-        <button class="btn-export" onclick="saveNewTemplate()">Save Template</button>
       </div>
     </div>
   </div>
@@ -796,6 +662,13 @@
             <div class="option-desc">Month-by-month calendar of pending (not yet invoiced) invoice dates — one month per page, ready to print or email</div>
           </div>
         </div>
+        <div class="option">
+          <input type="radio" id="fmt-gantt" name="exportFormat" value="gantt">
+          <div class="option-text">
+            <div class="option-title">Project Plan / Gantt (.pdf)</div>
+            <div class="option-desc">Timeline of Project Start → Project End, using the Year, Project Value, and % Invoiced filters currently set on the Project Status page</div>
+          </div>
+        </div>
       </div>
       <div class="modal-footer">
         <button class="btn-cancel" onclick="closeExportModal()">Cancel</button>
@@ -857,12 +730,6 @@ Thank you in advance.</textarea>
     let projects = [];
     let comments = {};
     let flags = {};
-    let invoiceAmounts = {};
-    let paymentTemplates = [];
-    let projectPaymentPlans = {};
-    let editingProjectCode = null;
-    let editingInstallments = [];
-    let newTemplateInstallments = [];
     let currentFilter = ['all'];
     let currentPM = null;
     let dashboardPM = null;
@@ -988,39 +855,14 @@ Thank you in advance.</textarea>
       }
     }
 
-    let paymentSchemaMissing = false;
-
-    function isMissingTableError(e) {
-      if (!e) return false;
-      const msg = (e.message || '') + ' ' + (e.details || '') + ' ' + (e.hint || '');
-      return e.code === '42P01' || e.code === 'PGRST205' || /relation .* does not exist/i.test(msg) || /could not find the table/i.test(msg);
-    }
-
-    function explainSupabaseError(e, fallback) {
-      if (isMissingTableError(e)) {
-        return 'Setup needed — this table doesn\'t exist in Supabase yet. Run the setup SQL, then reload the page.';
-      }
-      if (e && e.code === '23505') {
-        return 'That name is already taken — pick a different one.';
-      }
-      const detail = e && (e.message || e.details);
-      return detail ? `${fallback}: ${detail}` : fallback;
-    }
-
     async function loadAllData() {
       try {
         await loadProjects();
         await loadComments();
         await loadFlags();
-        await loadInvoiceAmounts();
-        await loadPaymentTemplates();
-        await loadProjectPaymentPlans();
         filterTable();
         updateKPIs();
         updateLastUpdatedTimestamp();
-        if (paymentSchemaMissing) {
-          showToast('⚠ Payment plan tables aren\'t set up in Supabase yet — see the setup notice in the Invoicing Plan modal', 'error');
-        }
       } catch (e) {
         console.error('Load error:', e);
       }
@@ -1144,60 +986,6 @@ Thank you in advance.</textarea>
       }
     }
 
-    async function loadInvoiceAmounts() {
-      try {
-        const { data, error } = await supabaseClient.from('invoice_amounts').select('*');
-        if (error) throw error;
-        invoiceAmounts = {};
-        (data || []).forEach(r => {
-          if (r.project_code) {
-            const val = r.manual_amount;
-            invoiceAmounts[r.project_code] = { manual: (val === null || val === undefined) ? null : parseFloat(val) };
-          }
-        });
-        console.log('Loaded invoice amounts from Supabase');
-      } catch (e) {
-        console.error('Invoice amounts load error:', e);
-        invoiceAmounts = {};
-        if (isMissingTableError(e)) paymentSchemaMissing = true;
-      }
-    }
-
-    async function loadPaymentTemplates() {
-      try {
-        const { data, error } = await supabaseClient.from('payment_term_templates').select('*').order('name');
-        if (error) throw error;
-        paymentTemplates = data || [];
-        console.log('Loaded payment templates from Supabase:', paymentTemplates.length);
-      } catch (e) {
-        console.error('Payment templates load error:', e);
-        paymentTemplates = [];
-        if (isMissingTableError(e)) paymentSchemaMissing = true;
-      }
-    }
-
-    async function loadProjectPaymentPlans() {
-      try {
-        const { data, error } = await supabaseClient.from('project_payment_terms').select('*');
-        if (error) throw error;
-        projectPaymentPlans = {};
-        (data || []).forEach(r => {
-          if (r.project_code) {
-            projectPaymentPlans[r.project_code] = {
-              installments: r.installments || [],
-              templateName: r.template_name || '',
-              valueAtSave: (r.project_value_at_save === null || r.project_value_at_save === undefined) ? null : parseFloat(r.project_value_at_save)
-            };
-          }
-        });
-        console.log('Loaded project payment plans from Supabase');
-      } catch (e) {
-        console.error('Project payment plans load error:', e);
-        projectPaymentPlans = {};
-        if (isMissingTableError(e)) paymentSchemaMissing = true;
-      }
-    }
-
     function getInvoiceStatus(dateStr) {
       if (!dateStr) return 'No Date';
 
@@ -1269,28 +1057,6 @@ Thank you in advance.</textarea>
       return '$' + Math.round(v);
     }
 
-    function estimateInvoiceAmount(p) {
-      const remaining = p['Remaining Inv'] || 0;
-      if (remaining <= 0) return 0;
-
-      const nextDate = parseFlexibleDate(p['Next Invoice Date']);
-      const endDate = parseFlexibleDate(p['Project End']);
-      if (!nextDate || !endDate || endDate <= nextDate) return remaining;
-
-      const msPerMonth = 1000 * 60 * 60 * 24 * 30.44;
-      const monthsLeft = Math.max(1, Math.round((endDate - nextDate) / msPerMonth) + 1);
-      return remaining / monthsLeft;
-    }
-
-    function getInvoiceAmountInfo(p) {
-      const code = p['Project Code'];
-      const override = invoiceAmounts[code] ? invoiceAmounts[code].manual : null;
-      if (override !== null && override !== undefined && !isNaN(override)) {
-        return { amount: override, isManual: true };
-      }
-      return { amount: estimateInvoiceAmount(p), isManual: false };
-    }
-
     function getStatusForDate(d) {
       if (!d) return 'No Date';
       const today = new Date();
@@ -1299,73 +1065,6 @@ Thank you in advance.</textarea>
       if (diffDays < 0) return 'OVERDUE';
       if (diffDays <= 30) return 'DUE SOON';
       return 'Upcoming';
-    }
-
-    function resolveInstallmentDate(installment, p) {
-      if (installment.milestone === 'start') return parseFlexibleDate(p['Project Start']);
-      if (installment.milestone === 'end') return parseFlexibleDate(p['Project End']);
-      if (installment.milestone === 'custom' && installment.custom_date) return parseFlexibleDate(installment.custom_date);
-      return null;
-    }
-
-    function getProjectInvoiceEvents(p) {
-      const code = p['Project Code'];
-      const plan = projectPaymentPlans[code];
-
-      if (plan && plan.installments && plan.installments.length) {
-        const actualInvoiced = p['Invoiced Value'] || 0;
-        const DOLLAR_EPSILON = 1;
-
-        const fixedTotal = plan.installments
-          .filter(i => i.amount_type === 'fixed')
-          .reduce((s, i) => s + (parseFloat(i.fixed_amount) || 0), 0);
-        const pctBase = Math.max(0, (p['Project Value'] || 0) - fixedTotal);
-
-        let cumulativeNominal = 0;
-        let runningBudget = Math.max(0, p['Remaining Inv'] || 0);
-
-        return plan.installments.map((inst, i) => {
-          const date = resolveInstallmentDate(inst, p);
-          const isFixed = inst.amount_type === 'fixed';
-          const nominalAmount = isFixed
-            ? (parseFloat(inst.fixed_amount) || 0)
-            : pctBase * (parseFloat(inst.pct) || 0) / 100;
-
-          cumulativeNominal += nominalAmount;
-          const invoiced = actualInvoiced >= (cumulativeNominal - DOLLAR_EPSILON);
-
-          let amount = nominalAmount;
-          if (!invoiced) {
-            amount = Math.min(nominalAmount, runningBudget);
-            runningBudget -= amount;
-          }
-
-          return {
-            date,
-            amount,
-            nominalAmount,
-            label: inst.label || `Installment ${i + 1}`,
-            pct: inst.pct,
-            amountType: isFixed ? 'fixed' : 'pct',
-            invoiced,
-            isPlan: true,
-            isManual: false,
-            index: i
-          };
-        });
-      }
-
-      const info = getInvoiceAmountInfo(p);
-      return [{
-        date: parseFlexibleDate(p['Next Invoice Date']),
-        amount: info.amount,
-        label: info.isManual ? 'Manual Amount' : 'Next Invoice',
-        pct: null,
-        invoiced: false,
-        isPlan: false,
-        isManual: info.isManual,
-        index: 0
-      }];
     }
 
     function formatDate(dateStr) {
@@ -1523,11 +1222,9 @@ Thank you in advance.</textarea>
 
       tbodyFrozen.innerHTML = rows.map((p, i) => {
         const code = p['Project Code'];
-        const hasPlan = !!(projectPaymentPlans[code] && projectPaymentPlans[code].installments && projectPaymentPlans[code].installments.length);
-        const planBadge = hasPlan ? '<span class="plan-set-badge" title="Payment terms are set for this project">📋</span>' : '';
         return `
           <tr data-row="${i}">
-            <td><strong>${escapeHtml(code)}</strong>${planBadge}</td>
+            <td><strong>${escapeHtml(code)}</strong></td>
             <td>${escapeHtml(p['Project Name'])}</td>
             <td>${escapeHtml(p['Person Responsible'])}</td>
           </tr>
@@ -1807,11 +1504,11 @@ Thank you in advance.</textarea>
       if (menu) menu.classList.toggle('active');
     }
 
-    function buildCalendarMonth(year, month, invoicesByDay, todayKey, monthStats, portfolioBehind, showBadges) {
+    function buildCalendarMonth(year, month, invoicesByDay, todayKey) {
       const monthName = new Date(year, month, 1).toLocaleString('en-US', { month: 'long', year: 'numeric' });
       const firstDay = new Date(year, month, 1).getDay();
       const daysInMonth = new Date(year, month + 1, 0).getDate();
-      const statusRank = { 'OVERDUE': 0, 'DUE SOON': 1, 'Upcoming': 2, 'INVOICED': 3 };
+      const statusRank = { 'OVERDUE': 0, 'DUE SOON': 1, 'Upcoming': 2 };
       const maxShown = 5;
 
       let cells = '';
@@ -1827,50 +1524,56 @@ Thank you in advance.</textarea>
         let codesHtml = '';
         if (dayInvoices.length) {
           cellClass += ' cal-has-invoice';
-          const sorted = dayInvoices.slice().sort((a, b) => (statusRank[a.status] ?? 4) - (statusRank[b.status] ?? 4));
+          const sorted = dayInvoices.slice().sort((a, b) => (statusRank[a.status] ?? 3) - (statusRank[b.status] ?? 3));
           const shown = sorted.slice(0, maxShown);
           const extra = sorted.length - shown.length;
           const codeSpans = shown.map(x => {
-            const cls = x.status === 'OVERDUE' ? 'cal-code-overdue' : x.status === 'DUE SOON' ? 'cal-code-duesoon' : x.status === 'INVOICED' ? 'cal-code-invoiced' : 'cal-code-upcoming';
-            return `<span class="cal-code ${cls}">${escapeHtml(x.code)} · ${escapeHtml(x.pm || 'Unassigned')}</span>`;
+            const cls = x.status === 'OVERDUE' ? 'cal-code-overdue' : x.status === 'DUE SOON' ? 'cal-code-duesoon' : 'cal-code-upcoming';
+            return `<span class="cal-code ${cls}" title="${escapeHtml(buildProjectTooltip(x.p))}">${escapeHtml(x.p['Project Code'])} · ${escapeHtml(x.p['Person Responsible'] || 'Unassigned')}</span>`;
           }).join('');
           const moreHtml = extra > 0 ? `<span class="cal-code-more">+${extra} more</span>` : '';
-          const titleText = sorted.map(x => `${x.code} — ${x.name} (PM: ${x.pm || 'Unassigned'}) — ${x.label ? x.label + ': ' : ''}${formatCurrency(x.amount)}${x.status === 'INVOICED' ? ' (already invoiced)' : x.isManual ? '' : ' (estimated)'}`).join('\n');
-          codesHtml = `<div class="cal-codes" title="${escapeHtml(titleText)}">${codeSpans}${moreHtml}</div>`;
+          codesHtml = `<div class="cal-codes">${codeSpans}${moreHtml}</div>`;
         }
 
         cells += `<div class="${cellClass}"><span class="cal-daynum">${d}</span>${codesHtml}</div>`;
       }
 
-      let badgeWrap = '';
-      if (showBadges) {
-        const emptyStat = { count: 0, amt: 0 };
-        const stats = monthStats || { overdue: emptyStat, duesoon: emptyStat, upcoming: emptyStat, invoiced: emptyStat, total: emptyStat };
-        const behind = portfolioBehind || emptyStat;
-        const badge = (cls, label, s, title) => s.count > 0
-          ? `<span class="cal-month-badge ${cls}" title="${title}">${label}: ${formatCurrency(s.amt)} (${s.count})</span>`
-          : '';
-        const badges = [
-          badge('cal-month-overdue', 'Overdue', stats.overdue, 'Due THIS month, past due, not yet invoiced'),
-          badge('cal-month-duesoon', 'Due Soon', stats.duesoon, 'Due within 30 days, not yet invoiced'),
-          badge('cal-month-upcoming', 'Upcoming', stats.upcoming, 'Due beyond 30 days, not yet invoiced'),
-          badge('cal-month-invoiced', 'Invoiced', stats.invoiced, 'Already invoiced — kept visible for cash-flow history'),
-          badge('cal-month-behind', 'Behind', behind, 'Portfolio-wide backlog: every overdue, not-yet-invoiced item across ALL months (not just this one). Not part of Total below.'),
-          `<span class="cal-month-badge cal-month-total" title="This month only: Overdue + Due Soon + Upcoming + Invoiced">Total: ${formatCurrency(stats.total.amt)} (${stats.total.count})</span>`
-        ].join('');
-        badgeWrap = `<div class="cal-month-total-wrap">${badges}</div>`;
-      }
-
       return `
         <div class="cal-month">
           <div class="cal-month-title">${monthName}</div>
-          ${badgeWrap}
           <div class="cal-grid">
             <div class="cal-dow">Sun</div><div class="cal-dow">Mon</div><div class="cal-dow">Tue</div><div class="cal-dow">Wed</div><div class="cal-dow">Thu</div><div class="cal-dow">Fri</div><div class="cal-dow">Sat</div>
             ${cells}
           </div>
         </div>
       `;
+    }
+
+    // Builds a full, multi-line tooltip from every relevant Tracker field
+    // for one project — shown when hovering a calendar chip.
+    function buildProjectTooltip(p) {
+      if (!p) return '';
+      const code = p['Project Code'];
+      const cm = comments[code] || {};
+      const fl = flags[code] || {};
+      const lines = [
+        `${code} — ${p['Project Name'] || '—'}`,
+        `Customer: ${p['Customer Name'] || '—'}`,
+        `Ship: ${p['Ship Name'] || '—'}`,
+        `PM: ${p['Person Responsible'] || 'Unassigned'}`,
+        `PO Number: ${p['PO Number'] || '—'}`,
+        `Reference: ${p['Your Reference'] || '—'}`,
+        `Status: ${p['Status'] || '—'}  |  Invoice Status: ${p.invoiceStatus || '—'}`,
+        `Project Start: ${formatDate(p['Project Start'])}   Project End: ${formatDate(p['Project End'])}`,
+        `Next Invoice Date: ${formatDate(p['Next Invoice Date'])}`,
+        `Project Value: ${formatCurrency(p['Project Value'])}`,
+        `Invoiced Value: ${formatCurrency(p['Invoiced Value'])}   (${(p['% invoiced'] || 0).toFixed(1)}%)`,
+        `Remaining Inv: ${formatCurrency(p['Remaining Inv'])}`
+      ];
+      if (fl.contracts) lines.push('🚩 Flagged: Contracts');
+      if (fl.estimation) lines.push('🚩 Flagged: Estimation');
+      if (cm.finance) lines.push(`Finance Notes: ${cm.finance}`);
+      return lines.join('\n');
     }
 
     function renderInvoiceCalendar(instanceKey, dashData) {
@@ -1886,58 +1589,16 @@ Thank you in advance.</textarea>
         inst.centerDate = new Date(today.getFullYear(), today.getMonth(), 1);
       }
 
+      // One entry per project, straight from its Next Invoice Date — the
+      // Tracker is the single source of truth, no payment-plan expansion.
       const invoicesByDay = {};
-      const monthStats = {};
-      const portfolioBehind = { count: 0, amt: 0 };
-
-      const bump = (monthKey, bucket, amt) => {
-        if (!monthStats[monthKey]) {
-          monthStats[monthKey] = {
-            overdue: { count: 0, amt: 0 },
-            duesoon: { count: 0, amt: 0 },
-            upcoming: { count: 0, amt: 0 },
-            invoiced: { count: 0, amt: 0 },
-            total: { count: 0, amt: 0 }
-          };
-        }
-        monthStats[monthKey][bucket].count++;
-        monthStats[monthKey][bucket].amt += amt || 0;
-        monthStats[monthKey].total.count++;
-        monthStats[monthKey].total.amt += amt || 0;
-      };
-
       dashData.forEach(p => {
-        const events = getProjectInvoiceEvents(p);
-        events.forEach(ev => {
-          if (!ev.date) return;
-          const monthKey = `${ev.date.getFullYear()}-${ev.date.getMonth()}`;
-          const status = getStatusForDate(ev.date);
-
-          if (ev.invoiced) {
-            bump(monthKey, 'invoiced', ev.amount);
-          } else if (status === 'OVERDUE') {
-            bump(monthKey, 'overdue', ev.amount);
-            portfolioBehind.count++;
-            portfolioBehind.amt += ev.amount || 0;
-          } else if (status === 'DUE SOON') {
-            bump(monthKey, 'duesoon', ev.amount);
-          } else {
-            bump(monthKey, 'upcoming', ev.amount);
-          }
-
-          if (ev.invoiced && !inst.showInvoiced) return;
-          const key = `${ev.date.getFullYear()}-${String(ev.date.getMonth() + 1).padStart(2, '0')}-${String(ev.date.getDate()).padStart(2, '0')}`;
-          if (!invoicesByDay[key]) invoicesByDay[key] = [];
-          invoicesByDay[key].push({
-            code: p['Project Code'],
-            name: p['Project Name'],
-            status: ev.invoiced ? 'INVOICED' : status,
-            pm: p['Person Responsible'] || 'Unassigned',
-            amount: ev.amount,
-            isManual: ev.isPlan || ev.isManual,
-            label: ev.label
-          });
-        });
+        const date = parseFlexibleDate(p['Next Invoice Date']);
+        if (!date) return;
+        const status = getStatusForDate(date);
+        const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+        if (!invoicesByDay[key]) invoicesByDay[key] = [];
+        invoicesByDay[key].push({ p, status });
       });
 
       const todayKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
@@ -1945,8 +1606,7 @@ Thank you in advance.</textarea>
       let html = '';
       for (let offset = -1; offset <= 1; offset++) {
         const d = new Date(inst.centerDate.getFullYear(), inst.centerDate.getMonth() + offset, 1);
-        const monthKey = `${d.getFullYear()}-${d.getMonth()}`;
-        html += buildCalendarMonth(d.getFullYear(), d.getMonth(), invoicesByDay, todayKey, monthStats[monthKey], portfolioBehind, inst.showBadges);
+        html += buildCalendarMonth(d.getFullYear(), d.getMonth(), invoicesByDay, todayKey);
       }
       container.innerHTML = html;
 
@@ -2008,7 +1668,6 @@ Thank you in advance.</textarea>
     let statusYear = null;
     let statusValueRangeIndex = 0;
     let statusPctInvoicedIndex = 0;
-    let statusExclude100Remaining = false;
 
     const STATUS_VALUE_PRESETS = [
       { min: 0, max: Infinity, label: 'All Projects' },
@@ -2110,14 +1769,6 @@ Thank you in advance.</textarea>
       if (menu) menu.classList.toggle('active');
     }
 
-    // "100% Remaining" means nothing has been invoiced yet (0% invoiced).
-    function toggleStatusExclude100Remaining() {
-      statusExclude100Remaining = !statusExclude100Remaining;
-      const btn = document.getElementById('statusExclude100RemBtn');
-      if (btn) btn.classList.toggle('active', statusExclude100Remaining);
-      renderProjectStatusDashboard();
-    }
-
     // Builds a plain-text summary of the active Project Status filters,
     // used both on-screen (implicitly, via the dropdown labels) and in
     // the Gantt PDF export header so the export is self-documenting.
@@ -2125,8 +1776,7 @@ Thank you in advance.</textarea>
       const yearLabel = statusYear ? String(statusYear) : 'All Years';
       const valueLabel = (STATUS_VALUE_PRESETS[statusValueRangeIndex] || STATUS_VALUE_PRESETS[0]).label;
       const pctLabel = (STATUS_PCT_INVOICED_PRESETS[statusPctInvoicedIndex] || STATUS_PCT_INVOICED_PRESETS[0]).label;
-      const excludeLabel = statusExclude100Remaining ? 'Excluding 100% Remaining' : null;
-      return [yearLabel, valueLabel, pctLabel, excludeLabel].filter(Boolean).join('  •  ');
+      return [yearLabel, valueLabel, pctLabel].filter(Boolean).join('  •  ');
     }
 
     function renderProjectStatusDashboard() {
@@ -2142,7 +1792,6 @@ Thank you in advance.</textarea>
         if (val < valueRange.min || val >= valueRange.max) return false;
         const pctInvoiced = p['% invoiced'] || 0;
         if (pctInvoiced < pctRange.min || pctInvoiced >= pctRange.max) return false;
-        if (statusExclude100Remaining && pctInvoiced <= 0) return false;
         return true;
       });
 
@@ -2229,7 +1878,33 @@ Thank you in advance.</textarea>
       }
     }
 
-    let lastGanttExportContext = { items: [], filters: null };
+    // Recomputes the Gantt dataset directly from the current Project
+    // Status filters (Year / Project Value / % Invoiced) — used by the
+    // PDF export so it works whether or not the Project Status tab has
+    // actually been visited/rendered yet.
+    function computeGanttItems() {
+      const valueRange = STATUS_VALUE_PRESETS[statusValueRangeIndex] || STATUS_VALUE_PRESETS[0];
+      const pctRange = STATUS_PCT_INVOICED_PRESETS[statusPctInvoicedIndex] || STATUS_PCT_INVOICED_PRESETS[0];
+      const dashData = projects.filter(p => {
+        if (statusYear && getProjectYearFromCode(p['Project Code']) !== statusYear) return false;
+        const val = p['Project Value'] || 0;
+        if (val < valueRange.min || val >= valueRange.max) return false;
+        const pctInvoiced = p['% invoiced'] || 0;
+        if (pctInvoiced < pctRange.min || pctInvoiced >= pctRange.max) return false;
+        return true;
+      });
+      return dashData
+        .map(p => ({
+          code: p['Project Code'],
+          pm: p['Person Responsible'] || 'Unassigned',
+          value: p['Project Value'] || 0,
+          pct: p['% invoiced'] || 0,
+          start: parseFlexibleDate(p['Project Start']),
+          end: parseFlexibleDate(p['Project End'])
+        }))
+        .filter(x => x.start && x.end && x.end >= x.start)
+        .sort((a, b) => a.start - b.start);
+    }
 
     function renderGanttChart(dashData) {
       const container = document.getElementById('ganttOuter');
@@ -2246,9 +1921,6 @@ Thank you in advance.</textarea>
         }))
         .filter(x => x.start && x.end && x.end >= x.start)
         .sort((a, b) => a.start - b.start);
-
-      lastGanttExportContext.items = items;
-      lastGanttExportContext.filters = getStatusFilterSummary();
 
       if (!items.length) {
         container.innerHTML = '<div class="empty-state"><div class="empty-text">No projects with both a Project Start and Project End date</div></div>';
@@ -2336,17 +2008,18 @@ Thank you in advance.</textarea>
 
     // ============================================================
     // Gantt (Project Plan) PDF export — respects whatever Year,
-    // Project Value, and % Invoiced filters (including "Exclude 100%
-    // Remaining") are currently active on the Project Status page.
-    // Drawn natively in jsPDF (not a screenshot) so text stays crisp
-    // and multi-page pagination works cleanly for large portfolios.
+    // Project Value, and % Invoiced filters are currently set on the
+    // Project Status page (computed independently via
+    // computeGanttItems(), so this works even if that tab was never
+    // opened this session). Drawn natively in jsPDF (not a screenshot)
+    // so text stays crisp and multi-page pagination works cleanly.
     // ============================================================
     function exportGanttPDF() {
-      const items = lastGanttExportContext.items;
-      const filterSummary = lastGanttExportContext.filters || getStatusFilterSummary();
+      const items = computeGanttItems();
+      const filterSummary = getStatusFilterSummary();
 
-      if (!items || !items.length) {
-        showToast('No projects match the current filters', 'error');
+      if (!items.length) {
+        showToast('No projects match the current Project Status filters', 'error');
         return;
       }
 
@@ -2386,17 +2059,24 @@ Thank you in advance.</textarea>
       }
 
       const rowH = 26;
-      const headerBandH = 78;
+      const firstPageHeaderH = 78;   // navy chrome band on page 1 (title + filters)
+      const contPageHeaderH = 46;    // shorter chrome band on continuation pages
       const timelineHeaderH = 20;
       const legendH = 26;
-      const topOfFirstPage = headerBandH + 20;
-      const topOfContinuationPage = 34;
+
+      // Fixed 10pt gap between the bottom of the navy chrome band and
+      // whatever comes next (the timeline header) — on the previous
+      // version this gap could go negative on continuation pages,
+      // which is what caused the header/table overlap.
+      const topOfFirstPage = firstPageHeaderH + 14;
+      const topOfContinuationPage = contPageHeaderH + 14;
 
       function drawPageChrome(isFirstPage) {
+        const bandH = isFirstPage ? firstPageHeaderH : contPageHeaderH;
         doc.setFillColor(...NAVY);
-        doc.rect(0, 0, pageWidth, headerBandH, 'F');
+        doc.rect(0, 0, pageWidth, bandH, 'F');
         doc.setFillColor(...BRASS);
-        doc.rect(0, headerBandH, pageWidth, 2.5, 'F');
+        doc.rect(0, bandH, pageWidth, 2.5, 'F');
 
         if (isFirstPage) {
           doc.setTextColor(255, 255, 255);
@@ -2416,12 +2096,12 @@ Thank you in advance.</textarea>
         } else {
           doc.setTextColor(255, 255, 255);
           doc.setFont('helvetica', 'bold');
-          doc.setFontSize(13);
-          doc.text('MarineTeknik — Project Plan (Gantt), continued', marginX, 30);
+          doc.setFontSize(12);
+          doc.text('MarineTeknik — Project Plan (Gantt), continued', marginX, 22);
           doc.setFont('helvetica', 'normal');
-          doc.setFontSize(8.5);
+          doc.setFontSize(8);
           doc.setTextColor(200, 220, 240);
-          doc.text(`Filters: ${filterSummary}`, pageWidth - marginX, 30, { align: 'right' });
+          doc.text(`Filters: ${filterSummary}`, marginX, 36);
         }
       }
 
@@ -2445,7 +2125,6 @@ Thank you in advance.</textarea>
       }
 
       let cursorY = topOfFirstPage;
-      let pageIsFirst = true;
       drawPageChrome(true);
       drawTimelineHeader(cursorY);
       cursorY += timelineHeaderH;
@@ -2456,7 +2135,6 @@ Thank you in advance.</textarea>
       items.forEach((x, i) => {
         if (cursorY + rowH > pageHeight - legendH - 20) {
           doc.addPage();
-          pageIsFirst = false;
           drawPageChrome(false);
           cursorY = topOfContinuationPage;
           drawTimelineHeader(cursorY);
@@ -2545,8 +2223,10 @@ Thank you in advance.</textarea>
 
       const fileName = `MarineTeknik_Gantt_${new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }).replace(/\//g, '-')}.pdf`;
       doc.save(fileName);
+      closeExportModal();
       showToast('✓ Gantt exported');
     }
+
 
     function openExportModal() {
       document.getElementById('exportModal').classList.add('active');
@@ -2688,6 +2368,8 @@ Thank you in advance.</textarea>
         generatePDF();
       } else if (format === 'calendar') {
         generateCalendarPDF();
+      } else if (format === 'gantt') {
+        exportGanttPDF();
       } else {
         generateExcel();
       }
@@ -2953,13 +2635,13 @@ Thank you in advance.</textarea>
         if (!seen.has(p['Project Code'])) { seen.add(p['Project Code']); data.push(p); }
       }));
 
-      // Only overdue / due soon / upcoming — invoiced items are excluded.
+      // One entry per project, straight from Next Invoice Date — only
+      // overdue / due soon / upcoming (a project with no date is skipped).
       const allEvents = [];
       data.forEach(p => {
-        getProjectInvoiceEvents(p).forEach(ev => {
-          if (!ev.date || ev.invoiced) return;
-          allEvents.push({ p, ev, status: getStatusForDate(ev.date) });
-        });
+        const date = parseFlexibleDate(p['Next Invoice Date']);
+        if (!date) return;
+        allEvents.push({ p, date, status: getStatusForDate(date) });
       });
 
       if (!allEvents.length) {
@@ -2968,13 +2650,13 @@ Thank you in advance.</textarea>
       }
 
       const invoicesByDay = {};
-      let minD = allEvents[0].ev.date, maxD = allEvents[0].ev.date;
+      let minD = allEvents[0].date, maxD = allEvents[0].date;
 
-      allEvents.forEach(({ p, ev, status }) => {
-        if (ev.date < minD) minD = ev.date;
-        if (ev.date > maxD) maxD = ev.date;
+      allEvents.forEach(({ p, date, status }) => {
+        if (date < minD) minD = date;
+        if (date > maxD) maxD = date;
 
-        const key = `${ev.date.getFullYear()}-${String(ev.date.getMonth() + 1).padStart(2, '0')}-${String(ev.date.getDate()).padStart(2, '0')}`;
+        const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
         if (!invoicesByDay[key]) invoicesByDay[key] = [];
         invoicesByDay[key].push({
           code: p['Project Code'],
@@ -3217,14 +2899,10 @@ Thank you in advance.</textarea>
         await supabaseClient.from('projects').delete().neq('project_code', '');
         await supabaseClient.from('comments').delete().neq('project_code', '');
         await supabaseClient.from('flags').delete().neq('project_code', '');
-        await supabaseClient.from('invoice_amounts').delete().neq('project_code', '');
-        await supabaseClient.from('project_payment_terms').delete().neq('project_code', '');
 
         projects = [];
         comments = {};
         flags = {};
-        invoiceAmounts = {};
-        projectPaymentPlans = {};
         currentFilter = ['all'];
         currentPM = null;
 
@@ -3344,417 +3022,6 @@ Thank you in advance.</textarea>
       closeCommentModal();
       await loadAllData();
       showToast('✓ Notes saved');
-    }
-
-    function setPlanMode(mode) {
-      const panels = { estimate: 'planPanelEstimate', manual: 'planPanelManual', plan: 'planPanelPlan' };
-      const tabs = { estimate: 'planTabEstimate', manual: 'planTabManual', plan: 'planTabPlan' };
-      Object.keys(panels).forEach(key => {
-        const panel = document.getElementById(panels[key]);
-        const tab = document.getElementById(tabs[key]);
-        if (panel) panel.style.display = key === mode ? 'block' : 'none';
-        if (tab) tab.classList.toggle('active', key === mode);
-      });
-    }
-
-    function openInvoiceAmountModal(code) {
-      const proj = projects.find(p => p['Project Code'] === code);
-      if (!proj) return;
-      editingProjectCode = code;
-      const info = getInvoiceAmountInfo(proj);
-
-      const warning = document.getElementById('planSchemaWarning');
-      if (warning) warning.style.display = paymentSchemaMissing ? 'block' : 'none';
-
-      document.getElementById('invoiceAmountProjectCode').value = code;
-      document.getElementById('invoiceAmountProjectInfo').textContent = proj['Project Name'] || code;
-      document.getElementById('invoiceAmountEstimateDisplay').textContent = formatCurrency(estimateInvoiceAmount(proj));
-
-      const manualInput = document.getElementById('invoiceAmountManualInput');
-      const plan = projectPaymentPlans[code];
-      manualInput.value = (!plan && info.isManual) ? info.amount : '';
-
-      const valueWarning = document.getElementById('planValueChangeWarning');
-      if (valueWarning) {
-        const savedVal = plan ? plan.valueAtSave : null;
-        const currentVal = proj['Project Value'] || 0;
-        if (plan && plan.installments && plan.installments.length && savedVal !== null && savedVal !== undefined && Math.abs(currentVal - savedVal) >= 1) {
-          const diff = currentVal - savedVal;
-          const sign = diff > 0 ? '+' : '−';
-          valueWarning.textContent = `⚠ Project Value has changed by ${sign}${formatCurrency(Math.abs(diff))} since you last saved this plan (${formatCurrency(savedVal)} → ${formatCurrency(currentVal)}) — check whether that's a new change order.`;
-          valueWarning.style.display = 'block';
-        } else {
-          valueWarning.style.display = 'none';
-        }
-      }
-
-      editingInstallments = plan ? JSON.parse(JSON.stringify(plan.installments)) : [];
-      renderPlanTemplateOptions();
-      renderPlanInstallments(proj);
-
-      const defaultMode = (plan && plan.installments && plan.installments.length) ? 'plan' : (info.isManual ? 'manual' : 'estimate');
-      setPlanMode(defaultMode);
-
-      document.getElementById('invoiceAmountModal').classList.add('active');
-    }
-
-    function closeInvoiceAmountModal() {
-      document.getElementById('invoiceAmountModal').classList.remove('active');
-    }
-
-    async function saveInvoiceAmountOverride() {
-      const code = document.getElementById('invoiceAmountProjectCode').value;
-      const raw = document.getElementById('invoiceAmountManualInput').value;
-      const value = raw === '' ? null : parseFloat(raw);
-
-      if (raw !== '' && (isNaN(value) || value < 0)) {
-        showToast('Enter a valid, non-negative amount', 'error');
-        return;
-      }
-
-      const now = new Date().toISOString();
-      try {
-        const { error } = await supabaseClient.from('invoice_amounts').upsert({
-          project_code: code,
-          manual_amount: value,
-          updated_at: now
-        }, { onConflict: 'project_code' });
-        if (error) throw error;
-      } catch (e) {
-        console.error('Invoice amount save error:', e);
-        showToast(explainSupabaseError(e, 'Error saving invoice amount'), 'error');
-        return;
-      }
-
-      invoiceAmounts[code] = { manual: value };
-      renderDashboard();
-      showToast(value === null ? '✓ Reverted to auto-estimate' : '✓ Single amount saved');
-    }
-
-    async function clearInvoiceAmountOverride() {
-      const code = document.getElementById('invoiceAmountProjectCode').value;
-      try {
-        const { error } = await supabaseClient.from('invoice_amounts').delete().eq('project_code', code);
-        if (error) throw error;
-      } catch (e) {
-        console.error('Invoice amount clear error:', e);
-        showToast(explainSupabaseError(e, 'Error clearing invoice amount'), 'error');
-        return;
-      }
-
-      invoiceAmounts[code] = { manual: null };
-      document.getElementById('invoiceAmountManualInput').value = '';
-      renderDashboard();
-      showToast('✓ Reverted to auto-estimate');
-    }
-
-    function renderPlanTemplateOptions() {
-      const select = document.getElementById('planTemplateSelect');
-      if (!select) return;
-      select.innerHTML = '<option value="">Choose a template…</option>' +
-        paymentTemplates.map(t => `<option value="${t.id}">${escapeHtml(t.name)}</option>`).join('');
-    }
-
-    function applyPaymentTemplate() {
-      const select = document.getElementById('planTemplateSelect');
-      const tmpl = paymentTemplates.find(t => t.id === select.value);
-      if (!tmpl) {
-        showToast('Choose a template first', 'error');
-        return;
-      }
-      const pctRows = JSON.parse(JSON.stringify(tmpl.installments)).map(inst => ({
-        pct: inst.pct,
-        milestone: inst.milestone,
-        label: inst.label || '',
-        custom_date: inst.custom_date || '',
-        amount_type: 'pct'
-      }));
-      const existingFixedRows = editingInstallments.filter(i => i.amount_type === 'fixed');
-      editingInstallments = pctRows.concat(existingFixedRows);
-      const proj = projects.find(p => p['Project Code'] === editingProjectCode);
-      renderPlanInstallments(proj);
-    }
-
-    function renderPlanInstallments(proj) {
-      const container = document.getElementById('planInstallmentsContainer');
-      if (!container || !proj) return;
-
-      const actualInvoiced = proj['Invoiced Value'] || 0;
-      const DOLLAR_EPSILON = 1;
-      let cumulativeNominal = 0;
-
-      const fixedTotalForBase = editingInstallments.filter(i => i.amount_type === 'fixed').reduce((s, i) => s + (parseFloat(i.fixed_amount) || 0), 0);
-      const pctBase = Math.max(0, (proj['Project Value'] || 0) - fixedTotalForBase);
-
-      if (!editingInstallments.length) {
-        container.innerHTML = '<div style="font-size:11.5px;color:var(--ink-muted);padding:8px 0;">No installments yet — apply a template above, or add one manually.</div>';
-      } else {
-        container.innerHTML = editingInstallments.map((inst, i) => {
-          const isFixed = inst.amount_type === 'fixed';
-          const amount = isFixed
-            ? (parseFloat(inst.fixed_amount) || 0)
-            : pctBase * (parseFloat(inst.pct) || 0) / 100;
-          const resolved = inst.milestone === 'start' ? parseFlexibleDate(proj['Project Start'])
-            : inst.milestone === 'end' ? parseFlexibleDate(proj['Project End'])
-            : null;
-          const dateDisplay = resolved ? formatDateObj(resolved) : '—';
-          const dateCell = inst.milestone === 'custom'
-            ? `<input type="date" class="plan-input" value="${inst.custom_date || ''}" onchange="updatePlanRow(${i},'custom_date',this.value)">`
-            : `<span style="font-size:11px;color:var(--ink-muted);">${dateDisplay}</span>`;
-          cumulativeNominal += amount;
-          const invoiced = actualInvoiced >= (cumulativeNominal - DOLLAR_EPSILON);
-          const invoicedCell = invoiced
-            ? `<span style="color:var(--upcoming);font-weight:700;font-size:12px;" title="Invoiced Value from your latest import covers this installment">✓</span>`
-            : `<span style="color:var(--ink-muted);font-size:11px;" title="Not yet covered by Invoiced Value">—</span>`;
-          const firstCell = isFixed
-            ? `<input type="number" min="0" step="0.01" class="plan-input" value="${inst.fixed_amount || 0}" title="Fixed dollar amount" onchange="updatePlanRow(${i},'fixed_amount',this.value)">`
-            : `<input type="number" min="0" max="100" class="plan-input" value="${inst.pct}" title="% of Project Value minus fixed extras" onchange="updatePlanRow(${i},'pct',this.value)">`;
-          return `
-            <div class="plan-table-row ${invoiced ? 'is-invoiced' : ''} ${isFixed ? 'is-fixed' : ''}">
-              ${firstCell}
-              <select class="plan-select" onchange="updatePlanRow(${i},'milestone',this.value)">
-                <option value="start" ${inst.milestone === 'start' ? 'selected' : ''}>Project Start</option>
-                <option value="end" ${inst.milestone === 'end' ? 'selected' : ''}>Project End</option>
-                <option value="custom" ${inst.milestone === 'custom' ? 'selected' : ''}>Custom Date</option>
-              </select>
-              ${dateCell}
-              <input type="text" class="plan-input" value="${escapeHtml(inst.label || '')}" placeholder="${isFixed ? 'e.g. Change Order #1' : 'Label'}" onchange="updatePlanRow(${i},'label',this.value)">
-              <span class="plan-amount-display">${formatCurrency(amount)}</span>
-              <span class="plan-invoiced-check">${invoicedCell}</span>
-              <button class="plan-remove-btn" title="Remove" onclick="removePlanInstallmentRow(${i})">✕</button>
-            </div>
-          `;
-        }).join('');
-      }
-
-      const pctTotal = editingInstallments.filter(i => i.amount_type !== 'fixed').reduce((s, i) => s + (parseFloat(i.pct) || 0), 0);
-      const fixedTotal = editingInstallments.filter(i => i.amount_type === 'fixed').reduce((s, i) => s + (parseFloat(i.fixed_amount) || 0), 0);
-      const indicator = document.getElementById('planTotalIndicator');
-      if (indicator) {
-        let text = `% terms: ${pctTotal}%` + (pctTotal === 100 ? ' ✓' : pctTotal > 100 ? ' — over 100%' : ' — under 100%');
-        if (fixedTotal > 0) text += ` &nbsp;+&nbsp; ${formatCurrency(fixedTotal)} fixed`;
-        indicator.innerHTML = text;
-        indicator.style.color = pctTotal === 100 ? 'var(--upcoming)' : 'var(--overdue)';
-      }
-
-      const adjustedEl = document.getElementById('planAdjustedValue');
-      if (adjustedEl) {
-        if (fixedTotal > 0) {
-          adjustedEl.style.display = 'block';
-          adjustedEl.innerHTML = `% terms apply to <strong>${formatCurrency(pctBase)}</strong> (${formatCurrency(proj['Project Value'] || 0)} Project Value − ${formatCurrency(fixedTotal)} fixed/COR) — total still reconciles to Project Value exactly.`;
-        } else {
-          adjustedEl.style.display = 'none';
-        }
-      }
-    }
-
-    function updatePlanRow(i, field, value) {
-      if (!editingInstallments[i]) return;
-      if (field === 'pct') editingInstallments[i].pct = parseFloat(value) || 0;
-      else if (field === 'fixed_amount') editingInstallments[i].fixed_amount = parseFloat(value) || 0;
-      else editingInstallments[i][field] = value;
-      renderPlanInstallments(projects.find(p => p['Project Code'] === editingProjectCode));
-    }
-
-    function addPlanInstallmentRow() {
-      editingInstallments.push({ pct: 0, milestone: 'custom', label: `Installment ${editingInstallments.length + 1}`, custom_date: '', amount_type: 'pct' });
-      renderPlanInstallments(projects.find(p => p['Project Code'] === editingProjectCode));
-    }
-
-    function addFixedAmountRow() {
-      editingInstallments.push({ pct: 0, fixed_amount: 0, milestone: 'custom', label: 'Change Order', custom_date: '', amount_type: 'fixed' });
-      renderPlanInstallments(projects.find(p => p['Project Code'] === editingProjectCode));
-    }
-
-    function removePlanInstallmentRow(i) {
-      editingInstallments.splice(i, 1);
-      renderPlanInstallments(projects.find(p => p['Project Code'] === editingProjectCode));
-    }
-
-    async function savePaymentPlan() {
-      const code = editingProjectCode;
-      if (!editingInstallments.length) {
-        showToast('Add at least one installment, or use Clear Plan to remove it', 'error');
-        return;
-      }
-      const pctTotal = editingInstallments.filter(i => i.amount_type !== 'fixed').reduce((s, i) => s + (parseFloat(i.pct) || 0), 0);
-      if (Math.round(pctTotal) !== 100) {
-        showToast('The % terms must add up to 100% (fixed amounts are extra, on top)', 'error');
-        return;
-      }
-
-      const proj = projects.find(p => p['Project Code'] === code);
-      const currentValue = proj ? (proj['Project Value'] || 0) : null;
-
-      const now = new Date().toISOString();
-      try {
-        const { error } = await supabaseClient.from('project_payment_terms').upsert({
-          project_code: code,
-          installments: editingInstallments,
-          project_value_at_save: currentValue,
-          updated_at: now
-        }, { onConflict: 'project_code' });
-        if (error) throw error;
-      } catch (e) {
-        console.error('Payment plan save error:', e);
-        showToast(explainSupabaseError(e, 'Error saving payment plan'), 'error');
-        return;
-      }
-
-      projectPaymentPlans[code] = { installments: editingInstallments, valueAtSave: currentValue };
-      const valueWarning = document.getElementById('planValueChangeWarning');
-      if (valueWarning) valueWarning.style.display = 'none';
-      renderDashboard();
-      showToast('✓ Payment plan saved');
-    }
-
-    async function clearPaymentPlan() {
-      const code = editingProjectCode;
-      try {
-        const { error } = await supabaseClient.from('project_payment_terms').delete().eq('project_code', code);
-        if (error) throw error;
-      } catch (e) {
-        console.error('Payment plan clear error:', e);
-        showToast(explainSupabaseError(e, 'Error clearing payment plan'), 'error');
-        return;
-      }
-      delete projectPaymentPlans[code];
-      editingInstallments = [];
-      const valueWarning = document.getElementById('planValueChangeWarning');
-      if (valueWarning) valueWarning.style.display = 'none';
-      renderPlanInstallments(projects.find(p => p['Project Code'] === code));
-      renderDashboard();
-      showToast('✓ Payment plan cleared');
-    }
-
-    function openTemplateManagerModal() {
-      const warning = document.getElementById('templateSchemaWarning');
-      if (warning) warning.style.display = paymentSchemaMissing ? 'block' : 'none';
-
-      renderTemplateList();
-      newTemplateInstallments = [];
-      document.getElementById('newTemplateName').value = '';
-      renderNewTemplateInstallments();
-      document.getElementById('templateManagerModal').classList.add('active');
-    }
-
-    function closeTemplateManagerModal() {
-      document.getElementById('templateManagerModal').classList.remove('active');
-      renderPlanTemplateOptions();
-    }
-
-    function renderTemplateList() {
-      const container = document.getElementById('templateListContainer');
-      if (!container) return;
-      if (!paymentTemplates.length) {
-        container.innerHTML = '<div style="font-size:11.5px;color:var(--ink-muted);">No templates yet — add one below.</div>';
-        return;
-      }
-      container.innerHTML = paymentTemplates.map(t => {
-        const summary = (t.installments || []).map(i => `${i.pct}% @ ${i.label || i.milestone}`).join(' · ');
-        return `
-          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 10px;border:1px solid var(--border);border-radius:8px;margin-bottom:6px;">
-            <div style="min-width:0;">
-              <div style="font-size:12.5px;font-weight:700;color:var(--ink);">${escapeHtml(t.name)}</div>
-              <div style="font-size:10.5px;color:var(--ink-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(summary)}</div>
-            </div>
-            <button onclick="deleteTemplate('${t.id}')" style="border:none;background:none;color:var(--overdue);cursor:pointer;font-size:11.5px;font-weight:600;white-space:nowrap;">Delete</button>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function addNewTemplateRow() {
-      newTemplateInstallments.push({ pct: 0, milestone: 'custom', label: `Installment ${newTemplateInstallments.length + 1}` });
-      renderNewTemplateInstallments();
-    }
-
-    function renderNewTemplateInstallments() {
-      const container = document.getElementById('newTemplateInstallments');
-      if (!container) return;
-      container.innerHTML = newTemplateInstallments.map((inst, i) => `
-        <div class="plan-template-row">
-          <input type="number" min="0" max="100" class="plan-input" value="${inst.pct}" onchange="updateNewTemplateRow(${i},'pct',this.value)">
-          <select class="plan-select" onchange="updateNewTemplateRow(${i},'milestone',this.value)">
-            <option value="start" ${inst.milestone === 'start' ? 'selected' : ''}>Project Start</option>
-            <option value="end" ${inst.milestone === 'end' ? 'selected' : ''}>Project End</option>
-            <option value="custom" ${inst.milestone === 'custom' ? 'selected' : ''}>Custom Date</option>
-          </select>
-          <input type="text" class="plan-input" value="${escapeHtml(inst.label || '')}" placeholder="Label (e.g. Order)" onchange="updateNewTemplateRow(${i},'label',this.value)">
-          <button class="plan-remove-btn" title="Remove" onclick="removeNewTemplateRow(${i})">✕</button>
-        </div>
-      `).join('');
-
-      const total = newTemplateInstallments.reduce((s, i) => s + (parseFloat(i.pct) || 0), 0);
-      const indicator = document.getElementById('newTemplateTotalIndicator');
-      if (indicator) {
-        indicator.textContent = `Total: ${total}%`;
-        indicator.style.color = total === 100 ? 'var(--upcoming)' : 'var(--overdue)';
-      }
-    }
-
-    function updateNewTemplateRow(i, field, value) {
-      if (!newTemplateInstallments[i]) return;
-      if (field === 'pct') newTemplateInstallments[i].pct = parseFloat(value) || 0;
-      else newTemplateInstallments[i][field] = value;
-      renderNewTemplateInstallments();
-    }
-
-    function removeNewTemplateRow(i) {
-      newTemplateInstallments.splice(i, 1);
-      renderNewTemplateInstallments();
-    }
-
-    async function saveNewTemplate() {
-      const name = document.getElementById('newTemplateName').value.trim();
-      if (!name) {
-        showToast('Enter a template name', 'error');
-        return;
-      }
-      if (!newTemplateInstallments.length) {
-        showToast('Add at least one installment', 'error');
-        return;
-      }
-      const total = newTemplateInstallments.reduce((s, i) => s + (parseFloat(i.pct) || 0), 0);
-      if (Math.round(total) !== 100) {
-        showToast('Installment percentages must add up to 100%', 'error');
-        return;
-      }
-
-      try {
-        const { data, error } = await supabaseClient.from('payment_term_templates').insert({
-          name,
-          installments: newTemplateInstallments,
-          is_builtin: false
-        }).select();
-        if (error) throw error;
-        if (data && data[0]) paymentTemplates.push(data[0]);
-      } catch (e) {
-        console.error('Template save error:', e);
-        showToast(explainSupabaseError(e, 'Error saving template'), 'error');
-        return;
-      }
-
-      newTemplateInstallments = [];
-      document.getElementById('newTemplateName').value = '';
-      renderNewTemplateInstallments();
-      renderTemplateList();
-      showToast('✓ Template saved');
-    }
-
-    async function deleteTemplate(id) {
-      if (!confirm('Delete this template? Projects already using it keep their saved installments.')) return;
-      try {
-        const { error } = await supabaseClient.from('payment_term_templates').delete().eq('id', id);
-        if (error) throw error;
-      } catch (e) {
-        console.error('Template delete error:', e);
-        showToast(explainSupabaseError(e, 'Error deleting template'), 'error');
-        return;
-      }
-      paymentTemplates = paymentTemplates.filter(t => t.id !== id);
-      renderTemplateList();
-      showToast('✓ Template deleted');
     }
 
     window.addEventListener('load', initApp);
