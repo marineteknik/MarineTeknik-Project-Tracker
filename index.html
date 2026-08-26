@@ -143,6 +143,17 @@
     .cal-legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 14px; font-size: 11px; color: var(--ink-muted); }
     .cal-legend-item { display: flex; align-items: center; gap: 6px; }
     .cal-legend-dot { width: 10px; height: 10px; border-radius: 999px; display: inline-block; }
+    .cal-month-summary { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border); }
+    .cal-month-summary-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 12px; }
+    .cal-month-summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+    .cal-month-summary-box { background: var(--bg); border-radius: 10px; padding: 12px 14px; border-left: 3px solid var(--border); }
+    .cal-month-summary-box .label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; color: var(--ink-muted); margin-bottom: 5px; }
+    .cal-month-summary-box .value { font-family: 'IBM Plex Mono', monospace; font-size: 17px; font-weight: 700; color: var(--ink); }
+    .cal-month-summary-box .sub { font-size: 10.5px; color: var(--ink-muted); margin-top: 2px; }
+    .cal-month-summary-box.total { border-left-color: var(--navy-700); }
+    .cal-month-summary-box.overdue { border-left-color: var(--overdue); }
+    .cal-month-summary-box.duesoon { border-left-color: var(--duesoon); }
+    .cal-month-summary-box.upcoming { border-left-color: var(--upcoming); }
     .status-header { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-sm); padding: 18px 22px; margin-bottom: 18px; }
     .status-header-block { display: flex; flex-direction: column; gap: 9px; }
     .status-header-label { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.6px; font-weight: 700; color: var(--ink-muted); }
@@ -329,7 +340,13 @@
           <div class="kpi-icon" style="background:#fef0d6;color:#b45309;">$</div>
           <div class="card-title">Total Value</div>
           <div class="card-value" id="kpiValue">$0</div>
-          <div class="card-sub">all projects</div>
+          <div class="card-sub">filtered view</div>
+        </div>
+        <div class="card">
+          <div class="kpi-icon" style="background:#e3ecf7;color:#1668c1;">$</div>
+          <div class="card-title">Remaining</div>
+          <div class="card-value" id="kpiRemaining">$0</div>
+          <div class="card-sub">filtered view</div>
         </div>
         <div class="card">
           <div class="kpi-icon" style="background:#dbeafe;color:#2563eb;">🚩</div>
@@ -490,6 +507,7 @@
           <div class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--upcoming)"></span> Upcoming</div>
           <div class="cal-legend-item">Each chip shows the project code and $ amount. <strong>*</strong> = auto-estimated. Hover a day for full details.</div>
         </div>
+        <div id="calendarMonthSummary" class="cal-month-summary"></div>
       </div>
     </div>
 
@@ -510,6 +528,15 @@
           <button class="btn" style="padding:7px 14px;background:var(--surface);border:1px solid var(--border);color:var(--ink-soft);border-radius:999px;font-weight:600;cursor:pointer;font-size:11.5px;" onclick="openTemplateManagerModal()">Payment Templates</button>
         </div>
         <div class="controls-row" style="margin-top:10px;justify-content:flex-start;">
+          <span style="font-size:12px;color:var(--ink-muted);font-weight:600;">Priority (Next Invoice Date from Excel):</span>
+          <div class="filter-group">
+            <button class="filter-btn active" data-amtinvfilter="all" onclick="setAmountsInvoiceFilter(event, 'all')">All</button>
+            <button class="filter-btn" data-amtinvfilter="overdue" onclick="setAmountsInvoiceFilter(event, 'overdue')" style="border-color:var(--overdue);color:var(--overdue);">Overdue</button>
+            <button class="filter-btn" data-amtinvfilter="duesoon" onclick="setAmountsInvoiceFilter(event, 'duesoon')" style="border-color:var(--duesoon);color:var(--duesoon);">Due Soon</button>
+            <button class="filter-btn" data-amtinvfilter="upcoming" onclick="setAmountsInvoiceFilter(event, 'upcoming')" style="border-color:var(--upcoming);color:var(--upcoming);">Upcoming</button>
+          </div>
+        </div>
+        <div class="controls-row" style="margin-top:10px;justify-content:flex-start;">
           <span style="font-size:12px;color:var(--ink-muted)">Set the estimated next-invoice amount for each project — either a single override or a full payment plan (e.g. 30/30/40 at Order / Start / End). Change orders sit on top as fixed amounts. If a project's Value changes after its plan was saved, it's flagged <strong style="color:var(--overdue)">Needs Revision</strong>.</span>
         </div>
       </div>
@@ -518,19 +545,20 @@
         <table style="table-layout:fixed;width:100%;">
           <thead>
             <tr>
-              <th style="width:9%;text-align:left">Code</th>
-              <th style="width:16%;text-align:left">Project</th>
-              <th style="width:10%;text-align:left">PM</th>
-              <th style="width:10%">Project Value</th>
-              <th style="width:10%">Change Order</th>
-              <th style="width:14%">Payment Terms</th>
-              <th style="width:11%">Next Invoice</th>
+              <th style="width:8%;text-align:left">Code</th>
+              <th style="width:14%;text-align:left">Project</th>
+              <th style="width:9%;text-align:left">PM</th>
+              <th style="width:9%">Project Value</th>
+              <th style="width:9%">Remaining</th>
+              <th style="width:9%">Change Order</th>
+              <th style="width:12%">Payment Terms</th>
+              <th style="width:10%">Next Invoice</th>
               <th style="width:10%">Status</th>
               <th style="width:10%">Actions</th>
             </tr>
           </thead>
           <tbody id="amountsTableBody">
-            <tr><td colspan="9" class="empty-state"></td></tr>
+            <tr><td colspan="10" class="empty-state"></td></tr>
           </tbody>
         </table>
       </div>
@@ -899,9 +927,10 @@ Thank you in advance.</textarea>
     let dashboardPM = null;
     let dashboardYear = null;
     let amountsFilter = 'all';
+    let amountsInvoiceFilter = 'all';
     let amountsPM = null;
     const calendarInstances = {
-      forecast: { centerDate: null, data: [], containerId: 'invoiceCalendar', rangeLabelId: 'calendarRangeLabel', showInvoiced: false, showBadges: false }
+      forecast: { centerDate: null, data: [], containerId: 'invoiceCalendar', rangeLabelId: 'calendarRangeLabel', summaryContainerId: 'calendarMonthSummary', showInvoiced: false, showBadges: false }
     };
     let sortCol = 'invoiceStatus';
     let sortDir = 'asc';
@@ -1047,7 +1076,6 @@ Thank you in advance.</textarea>
         await loadPaymentTemplates();
         await loadProjectPaymentPlans();
         filterTable();
-        updateKPIs();
         updateLastUpdatedTimestamp();
         if (paymentSchemaMissing) {
           showToast('⚠ Payment plan tables aren\'t set up in Supabase yet — see the setup notice in the Invoicing Plan modal', 'error');
@@ -1565,6 +1593,7 @@ Thank you in advance.</textarea>
       });
 
       renderTableRows(filtered);
+      updateKPIs(filtered);
     }
 
     function renderTableRows(rows) {
@@ -1641,11 +1670,13 @@ Thank you in advance.</textarea>
       });
     }
 
-    function updateKPIs() {
-      let total = 0, overdue = 0, duesoon = 0, flagC = 0, flagE = 0, totVal = 0;
-      projects.forEach(p => {
+    function updateKPIs(rows) {
+      const data = rows || projects;
+      let total = 0, overdue = 0, duesoon = 0, flagC = 0, flagE = 0, totVal = 0, totRem = 0;
+      data.forEach(p => {
         total++;
         totVal += p['Project Value'];
+        totRem += p['Remaining Inv'] || 0;
         const code = p['Project Code'];
         if (p.invoiceStatus === 'OVERDUE') overdue++;
         if (p.invoiceStatus === 'DUE SOON') duesoon++;
@@ -1656,6 +1687,7 @@ Thank you in advance.</textarea>
       document.getElementById('kpiOverdue').textContent = overdue;
       document.getElementById('kpiDueSoon').textContent = duesoon;
       document.getElementById('kpiValue').textContent = formatCurrency(totVal);
+      document.getElementById('kpiRemaining').textContent = formatCurrency(totRem);
       document.getElementById('kpiContracts').textContent = flagC;
       document.getElementById('kpiEstimation').textContent = flagE;
     }
@@ -1707,6 +1739,13 @@ Thank you in advance.</textarea>
       renderAmountsTable();
     }
 
+    function setAmountsInvoiceFilter(event, filter) {
+      document.querySelectorAll('[data-amtinvfilter]').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+      amountsInvoiceFilter = filter;
+      renderAmountsTable();
+    }
+
     function buildAmountsPMDropdown() {
       const pms = {};
       projects.forEach(p => {
@@ -1755,13 +1794,25 @@ Thank you in advance.</textarea>
         if (amountsFilter === 'revision') return status === 'needs_revision';
         return true;
       });
+      rows = rows.filter(p => {
+        if (amountsInvoiceFilter === 'overdue') return p.invoiceStatus === 'OVERDUE';
+        if (amountsInvoiceFilter === 'duesoon') return p.invoiceStatus === 'DUE SOON';
+        if (amountsInvoiceFilter === 'upcoming') return p.invoiceStatus === 'Upcoming';
+        return true;
+      });
 
       if (!rows.length) {
-        tbody.innerHTML = '<tr><td colspan="9" class="empty-state"><div class="empty-text">No projects match this filter</div></td></tr>';
+        tbody.innerHTML = '<tr><td colspan="10" class="empty-state"><div class="empty-text">No projects match this filter</div></td></tr>';
         return;
       }
 
-      rows.sort((a, b) => a['Project Code'].localeCompare(b['Project Code']));
+      const priorityOrder = { 'OVERDUE': 0, 'DUE SOON': 1, 'Upcoming': 2, 'No Date': 3 };
+      rows.sort((a, b) => {
+        const pa = priorityOrder[a.invoiceStatus] ?? 9;
+        const pb = priorityOrder[b.invoiceStatus] ?? 9;
+        if (pa !== pb) return pa - pb;
+        return a['Project Code'].localeCompare(b['Project Code']);
+      });
 
       tbody.innerHTML = rows.map(p => {
         const code = p['Project Code'];
@@ -1795,6 +1846,7 @@ Thank you in advance.</textarea>
             <td style="text-align:left">${escapeHtml(p['Project Name'])}</td>
             <td style="text-align:left">${escapeHtml(p['Person Responsible'])}</td>
             <td class="currency">${formatCurrency(p['Project Value'])}</td>
+            <td class="currency">${formatCurrency(p['Remaining Inv'])}</td>
             <td class="currency">${changeOrderTotal > 0 ? formatCurrency(changeOrderTotal) : '—'}</td>
             <td>${escapeHtml(termsSummary)}</td>
             <td>${nextInvoiceCell}</td>
@@ -2103,6 +2155,65 @@ Thank you in advance.</textarea>
         const end = new Date(inst.centerDate.getFullYear(), inst.centerDate.getMonth() + 1, 1);
         label.textContent = `${start.toLocaleString('en-US', { month: 'short', year: 'numeric' })} – ${end.toLocaleString('en-US', { month: 'short', year: 'numeric' })}`;
       }
+
+      if (inst.summaryContainerId) updateCalendarMonthSummary(instanceKey);
+    }
+
+    // Summary box below the calendar: total $ scheduled to be invoiced
+    // in the currently-centered month, broken down by Overdue / Due
+    // Soon / Upcoming. Uses getProjectInvoiceEvents() (payment-plan
+    // aware) so it reflects individual installment dates, not just each
+    // project's single Next Invoice Date chip on the calendar above.
+    function updateCalendarMonthSummary(instanceKey) {
+      const inst = calendarInstances[instanceKey];
+      if (!inst || !inst.summaryContainerId) return;
+      const box = document.getElementById(inst.summaryContainerId);
+      if (!box) return;
+
+      const year = inst.centerDate.getFullYear();
+      const month = inst.centerDate.getMonth();
+      const monthLabel = inst.centerDate.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+
+      let overdue = 0, duesoon = 0, upcoming = 0, overdueCount = 0, duesoonCount = 0, upcomingCount = 0;
+      (inst.data || []).forEach(p => {
+        getProjectInvoiceEvents(p).forEach(ev => {
+          if (!ev.date || ev.invoiced) return;
+          if (ev.date.getFullYear() !== year || ev.date.getMonth() !== month) return;
+          const status = getStatusForDate(ev.date);
+          if (status === 'OVERDUE') { overdue += ev.amount; overdueCount++; }
+          else if (status === 'DUE SOON') { duesoon += ev.amount; duesoonCount++; }
+          else { upcoming += ev.amount; upcomingCount++; }
+        });
+      });
+
+      const total = overdue + duesoon + upcoming;
+      const totalCount = overdueCount + duesoonCount + upcomingCount;
+
+      box.innerHTML = `
+        <div class="cal-month-summary-title">Scheduled to invoice — ${monthLabel}</div>
+        <div class="cal-month-summary-grid">
+          <div class="cal-month-summary-box total">
+            <div class="label">Total This Month</div>
+            <div class="value">${formatCurrency(total)}</div>
+            <div class="sub">${totalCount} pending invoice${totalCount === 1 ? '' : 's'}</div>
+          </div>
+          <div class="cal-month-summary-box overdue">
+            <div class="label">Overdue</div>
+            <div class="value">${formatCurrency(overdue)}</div>
+            <div class="sub">${overdueCount} project${overdueCount === 1 ? '' : 's'}</div>
+          </div>
+          <div class="cal-month-summary-box duesoon">
+            <div class="label">Due Soon</div>
+            <div class="value">${formatCurrency(duesoon)}</div>
+            <div class="sub">${duesoonCount} project${duesoonCount === 1 ? '' : 's'}</div>
+          </div>
+          <div class="cal-month-summary-box upcoming">
+            <div class="label">Upcoming</div>
+            <div class="value">${formatCurrency(upcoming)}</div>
+            <div class="sub">${upcomingCount} project${upcomingCount === 1 ? '' : 's'}</div>
+          </div>
+        </div>
+      `;
     }
 
     function calendarShiftMonths(instanceKey, n) {
