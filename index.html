@@ -1515,7 +1515,7 @@ Thank you in advance.</textarea>
       const btn = event.target;
 
       if (filter === 'all') {
-        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         currentFilter = ['all'];
       } else {
@@ -1526,7 +1526,7 @@ Thank you in advance.</textarea>
 
         btn.classList.toggle('active');
 
-        const activeFilters = Array.from(document.querySelectorAll('.filter-btn.active'))
+        const activeFilters = Array.from(document.querySelectorAll('[data-filter].active'))
           .map(b => b.dataset.filter)
           .filter(f => f !== 'all');
 
@@ -3531,7 +3531,7 @@ Thank you in advance.</textarea>
           closeImportModal();
 
           currentFilter = ['all'];
-          document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+          document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
           const allBtn = document.querySelector('[data-filter="all"]');
           if (allBtn) allBtn.classList.add('active');
 
@@ -3566,7 +3566,7 @@ Thank you in advance.</textarea>
         currentFilter = ['all'];
         currentPM = null;
 
-        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
         const allBtn = document.querySelector('[data-filter="all"]');
         if (allBtn) allBtn.classList.add('active');
 
