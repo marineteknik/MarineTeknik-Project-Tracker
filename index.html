@@ -729,7 +729,7 @@
 
       <!-- Payment Plan -->
       <div class="plan-mode-panel" id="planPanelPlan" style="display:none;">
-        <div style="font-size:11px;font-weight:700;color:var(--navy-700);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">Categories (each a % of Project Value)</div>
+        <div style="font-size:11px;font-weight:700;color:var(--navy-700);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">Categories (each a $ share of Project Value)</div>
         <div id="planCategoriesContainer"></div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;margin-bottom:22px;flex-wrap:wrap;gap:8px;">
           <button class="btn" style="padding:7px 14px;background:var(--bg);border:1px dashed var(--border);border-radius:8px;font-size:11.5px;cursor:pointer;color:var(--ink-soft);" onclick="addCategoryRow()">+ Add Category</button>
@@ -775,7 +775,10 @@
       </div>
       <div id="templateListContainer" style="max-height:220px;overflow-y:auto;margin-bottom:18px;"></div>
       <div class="option-group">
-        <label style="color:var(--navy-800);font-weight:700">New Template</label>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <label id="templateFormLabel" style="color:var(--navy-800);font-weight:700;margin-bottom:0;">New Template</label>
+          <a href="#" id="templateCancelEditLink" onclick="resetTemplateForm();return false;" style="display:none;font-size:11px;color:var(--overdue);font-weight:600;">Cancel Edit</a>
+        </div>
         <input type="text" id="newTemplateName" placeholder="Template name (e.g. 30/30/40 Order-Start-End)" style="width:100%;padding:9px;border:1.5px solid var(--navy-700);border-radius:7px;font-size:12.5px;margin-bottom:10px;background:var(--bg);font-family:inherit;">
         <div class="plan-table-header" style="grid-template-columns:44px 106px 1fr 22px;">
           <span>%</span><span>Milestone</span><span>Label</span><span></span>
@@ -788,7 +791,7 @@
       </div>
       <div class="modal-footer">
         <button class="btn-cancel" onclick="closeTemplateManagerModal()">Close</button>
-        <button class="btn-export" onclick="saveNewTemplate()">Save Template</button>
+        <button class="btn-export" id="templateSaveBtn" onclick="saveNewTemplate()">Save Template</button>
       </div>
     </div>
   </div>
@@ -929,6 +932,7 @@ Thank you in advance.</textarea>
     let editingInstallments = [];
     let editingCategories = [];
     let newTemplateInstallments = [];
+    let editingTemplateId = null;
     let paymentSchemaMissing = false;
     let currentFilter = ['all'];
     let currentPM = null;
@@ -1408,6 +1412,15 @@ Thank you in advance.</textarea>
     // of which category (Material, Labor, etc.) a line item belongs to.
     // Otherwise returns a single Next Invoice Date event using the manual
     // override or auto-estimate.
+    // A category's dollar share of pctBase (Project Value minus Change
+    // Orders). New categories store a direct dollar `amount`; older
+    // plans saved before this change used a `pct` of pctBase instead —
+    // both are supported so nothing needs to be migrated.
+    function getCategoryBaseAmount(cat, pctBase) {
+      if (cat.amount !== undefined && cat.amount !== null) return parseFloat(cat.amount) || 0;
+      return pctBase * ((parseFloat(cat.pct) || 0) / 100);
+    }
+
     function getProjectInvoiceEvents(p) {
       const code = p['Project Code'];
       const plan = projectPaymentPlans[code];
@@ -1421,15 +1434,15 @@ Thank you in advance.</textarea>
           const fixedTotal = rows.filter(r => r.amount_type === 'fixed').reduce((s, r) => s + (parseFloat(r.fixed_amount) || 0), 0);
           const pctBase = Math.max(0, (p['Project Value'] || 0) - fixedTotal);
 
-          const catPctMap = {};
-          categories.forEach(c => { catPctMap[c.id] = parseFloat(c.pct) || 0; });
+          const catBaseMap = {};
+          categories.forEach(c => { catBaseMap[c.id] = getCategoryBaseAmount(c, pctBase); });
 
           const resolved = rows.map((r, i) => {
             const isFixed = r.amount_type === 'fixed';
             const date = resolveInstallmentDate(r, p);
             const nominal = isFixed
               ? (parseFloat(r.fixed_amount) || 0)
-              : pctBase * ((catPctMap[r.category] ?? 0) / 100) * ((parseFloat(r.pct) || 0) / 100);
+              : (catBaseMap[r.category] ?? 0) * ((parseFloat(r.pct) || 0) / 100);
             return { i, r, isFixed, date, nominal };
           });
 
@@ -1895,12 +1908,14 @@ Thank you in advance.</textarea>
           .filter(r => r.amount_type === 'fixed')
           .reduce((s, r) => s + (parseFloat(r.fixed_amount) || 0), 0);
 
+        const catPctBaseForSummary = Math.max(0, (p['Project Value'] || 0) - changeOrderTotal);
         const termsSummary = planData.rows.length
           ? planData.categories.map(c => {
               const catRows = planData.rows.filter(r => r.category === c.id && r.amount_type !== 'fixed');
               const inner = catRows.map(r => `${r.pct}%`).join('/');
               const label = c.name ? `${c.name} ` : '';
-              return `${label}${c.pct}%(${inner || '—'})`;
+              const catAmt = getCategoryBaseAmount(c, catPctBaseForSummary);
+              return `${label}${formatAbbrevCurrency(catAmt)}(${inner || '—'})`;
             }).join(' + ') + (changeOrderTotal > 0 ? ' + CO' : '')
           : '—';
 
@@ -3776,10 +3791,11 @@ Thank you in advance.</textarea>
         editingCategories = JSON.parse(JSON.stringify(planData.categories));
         editingInstallments = JSON.parse(JSON.stringify(planData.rows));
       } else {
-        // New plan: start with one unnamed category worth 100% of Project
-        // Value — the simple single-schedule case (e.g. 30/30/40) needs
-        // no extra setup; rename it or add more categories as needed.
-        editingCategories = [{ id: genCategoryId(), name: '', pct: 100 }];
+        // New plan: start with one unnamed category worth the full
+        // Project Value — the simple single-schedule case (e.g. 30/30/40)
+        // needs no extra setup; rename it, adjust the $, or add more
+        // categories and change orders as needed.
+        editingCategories = [{ id: genCategoryId(), name: '', amount: proj['Project Value'] || 0 }];
         editingInstallments = [];
       }
       renderPlanCategories(proj);
@@ -3885,8 +3901,8 @@ Thank you in advance.</textarea>
     function computeEditingPlanAmounts(proj) {
       const fixedTotal = editingInstallments.filter(r => r.amount_type === 'fixed').reduce((s, r) => s + (parseFloat(r.fixed_amount) || 0), 0);
       const pctBase = Math.max(0, (proj['Project Value'] || 0) - fixedTotal);
-      const catPctMap = {};
-      editingCategories.forEach(c => { catPctMap[c.id] = parseFloat(c.pct) || 0; });
+      const catBaseMap = {};
+      editingCategories.forEach(c => { catBaseMap[c.id] = getCategoryBaseAmount(c, pctBase); });
 
       const resolved = editingInstallments.map((r, i) => {
         const isFixed = r.amount_type === 'fixed';
@@ -3895,7 +3911,7 @@ Thank you in advance.</textarea>
           : (r.milestone === 'custom' && r.custom_date ? parseFlexibleDate(r.custom_date) : null);
         const nominal = isFixed
           ? (parseFloat(r.fixed_amount) || 0)
-          : pctBase * ((catPctMap[r.category] ?? 0) / 100) * ((parseFloat(r.pct) || 0) / 100);
+          : (catBaseMap[r.category] ?? 0) * ((parseFloat(r.pct) || 0) / 100);
         return { i, isFixed, date, nominal };
       });
 
@@ -3958,6 +3974,8 @@ Thank you in advance.</textarea>
       if (!container || !proj) return;
 
       const { amounts, invoicedFlags } = computeEditingPlanAmounts(proj);
+      const fixedTotal = editingInstallments.filter(r => r.amount_type === 'fixed').reduce((s, r) => s + (parseFloat(r.fixed_amount) || 0), 0);
+      const pctBase = Math.max(0, (proj['Project Value'] || 0) - fixedTotal);
 
       if (!editingCategories.length) {
         container.innerHTML = '<div style="font-size:11.5px;color:var(--ink-muted);padding:8px 0;">No categories yet — add one to start building a payment plan.</div>';
@@ -3975,12 +3993,18 @@ Thank you in advance.</textarea>
           const subtotalColor = pctTotal === 100 ? 'var(--upcoming)' : 'var(--overdue)';
           const subtotalText = `${pctTotal}%` + (pctTotal === 100 ? ' ✓' : pctTotal > 100 ? ' — over 100%' : ' — under 100%');
 
+          const catAmount = getCategoryBaseAmount(cat, pctBase);
+          const catAmountValue = cat.amount !== undefined && cat.amount !== null ? cat.amount : catAmount;
+          const catPctOfBase = pctBase > 0 ? ((catAmount / pctBase) * 100).toFixed(1) : '0.0';
+
           return `
             <div class="plan-category-block">
               <div class="plan-category-header">
                 <input type="text" value="${escapeHtml(cat.name)}" placeholder="Category name (e.g. Material, Labor)" onchange="updateCategoryField(${ci},'name',this.value)">
                 <div class="pct-wrap">
-                  <input type="number" min="0" max="100" value="${cat.pct}" onchange="updateCategoryField(${ci},'pct',this.value)"> <span style="font-size:12px;color:var(--ink-muted);">% of Project Value</span>
+                  <span style="font-size:12px;color:var(--ink-muted);">$</span>
+                  <input type="number" min="0" step="0.01" style="width:100px;" value="${catAmountValue}" onchange="updateCategoryField(${ci},'amount',this.value)">
+                  <span style="font-size:11px;color:var(--ink-muted);white-space:nowrap;" title="Share of Project Value minus Change Orders">(${catPctOfBase}%)</span>
                 </div>
                 <select id="planCatTemplateSelect_${cat.id}">${templateOptionsHtml()}</select>
                 <button class="btn" style="padding:7px 12px;background:var(--brass);color:#3d2a00;border:none;border-radius:7px;font-size:11px;cursor:pointer;font-weight:700;white-space:nowrap;" onclick="applyPaymentTemplate('${cat.id}')">Apply</button>
@@ -3997,11 +4021,13 @@ Thank you in advance.</textarea>
         }).join('');
       }
 
-      const catPctTotal = editingCategories.reduce((s, c) => s + (parseFloat(c.pct) || 0), 0);
+      const catAmountTotal = editingCategories.reduce((s, c) => s + getCategoryBaseAmount(c, pctBase), 0);
       const catIndicator = document.getElementById('planCategoryTotalIndicator');
       if (catIndicator) {
-        catIndicator.textContent = `Categories: ${catPctTotal}%` + (catPctTotal === 100 ? ' ✓' : catPctTotal > 100 ? ' — over 100%' : ' — under 100%');
-        catIndicator.style.color = catPctTotal === 100 ? 'var(--upcoming)' : 'var(--overdue)';
+        const diff = pctBase - catAmountTotal;
+        const matches = Math.abs(diff) < 1;
+        catIndicator.textContent = `Categories: ${formatCurrency(catAmountTotal)} of ${formatCurrency(pctBase)}` + (matches ? ' ✓' : diff > 0 ? ` — ${formatCurrency(diff)} unassigned` : ` — ${formatCurrency(Math.abs(diff))} over`);
+        catIndicator.style.color = matches ? 'var(--upcoming)' : 'var(--overdue)';
       }
 
       updatePlanAdjustedValueNote(proj);
@@ -4027,7 +4053,7 @@ Thank you in advance.</textarea>
       if (!adjustedEl) return;
       if (fixedTotal > 0) {
         adjustedEl.style.display = 'block';
-        adjustedEl.innerHTML = `Category %s apply to <strong>${formatCurrency(Math.max(0, (proj['Project Value'] || 0) - fixedTotal))}</strong> (${formatCurrency(proj['Project Value'] || 0)} Project Value − ${formatCurrency(fixedTotal)} change orders) — total still reconciles to Project Value exactly.`;
+        adjustedEl.innerHTML = `Categories should total <strong>${formatCurrency(Math.max(0, (proj['Project Value'] || 0) - fixedTotal))}</strong> (${formatCurrency(proj['Project Value'] || 0)} Project Value − ${formatCurrency(fixedTotal)} change orders) — total still reconciles to Project Value exactly.`;
       } else {
         adjustedEl.style.display = 'none';
       }
@@ -4044,13 +4070,13 @@ Thank you in advance.</textarea>
     }
 
     function addCategoryRow() {
-      editingCategories.push({ id: genCategoryId(), name: '', pct: 0 });
+      editingCategories.push({ id: genCategoryId(), name: '', amount: 0 });
       renderPlanCategories(projects.find(p => p['Project Code'] === editingProjectCode));
     }
 
     function updateCategoryField(ci, field, value) {
       if (!editingCategories[ci]) return;
-      editingCategories[ci][field] = field === 'pct' ? (parseFloat(value) || 0) : value;
+      editingCategories[ci][field] = (field === 'pct' || field === 'amount') ? (parseFloat(value) || 0) : value;
       renderPlanCategories(projects.find(p => p['Project Code'] === editingProjectCode));
     }
 
@@ -4093,9 +4119,13 @@ Thank you in advance.</textarea>
         return;
       }
 
-      const catPctTotal = editingCategories.reduce((s, c) => s + (parseFloat(c.pct) || 0), 0);
-      if (editingCategories.length && Math.round(catPctTotal) !== 100) {
-        showToast('Categories must add up to 100% of Project Value', 'error');
+      const proj = projects.find(p => p['Project Code'] === code);
+      const fixedTotal = editingInstallments.filter(r => r.amount_type === 'fixed').reduce((s, r) => s + (parseFloat(r.fixed_amount) || 0), 0);
+      const pctBase = Math.max(0, (proj ? (proj['Project Value'] || 0) : 0) - fixedTotal);
+
+      const catAmountTotal = editingCategories.reduce((s, c) => s + getCategoryBaseAmount(c, pctBase), 0);
+      if (editingCategories.length && Math.abs(pctBase - catAmountTotal) >= 1) {
+        showToast(`Categories total ${formatCurrency(catAmountTotal)} but should be ${formatCurrency(pctBase)} (Project Value minus Change Orders)`, 'error');
         return;
       }
 
@@ -4109,7 +4139,6 @@ Thank you in advance.</textarea>
         }
       }
 
-      const proj = projects.find(p => p['Project Code'] === code);
       const currentValue = proj ? (proj['Project Value'] || 0) : null;
 
       const now = new Date().toISOString();
@@ -4147,11 +4176,11 @@ Thank you in advance.</textarea>
         return;
       }
       delete projectPaymentPlans[code];
-      editingCategories = [{ id: genCategoryId(), name: '', pct: 100 }];
+      const proj = projects.find(p => p['Project Code'] === code);
+      editingCategories = [{ id: genCategoryId(), name: '', amount: proj ? (proj['Project Value'] || 0) : 0 }];
       editingInstallments = [];
       const valueWarning = document.getElementById('planValueChangeWarning');
       if (valueWarning) valueWarning.style.display = 'none';
-      const proj = projects.find(p => p['Project Code'] === code);
       renderPlanCategories(proj);
       renderPlanFixedRows(proj);
       renderDashboard();
@@ -4165,9 +4194,7 @@ Thank you in advance.</textarea>
       if (warning) warning.style.display = paymentSchemaMissing ? 'block' : 'none';
 
       renderTemplateList();
-      newTemplateInstallments = [];
-      document.getElementById('newTemplateName').value = '';
-      renderNewTemplateInstallments();
+      resetTemplateForm();
       document.getElementById('templateManagerModal').classList.add('active');
     }
 
@@ -4192,10 +4219,46 @@ Thank you in advance.</textarea>
               <div style="font-size:12.5px;font-weight:700;color:var(--ink);">${escapeHtml(t.name)}</div>
               <div style="font-size:10.5px;color:var(--ink-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(summary)}</div>
             </div>
-            <button onclick="deleteTemplate('${t.id}')" style="border:none;background:none;color:var(--overdue);cursor:pointer;font-size:11.5px;font-weight:600;white-space:nowrap;">Delete</button>
+            <div style="display:flex;gap:12px;flex-shrink:0;">
+              <button onclick="editTemplate('${t.id}')" style="border:none;background:none;color:var(--navy-700);cursor:pointer;font-size:11.5px;font-weight:600;white-space:nowrap;">Edit</button>
+              <button onclick="deleteTemplate('${t.id}')" style="border:none;background:none;color:var(--overdue);cursor:pointer;font-size:11.5px;font-weight:600;white-space:nowrap;">Delete</button>
+            </div>
           </div>
         `;
       }).join('');
+    }
+
+    // Loads an existing template into the form below, switching it into
+    // "edit" mode — Save Template then updates this template in place
+    // instead of creating a new one.
+    function editTemplate(id) {
+      const tmpl = paymentTemplates.find(t => t.id === id);
+      if (!tmpl) return;
+      editingTemplateId = id;
+      document.getElementById('newTemplateName').value = tmpl.name;
+      newTemplateInstallments = JSON.parse(JSON.stringify(tmpl.installments || []));
+      renderNewTemplateInstallments();
+
+      const label = document.getElementById('templateFormLabel');
+      if (label) label.textContent = `Editing "${tmpl.name}"`;
+      const cancelLink = document.getElementById('templateCancelEditLink');
+      if (cancelLink) cancelLink.style.display = 'inline';
+      const saveBtn = document.getElementById('templateSaveBtn');
+      if (saveBtn) saveBtn.textContent = 'Update Template';
+    }
+
+    function resetTemplateForm() {
+      editingTemplateId = null;
+      newTemplateInstallments = [];
+      document.getElementById('newTemplateName').value = '';
+      renderNewTemplateInstallments();
+
+      const label = document.getElementById('templateFormLabel');
+      if (label) label.textContent = 'New Template';
+      const cancelLink = document.getElementById('templateCancelEditLink');
+      if (cancelLink) cancelLink.style.display = 'none';
+      const saveBtn = document.getElementById('templateSaveBtn');
+      if (saveBtn) saveBtn.textContent = 'Save Template';
     }
 
     function addNewTemplateRow() {
@@ -4255,25 +4318,36 @@ Thank you in advance.</textarea>
         return;
       }
 
+      const isEditing = !!editingTemplateId;
       try {
-        const { data, error } = await supabaseClient.from('payment_term_templates').insert({
-          name,
-          installments: newTemplateInstallments,
-          is_builtin: false
-        }).select();
-        if (error) throw error;
-        if (data && data[0]) paymentTemplates.push(data[0]);
+        if (isEditing) {
+          const { data, error } = await supabaseClient.from('payment_term_templates')
+            .update({ name, installments: newTemplateInstallments })
+            .eq('id', editingTemplateId)
+            .select();
+          if (error) throw error;
+          if (data && data[0]) {
+            const idx = paymentTemplates.findIndex(t => t.id === editingTemplateId);
+            if (idx >= 0) paymentTemplates[idx] = data[0];
+          }
+        } else {
+          const { data, error } = await supabaseClient.from('payment_term_templates').insert({
+            name,
+            installments: newTemplateInstallments,
+            is_builtin: false
+          }).select();
+          if (error) throw error;
+          if (data && data[0]) paymentTemplates.push(data[0]);
+        }
       } catch (e) {
         console.error('Template save error:', e);
         showToast(explainSupabaseError(e, 'Error saving template'), 'error');
         return;
       }
 
-      newTemplateInstallments = [];
-      document.getElementById('newTemplateName').value = '';
-      renderNewTemplateInstallments();
+      resetTemplateForm();
       renderTemplateList();
-      showToast('✓ Template saved');
+      showToast(isEditing ? '✓ Template updated' : '✓ Template saved');
     }
 
     async function deleteTemplate(id) {
@@ -4287,6 +4361,7 @@ Thank you in advance.</textarea>
         return;
       }
       paymentTemplates = paymentTemplates.filter(t => t.id !== id);
+      if (editingTemplateId === id) resetTemplateForm();
       renderTemplateList();
       showToast('✓ Template deleted');
     }
