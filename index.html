@@ -219,6 +219,14 @@
     .revision-set { background: var(--upcoming-bg); color: var(--upcoming); }
     .revision-notset { background: var(--nodate-bg); color: var(--nodate); }
     .revision-needed { background: var(--overdue-bg); color: var(--overdue); }
+    .plan-category-block { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 14px; }
+    .plan-category-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+    .plan-category-header input[type="text"] { flex: 1; min-width: 140px; padding: 8px 10px; border: 1.5px solid var(--navy-700); border-radius: 7px; font-size: 13px; font-weight: 700; color: var(--navy-800); font-family: inherit; background: var(--surface); }
+    .plan-category-header .pct-wrap { display: flex; align-items: center; gap: 4px; }
+    .plan-category-header input[type="number"] { width: 64px; padding: 8px; border: 1px solid var(--border); border-radius: 7px; font-size: 13px; text-align: right; font-family: inherit; }
+    .plan-category-header select { padding: 8px; border: 1px solid var(--border); border-radius: 7px; font-size: 11.5px; background: var(--surface); font-family: inherit; max-width: 150px; }
+    .plan-category-remove-btn { border: none; background: none; color: var(--overdue); cursor: pointer; font-size: 15px; padding: 4px; }
+    .plan-category-subtotal { font-size: 11px; font-weight: 700; margin-top: 8px; text-align: right; }
     .empty-state { text-align: center; padding: 60px 20px; }
     .empty-icon { font-size: 40px; margin-bottom: 14px; opacity: 0.5; }
     .empty-title { font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 6px; }
@@ -721,24 +729,23 @@
 
       <!-- Payment Plan -->
       <div class="plan-mode-panel" id="planPanelPlan" style="display:none;">
-        <div style="display:flex;gap:8px;align-items:center;margin-bottom:14px;">
-          <select id="planTemplateSelect" style="flex:1;padding:9px;border:1.5px solid var(--border);border-radius:8px;font-size:12.5px;background:var(--surface);font-family:inherit;"></select>
-          <button class="btn" style="padding:9px 16px;background:var(--brass);color:#3d2a00;border:none;border-radius:8px;font-size:12px;cursor:pointer;font-weight:700;white-space:nowrap;" onclick="applyPaymentTemplate()">Apply</button>
+        <div style="font-size:11px;font-weight:700;color:var(--navy-700);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">Categories (each a % of Project Value)</div>
+        <div id="planCategoriesContainer"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;margin-bottom:22px;flex-wrap:wrap;gap:8px;">
+          <button class="btn" style="padding:7px 14px;background:var(--bg);border:1px dashed var(--border);border-radius:8px;font-size:11.5px;cursor:pointer;color:var(--ink-soft);" onclick="addCategoryRow()">+ Add Category</button>
+          <span id="planCategoryTotalIndicator" style="font-size:12px;font-weight:700;"></span>
         </div>
 
-        <div class="plan-table-header">
-          <span>%</span><span>Milestone</span><span>Date</span><span>Label</span><span>Amount</span><span>Invoiced</span><span></span>
-        </div>
-        <div id="planInstallmentsContainer"></div>
-
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;flex-wrap:wrap;gap:8px;">
-          <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <button class="btn" style="padding:7px 14px;background:var(--bg);border:1px dashed var(--border);border-radius:8px;font-size:11.5px;cursor:pointer;color:var(--ink-soft);" onclick="addPlanInstallmentRow()">+ Add Installment</button>
-            <button class="btn" style="padding:7px 14px;background:#fef0d6;border:1px dashed var(--brass-dark);border-radius:8px;font-size:11.5px;cursor:pointer;color:var(--brass-dark);font-weight:600;" onclick="addFixedAmountRow()" title="For change orders, materials, PO extensions — extras that aren't a % of Project Value">+ Add Change Order</button>
+        <div style="border-top:1px dashed var(--border);padding-top:16px;">
+          <div style="font-size:11px;font-weight:700;color:var(--brass-dark);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">Change Orders (extra, on top of the categories above)</div>
+          <div class="plan-table-header">
+            <span>Amount</span><span>Milestone</span><span>Date</span><span>Label</span><span>Amount</span><span>Invoiced</span><span></span>
           </div>
-          <span id="planTotalIndicator" style="font-size:12px;font-weight:700;"></span>
+          <div id="planFixedRowsContainer"></div>
+          <button class="btn" style="padding:7px 14px;background:#fef0d6;border:1px dashed var(--brass-dark);border-radius:8px;font-size:11.5px;cursor:pointer;color:var(--brass-dark);font-weight:600;margin-top:8px;" onclick="addFixedAmountRow()">+ Add Change Order</button>
         </div>
-        <div id="planAdjustedValue" style="display:none;font-size:11px;color:var(--ink-muted);margin-top:6px;text-align:right;"></div>
+
+        <div id="planAdjustedValue" style="display:none;font-size:11px;color:var(--ink-muted);margin-top:14px;text-align:right;"></div>
 
         <div style="display:flex;gap:8px;margin-top:16px;">
           <button class="btn-cancel" style="color:var(--overdue);border-color:var(--overdue);" onclick="clearPaymentPlan()">Clear Plan</button>
@@ -920,6 +927,7 @@ Thank you in advance.</textarea>
     let projectPaymentPlans = {};
     let editingProjectCode = null;
     let editingInstallments = [];
+    let editingCategories = [];
     let newTemplateInstallments = [];
     let paymentSchemaMissing = false;
     let currentFilter = ['all'];
@@ -1370,51 +1378,107 @@ Thank you in advance.</textarea>
     // table and for the calendar's hover breakdown — never for placing
     // multiple calendar chips (that still uses Next Invoice Date only,
     // to avoid duplicate chips).
+    // A saved plan's `installments` column can be either the old flat
+    // array (pre-categories) or the new { categories, rows } shape.
+    // This normalizes either into { categories, rows } so every other
+    // function only has to deal with one format. Legacy flat plans
+    // become a single unnamed category worth 100% of Project Value,
+    // which reproduces their old behavior exactly.
+    function normalizePlanData(raw) {
+      if (!raw) return { categories: [], rows: [] };
+      if (Array.isArray(raw)) {
+        const rows = raw.map(r => ({ ...r }));
+        const hasPct = rows.some(r => r.amount_type !== 'fixed');
+        const categories = hasPct ? [{ id: 'default', name: '', pct: 100 }] : [];
+        rows.forEach(r => { r.category = r.amount_type === 'fixed' ? null : 'default'; });
+        return { categories, rows };
+      }
+      return {
+        categories: (raw.categories || []).map(c => ({ ...c })),
+        rows: (raw.rows || []).map(r => ({ ...r }))
+      };
+    }
+
+    // The full breakdown of a project's invoice events. If a payment plan
+    // is saved, every category's % is applied against Project Value minus
+    // Change Orders, then each category's own installments split that
+    // category's share. All rows (across every category, plus Change
+    // Orders) are sorted by resolved date to determine which dollars are
+    // "already invoiced" — invoicing happens chronologically regardless
+    // of which category (Material, Labor, etc.) a line item belongs to.
+    // Otherwise returns a single Next Invoice Date event using the manual
+    // override or auto-estimate.
     function getProjectInvoiceEvents(p) {
       const code = p['Project Code'];
       const plan = projectPaymentPlans[code];
 
-      if (plan && plan.installments && plan.installments.length) {
-        const actualInvoiced = p['Invoiced Value'] || 0;
-        const DOLLAR_EPSILON = 1;
+      if (plan && plan.installments) {
+        const { categories, rows } = normalizePlanData(plan.installments);
+        if (rows.length) {
+          const actualInvoiced = p['Invoiced Value'] || 0;
+          const DOLLAR_EPSILON = 1;
 
-        const fixedTotal = plan.installments
-          .filter(i => i.amount_type === 'fixed')
-          .reduce((s, i) => s + (parseFloat(i.fixed_amount) || 0), 0);
-        const pctBase = Math.max(0, (p['Project Value'] || 0) - fixedTotal);
+          const fixedTotal = rows.filter(r => r.amount_type === 'fixed').reduce((s, r) => s + (parseFloat(r.fixed_amount) || 0), 0);
+          const pctBase = Math.max(0, (p['Project Value'] || 0) - fixedTotal);
 
-        let cumulativeNominal = 0;
-        let runningBudget = Math.max(0, p['Remaining Inv'] || 0);
+          const catPctMap = {};
+          categories.forEach(c => { catPctMap[c.id] = parseFloat(c.pct) || 0; });
 
-        return plan.installments.map((inst, i) => {
-          const date = resolveInstallmentDate(inst, p);
-          const isFixed = inst.amount_type === 'fixed';
-          const nominalAmount = isFixed
-            ? (parseFloat(inst.fixed_amount) || 0)
-            : pctBase * (parseFloat(inst.pct) || 0) / 100;
+          const resolved = rows.map((r, i) => {
+            const isFixed = r.amount_type === 'fixed';
+            const date = resolveInstallmentDate(r, p);
+            const nominal = isFixed
+              ? (parseFloat(r.fixed_amount) || 0)
+              : pctBase * ((catPctMap[r.category] ?? 0) / 100) * ((parseFloat(r.pct) || 0) / 100);
+            return { i, r, isFixed, date, nominal };
+          });
 
-          cumulativeNominal += nominalAmount;
-          const invoiced = actualInvoiced >= (cumulativeNominal - DOLLAR_EPSILON);
+          const ordered = resolved.slice().sort((a, b) => {
+            if (!a.date && !b.date) return a.i - b.i;
+            if (!a.date) return 1;
+            if (!b.date) return -1;
+            return a.date - b.date;
+          });
 
-          let amount = nominalAmount;
-          if (!invoiced) {
-            amount = Math.min(nominalAmount, runningBudget);
-            runningBudget -= amount;
-          }
+          let cumulativeNominal = 0;
+          let runningBudget = Math.max(0, p['Remaining Inv'] || 0);
+          const invoicedFlags = new Array(rows.length);
+          const amounts = new Array(rows.length);
 
-          return {
-            date,
-            amount,
-            nominalAmount,
-            label: inst.label || `Installment ${i + 1}`,
-            pct: inst.pct,
-            amountType: isFixed ? 'fixed' : 'pct',
-            invoiced,
-            isPlan: true,
-            isManual: false,
-            index: i
-          };
-        });
+          ordered.forEach(item => {
+            cumulativeNominal += item.nominal;
+            const invoiced = actualInvoiced >= (cumulativeNominal - DOLLAR_EPSILON);
+            let amount = item.nominal;
+            if (!invoiced) {
+              amount = Math.min(item.nominal, runningBudget);
+              runningBudget -= amount;
+            }
+            invoicedFlags[item.i] = invoiced;
+            amounts[item.i] = amount;
+          });
+
+          const catNameMap = {};
+          categories.forEach(c => { catNameMap[c.id] = c.name; });
+
+          return rows.map((r, i) => {
+            const isFixed = r.amount_type === 'fixed';
+            const catName = r.category ? catNameMap[r.category] : null;
+            const baseLabel = r.label || `Installment ${i + 1}`;
+            return {
+              date: resolved[i].date,
+              amount: amounts[i],
+              nominalAmount: resolved[i].nominal,
+              label: catName ? `${catName} — ${baseLabel}` : baseLabel,
+              category: catName || null,
+              pct: r.pct,
+              amountType: isFixed ? 'fixed' : 'pct',
+              invoiced: invoicedFlags[i],
+              isPlan: true,
+              isManual: false,
+              index: i
+            };
+          });
+        }
       }
 
       const info = getInvoiceAmountInfo(p);
@@ -1422,6 +1486,7 @@ Thank you in advance.</textarea>
         date: parseFlexibleDate(p['Next Invoice Date']),
         amount: info.amount,
         label: info.isManual ? 'Manual Amount' : 'Next Invoice',
+        category: null,
         pct: null,
         invoiced: false,
         isPlan: false,
@@ -1435,12 +1500,15 @@ Thank you in advance.</textarea>
     // or set (plan exists and matches the current Project Value).
     function getPaymentPlanStatus(p) {
       const plan = projectPaymentPlans[p['Project Code']];
-      if (!plan || !plan.installments || !plan.installments.length) return 'not_set';
+      if (!plan || !plan.installments) return 'not_set';
+      const { rows } = normalizePlanData(plan.installments);
+      if (!rows.length) return 'not_set';
       const saved = plan.valueAtSave;
       const current = p['Project Value'] || 0;
       if (saved !== null && saved !== undefined && Math.abs(current - saved) >= 1) return 'needs_revision';
       return 'set';
     }
+
 
     function getStatusForDate(d) {
       if (!d) return 'No Date';
@@ -1822,12 +1890,18 @@ Thank you in advance.</textarea>
         const pendingDated = events.filter(e => !e.invoiced && e.date).sort((a, b) => a.date - b.date);
         const nextEvent = pendingDated[0] || null;
 
-        const changeOrderTotal = plan ? (plan.installments || [])
-          .filter(i => i.amount_type === 'fixed')
-          .reduce((s, i) => s + (parseFloat(i.fixed_amount) || 0), 0) : 0;
+        const planData = plan ? normalizePlanData(plan.installments) : { categories: [], rows: [] };
+        const changeOrderTotal = planData.rows
+          .filter(r => r.amount_type === 'fixed')
+          .reduce((s, r) => s + (parseFloat(r.fixed_amount) || 0), 0);
 
-        const termsSummary = plan && plan.installments && plan.installments.length
-          ? plan.installments.filter(i => i.amount_type !== 'fixed').map(i => `${i.pct}%`).join('/') + (changeOrderTotal > 0 ? ' + CO' : '')
+        const termsSummary = planData.rows.length
+          ? planData.categories.map(c => {
+              const catRows = planData.rows.filter(r => r.category === c.id && r.amount_type !== 'fixed');
+              const inner = catRows.map(r => `${r.pct}%`).join('/');
+              const label = c.name ? `${c.name} ` : '';
+              return `${label}${c.pct}%(${inner || '—'})`;
+            }).join(' + ') + (changeOrderTotal > 0 ? ' + CO' : '')
           : '—';
 
         const statusBadge = status === 'set'
@@ -3684,10 +3758,11 @@ Thank you in advance.</textarea>
       manualInput.value = (!plan && info.isManual) ? info.amount : '';
 
       const valueWarning = document.getElementById('planValueChangeWarning');
+      const planData = plan ? normalizePlanData(plan.installments) : { categories: [], rows: [] };
       if (valueWarning) {
         const savedVal = plan ? plan.valueAtSave : null;
         const currentVal = proj['Project Value'] || 0;
-        if (plan && plan.installments && plan.installments.length && savedVal !== null && savedVal !== undefined && Math.abs(currentVal - savedVal) >= 1) {
+        if (planData.rows.length && savedVal !== null && savedVal !== undefined && Math.abs(currentVal - savedVal) >= 1) {
           const diff = currentVal - savedVal;
           const sign = diff > 0 ? '+' : '−';
           valueWarning.textContent = `⚠ Project Value has changed by ${sign}${formatCurrency(Math.abs(diff))} since you last saved this plan (${formatCurrency(savedVal)} → ${formatCurrency(currentVal)}) — check whether that's a new change order.`;
@@ -3697,11 +3772,20 @@ Thank you in advance.</textarea>
         }
       }
 
-      editingInstallments = plan ? JSON.parse(JSON.stringify(plan.installments)) : [];
-      renderPlanTemplateOptions();
-      renderPlanInstallments(proj);
+      if (planData.rows.length || planData.categories.length) {
+        editingCategories = JSON.parse(JSON.stringify(planData.categories));
+        editingInstallments = JSON.parse(JSON.stringify(planData.rows));
+      } else {
+        // New plan: start with one unnamed category worth 100% of Project
+        // Value — the simple single-schedule case (e.g. 30/30/40) needs
+        // no extra setup; rename it or add more categories as needed.
+        editingCategories = [{ id: genCategoryId(), name: '', pct: 100 }];
+        editingInstallments = [];
+      }
+      renderPlanCategories(proj);
+      renderPlanFixedRows(proj);
 
-      const defaultMode = (plan && plan.installments && plan.installments.length) ? 'plan' : (info.isManual ? 'manual' : 'estimate');
+      const defaultMode = planData.rows.length ? 'plan' : (info.isManual ? 'manual' : 'estimate');
       setPlanMode(defaultMode);
 
       document.getElementById('invoiceAmountModal').classList.add('active');
@@ -3759,103 +3843,193 @@ Thank you in advance.</textarea>
       showToast('✓ Reverted to auto-estimate');
     }
 
-    function renderPlanTemplateOptions() {
-      const select = document.getElementById('planTemplateSelect');
-      if (!select) return;
-      select.innerHTML = '<option value="">Choose a template…</option>' +
+    function genCategoryId() {
+      return 'cat_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+    }
+
+    function templateOptionsHtml() {
+      return '<option value="">Choose a template…</option>' +
         paymentTemplates.map(t => `<option value="${t.id}">${escapeHtml(t.name)}</option>`).join('');
     }
 
-    function applyPaymentTemplate() {
-      const select = document.getElementById('planTemplateSelect');
+    // Applies a template's installments as the given category's rows,
+    // replacing whatever that category already had. Templates are always
+    // saved as plain % splits, so they drop straight into any category.
+    function applyPaymentTemplate(catId) {
+      const select = document.getElementById('planCatTemplateSelect_' + catId);
+      if (!select) return;
       const tmpl = paymentTemplates.find(t => t.id === select.value);
       if (!tmpl) {
         showToast('Choose a template first', 'error');
         return;
       }
-      const pctRows = JSON.parse(JSON.stringify(tmpl.installments)).map(inst => ({
+      const newRows = JSON.parse(JSON.stringify(tmpl.installments)).map(inst => ({
+        category: catId,
         pct: inst.pct,
         milestone: inst.milestone,
         label: inst.label || '',
         custom_date: inst.custom_date || '',
         amount_type: 'pct'
       }));
-      const existingFixedRows = editingInstallments.filter(i => i.amount_type === 'fixed');
-      editingInstallments = pctRows.concat(existingFixedRows);
+      editingInstallments = editingInstallments.filter(r => r.category !== catId).concat(newRows);
       const proj = projects.find(p => p['Project Code'] === editingProjectCode);
-      renderPlanInstallments(proj);
+      renderPlanCategories(proj);
     }
 
-    function renderPlanInstallments(proj) {
-      const container = document.getElementById('planInstallmentsContainer');
-      if (!container || !proj) return;
+    // Computes nominal + actual amounts and "already invoiced" flags for
+    // every row currently being edited (categories + change orders), in
+    // one pass — mirrors getProjectInvoiceEvents() but operates on the
+    // in-progress draft rather than a saved plan, so the modal's preview
+    // (amounts, ✓ Invoiced checkmarks) matches exactly what will be
+    // saved. Rows are ordered by resolved date, same as the saved logic.
+    function computeEditingPlanAmounts(proj) {
+      const fixedTotal = editingInstallments.filter(r => r.amount_type === 'fixed').reduce((s, r) => s + (parseFloat(r.fixed_amount) || 0), 0);
+      const pctBase = Math.max(0, (proj['Project Value'] || 0) - fixedTotal);
+      const catPctMap = {};
+      editingCategories.forEach(c => { catPctMap[c.id] = parseFloat(c.pct) || 0; });
+
+      const resolved = editingInstallments.map((r, i) => {
+        const isFixed = r.amount_type === 'fixed';
+        const date = r.milestone === 'start' ? parseFlexibleDate(proj['Project Start'])
+          : r.milestone === 'end' ? parseFlexibleDate(proj['Project End'])
+          : (r.milestone === 'custom' && r.custom_date ? parseFlexibleDate(r.custom_date) : null);
+        const nominal = isFixed
+          ? (parseFloat(r.fixed_amount) || 0)
+          : pctBase * ((catPctMap[r.category] ?? 0) / 100) * ((parseFloat(r.pct) || 0) / 100);
+        return { i, isFixed, date, nominal };
+      });
+
+      const ordered = resolved.slice().sort((a, b) => {
+        if (!a.date && !b.date) return a.i - b.i;
+        if (!a.date) return 1;
+        if (!b.date) return -1;
+        return a.date - b.date;
+      });
 
       const actualInvoiced = proj['Invoiced Value'] || 0;
       const DOLLAR_EPSILON = 1;
-      let cumulativeNominal = 0;
+      let cumulative = 0;
+      const amounts = new Array(editingInstallments.length);
+      const invoicedFlags = new Array(editingInstallments.length);
+      ordered.forEach(item => {
+        cumulative += item.nominal;
+        invoicedFlags[item.i] = actualInvoiced >= (cumulative - DOLLAR_EPSILON);
+        amounts[item.i] = item.nominal;
+      });
 
-      const fixedTotalForBase = editingInstallments.filter(i => i.amount_type === 'fixed').reduce((s, i) => s + (parseFloat(i.fixed_amount) || 0), 0);
-      const pctBase = Math.max(0, (proj['Project Value'] || 0) - fixedTotalForBase);
+      return { pctBase, fixedTotal, amounts, invoicedFlags };
+    }
 
-      if (!editingInstallments.length) {
-        container.innerHTML = '<div style="font-size:11.5px;color:var(--ink-muted);padding:8px 0;">No installments yet — apply a template above, or add one manually.</div>';
+    // Renders one installment row's markup — used for both category (%)
+    // rows and Change Order (fixed $) rows, which share the same grid.
+    function renderInstallmentRowHtml(inst, i, amount, invoiced, isFixed, proj) {
+      const resolved = inst.milestone === 'start' ? parseFlexibleDate(proj['Project Start'])
+        : inst.milestone === 'end' ? parseFlexibleDate(proj['Project End'])
+        : null;
+      const dateDisplay = resolved ? formatDateObj(resolved) : '—';
+      const dateCell = inst.milestone === 'custom'
+        ? `<input type="date" class="plan-input" value="${inst.custom_date || ''}" onchange="updatePlanRow(${i},'custom_date',this.value)">`
+        : `<span style="font-size:11px;color:var(--ink-muted);">${dateDisplay}</span>`;
+      const invoicedCell = invoiced
+        ? `<span style="color:var(--upcoming);font-weight:700;font-size:12px;" title="Invoiced Value from your latest import covers this installment">✓</span>`
+        : `<span style="color:var(--ink-muted);font-size:11px;" title="Not yet covered by Invoiced Value">—</span>`;
+      const firstCell = isFixed
+        ? `<input type="number" min="0" step="0.01" class="plan-input" value="${inst.fixed_amount || 0}" title="Fixed dollar amount" onchange="updatePlanRow(${i},'fixed_amount',this.value)">`
+        : `<input type="number" min="0" max="100" class="plan-input" value="${inst.pct}" title="% of this category's share" onchange="updatePlanRow(${i},'pct',this.value)">`;
+      return `
+        <div class="plan-table-row ${invoiced ? 'is-invoiced' : ''} ${isFixed ? 'is-fixed' : ''}">
+          ${firstCell}
+          <select class="plan-select" onchange="updatePlanRow(${i},'milestone',this.value)">
+            <option value="start" ${inst.milestone === 'start' ? 'selected' : ''}>Project Start</option>
+            <option value="end" ${inst.milestone === 'end' ? 'selected' : ''}>Project End</option>
+            <option value="custom" ${inst.milestone === 'custom' ? 'selected' : ''}>Custom Date</option>
+          </select>
+          ${dateCell}
+          <input type="text" class="plan-input" value="${escapeHtml(inst.label || '')}" placeholder="${isFixed ? 'e.g. Change Order #1' : 'Label'}" onchange="updatePlanRow(${i},'label',this.value)">
+          <span class="plan-amount-display">${formatCurrency(amount)}</span>
+          <span class="plan-invoiced-check">${invoicedCell}</span>
+          <button class="plan-remove-btn" title="Remove" onclick="removePlanInstallmentRow(${i})">✕</button>
+        </div>
+      `;
+    }
+
+    function renderPlanCategories(proj) {
+      const container = document.getElementById('planCategoriesContainer');
+      if (!container || !proj) return;
+
+      const { amounts, invoicedFlags } = computeEditingPlanAmounts(proj);
+
+      if (!editingCategories.length) {
+        container.innerHTML = '<div style="font-size:11.5px;color:var(--ink-muted);padding:8px 0;">No categories yet — add one to start building a payment plan.</div>';
       } else {
-        container.innerHTML = editingInstallments.map((inst, i) => {
-          const isFixed = inst.amount_type === 'fixed';
-          const amount = isFixed
-            ? (parseFloat(inst.fixed_amount) || 0)
-            : pctBase * (parseFloat(inst.pct) || 0) / 100;
-          const resolved = inst.milestone === 'start' ? parseFlexibleDate(proj['Project Start'])
-            : inst.milestone === 'end' ? parseFlexibleDate(proj['Project End'])
-            : null;
-          const dateDisplay = resolved ? formatDateObj(resolved) : '—';
-          const dateCell = inst.milestone === 'custom'
-            ? `<input type="date" class="plan-input" value="${inst.custom_date || ''}" onchange="updatePlanRow(${i},'custom_date',this.value)">`
-            : `<span style="font-size:11px;color:var(--ink-muted);">${dateDisplay}</span>`;
-          cumulativeNominal += amount;
-          const invoiced = actualInvoiced >= (cumulativeNominal - DOLLAR_EPSILON);
-          const invoicedCell = invoiced
-            ? `<span style="color:var(--upcoming);font-weight:700;font-size:12px;" title="Invoiced Value from your latest import covers this installment">✓</span>`
-            : `<span style="color:var(--ink-muted);font-size:11px;" title="Not yet covered by Invoiced Value">—</span>`;
-          const firstCell = isFixed
-            ? `<input type="number" min="0" step="0.01" class="plan-input" value="${inst.fixed_amount || 0}" title="Fixed dollar amount" onchange="updatePlanRow(${i},'fixed_amount',this.value)">`
-            : `<input type="number" min="0" max="100" class="plan-input" value="${inst.pct}" title="% of Project Value minus change orders" onchange="updatePlanRow(${i},'pct',this.value)">`;
+        container.innerHTML = editingCategories.map((cat, ci) => {
+          const catRowsWithIndex = editingInstallments
+            .map((r, i) => ({ r, i }))
+            .filter(x => x.r.category === cat.id && x.r.amount_type !== 'fixed');
+
+          const rowsHtml = catRowsWithIndex.length
+            ? catRowsWithIndex.map(({ r, i }) => renderInstallmentRowHtml(r, i, amounts[i], invoicedFlags[i], false, proj)).join('')
+            : '<div style="font-size:11px;color:var(--ink-muted);padding:6px 0;">No installments yet — apply a template, or add one manually.</div>';
+
+          const pctTotal = catRowsWithIndex.reduce((s, x) => s + (parseFloat(x.r.pct) || 0), 0);
+          const subtotalColor = pctTotal === 100 ? 'var(--upcoming)' : 'var(--overdue)';
+          const subtotalText = `${pctTotal}%` + (pctTotal === 100 ? ' ✓' : pctTotal > 100 ? ' — over 100%' : ' — under 100%');
+
           return `
-            <div class="plan-table-row ${invoiced ? 'is-invoiced' : ''} ${isFixed ? 'is-fixed' : ''}">
-              ${firstCell}
-              <select class="plan-select" onchange="updatePlanRow(${i},'milestone',this.value)">
-                <option value="start" ${inst.milestone === 'start' ? 'selected' : ''}>Project Start</option>
-                <option value="end" ${inst.milestone === 'end' ? 'selected' : ''}>Project End</option>
-                <option value="custom" ${inst.milestone === 'custom' ? 'selected' : ''}>Custom Date</option>
-              </select>
-              ${dateCell}
-              <input type="text" class="plan-input" value="${escapeHtml(inst.label || '')}" placeholder="${isFixed ? 'e.g. Change Order #1' : 'Label'}" onchange="updatePlanRow(${i},'label',this.value)">
-              <span class="plan-amount-display">${formatCurrency(amount)}</span>
-              <span class="plan-invoiced-check">${invoicedCell}</span>
-              <button class="plan-remove-btn" title="Remove" onclick="removePlanInstallmentRow(${i})">✕</button>
+            <div class="plan-category-block">
+              <div class="plan-category-header">
+                <input type="text" value="${escapeHtml(cat.name)}" placeholder="Category name (e.g. Material, Labor)" onchange="updateCategoryField(${ci},'name',this.value)">
+                <div class="pct-wrap">
+                  <input type="number" min="0" max="100" value="${cat.pct}" onchange="updateCategoryField(${ci},'pct',this.value)"> <span style="font-size:12px;color:var(--ink-muted);">% of Project Value</span>
+                </div>
+                <select id="planCatTemplateSelect_${cat.id}">${templateOptionsHtml()}</select>
+                <button class="btn" style="padding:7px 12px;background:var(--brass);color:#3d2a00;border:none;border-radius:7px;font-size:11px;cursor:pointer;font-weight:700;white-space:nowrap;" onclick="applyPaymentTemplate('${cat.id}')">Apply</button>
+                <button class="plan-category-remove-btn" title="Remove category and its installments" onclick="removeCategoryRow(${ci})">✕</button>
+              </div>
+              <div class="plan-table-header">
+                <span>%</span><span>Milestone</span><span>Date</span><span>Label</span><span>Amount</span><span>Invoiced</span><span></span>
+              </div>
+              ${rowsHtml}
+              <button class="btn" style="padding:6px 12px;background:var(--surface);border:1px dashed var(--border);border-radius:7px;font-size:11px;cursor:pointer;color:var(--ink-soft);margin-top:4px;" onclick="addPlanInstallmentRow('${cat.id}')">+ Add Installment</button>
+              <div class="plan-category-subtotal" style="color:${subtotalColor};">Category installments: ${subtotalText}</div>
             </div>
           `;
         }).join('');
       }
 
-      const pctTotal = editingInstallments.filter(i => i.amount_type !== 'fixed').reduce((s, i) => s + (parseFloat(i.pct) || 0), 0);
-      const fixedTotal = editingInstallments.filter(i => i.amount_type === 'fixed').reduce((s, i) => s + (parseFloat(i.fixed_amount) || 0), 0);
-      const indicator = document.getElementById('planTotalIndicator');
-      if (indicator) {
-        let text = `% terms: ${pctTotal}%` + (pctTotal === 100 ? ' ✓' : pctTotal > 100 ? ' — over 100%' : ' — under 100%');
-        if (fixedTotal > 0) text += ` &nbsp;+&nbsp; ${formatCurrency(fixedTotal)} change order`;
-        indicator.innerHTML = text;
-        indicator.style.color = pctTotal === 100 ? 'var(--upcoming)' : 'var(--overdue)';
+      const catPctTotal = editingCategories.reduce((s, c) => s + (parseFloat(c.pct) || 0), 0);
+      const catIndicator = document.getElementById('planCategoryTotalIndicator');
+      if (catIndicator) {
+        catIndicator.textContent = `Categories: ${catPctTotal}%` + (catPctTotal === 100 ? ' ✓' : catPctTotal > 100 ? ' — over 100%' : ' — under 100%');
+        catIndicator.style.color = catPctTotal === 100 ? 'var(--upcoming)' : 'var(--overdue)';
       }
 
+      updatePlanAdjustedValueNote(proj);
+    }
+
+    function renderPlanFixedRows(proj) {
+      const container = document.getElementById('planFixedRowsContainer');
+      if (!container || !proj) return;
+
+      const { amounts, invoicedFlags } = computeEditingPlanAmounts(proj);
+      const fixedWithIndex = editingInstallments.map((r, i) => ({ r, i })).filter(x => x.r.amount_type === 'fixed');
+
+      container.innerHTML = fixedWithIndex.length
+        ? fixedWithIndex.map(({ r, i }) => renderInstallmentRowHtml(r, i, amounts[i], invoicedFlags[i], true, proj)).join('')
+        : '<div style="font-size:11.5px;color:var(--ink-muted);padding:6px 0;">No change orders on this project.</div>';
+
+      updatePlanAdjustedValueNote(proj);
+    }
+
+    function updatePlanAdjustedValueNote(proj) {
+      const fixedTotal = editingInstallments.filter(r => r.amount_type === 'fixed').reduce((s, r) => s + (parseFloat(r.fixed_amount) || 0), 0);
       const adjustedEl = document.getElementById('planAdjustedValue');
-      if (adjustedEl) {
-        if (fixedTotal > 0) {
-          adjustedEl.style.display = 'block';
-          adjustedEl.innerHTML = `% terms apply to <strong>${formatCurrency(pctBase)}</strong> (${formatCurrency(proj['Project Value'] || 0)} Project Value − ${formatCurrency(fixedTotal)} change order) — total still reconciles to Project Value exactly.`;
-        } else {
-          adjustedEl.style.display = 'none';
-        }
+      if (!adjustedEl) return;
+      if (fixedTotal > 0) {
+        adjustedEl.style.display = 'block';
+        adjustedEl.innerHTML = `Category %s apply to <strong>${formatCurrency(Math.max(0, (proj['Project Value'] || 0) - fixedTotal))}</strong> (${formatCurrency(proj['Project Value'] || 0)} Project Value − ${formatCurrency(fixedTotal)} change orders) — total still reconciles to Project Value exactly.`;
+      } else {
+        adjustedEl.style.display = 'none';
       }
     }
 
@@ -3864,44 +4038,86 @@ Thank you in advance.</textarea>
       if (field === 'pct') editingInstallments[i].pct = parseFloat(value) || 0;
       else if (field === 'fixed_amount') editingInstallments[i].fixed_amount = parseFloat(value) || 0;
       else editingInstallments[i][field] = value;
-      renderPlanInstallments(projects.find(p => p['Project Code'] === editingProjectCode));
+      const proj = projects.find(p => p['Project Code'] === editingProjectCode);
+      renderPlanCategories(proj);
+      renderPlanFixedRows(proj);
     }
 
-    function addPlanInstallmentRow() {
-      editingInstallments.push({ pct: 0, milestone: 'custom', label: `Installment ${editingInstallments.length + 1}`, custom_date: '', amount_type: 'pct' });
-      renderPlanInstallments(projects.find(p => p['Project Code'] === editingProjectCode));
+    function addCategoryRow() {
+      editingCategories.push({ id: genCategoryId(), name: '', pct: 0 });
+      renderPlanCategories(projects.find(p => p['Project Code'] === editingProjectCode));
+    }
+
+    function updateCategoryField(ci, field, value) {
+      if (!editingCategories[ci]) return;
+      editingCategories[ci][field] = field === 'pct' ? (parseFloat(value) || 0) : value;
+      renderPlanCategories(projects.find(p => p['Project Code'] === editingProjectCode));
+    }
+
+    function removeCategoryRow(ci) {
+      const cat = editingCategories[ci];
+      if (!cat) return;
+      if (!confirm(`Remove "${cat.name || '(unnamed category)'}" and its installments?`)) return;
+      editingInstallments = editingInstallments.filter(r => r.category !== cat.id);
+      editingCategories.splice(ci, 1);
+      const proj = projects.find(p => p['Project Code'] === editingProjectCode);
+      renderPlanCategories(proj);
+      renderPlanFixedRows(proj);
+    }
+
+    function addPlanInstallmentRow(catId) {
+      const catRowCount = editingInstallments.filter(r => r.category === catId).length;
+      editingInstallments.push({ category: catId, pct: 0, milestone: 'custom', label: `Installment ${catRowCount + 1}`, custom_date: '', amount_type: 'pct' });
+      renderPlanCategories(projects.find(p => p['Project Code'] === editingProjectCode));
     }
 
     function addFixedAmountRow() {
-      editingInstallments.push({ pct: 0, fixed_amount: 0, milestone: 'custom', label: 'Change Order', custom_date: '', amount_type: 'fixed' });
-      renderPlanInstallments(projects.find(p => p['Project Code'] === editingProjectCode));
+      editingInstallments.push({ category: null, pct: 0, fixed_amount: 0, milestone: 'custom', label: 'Change Order', custom_date: '', amount_type: 'fixed' });
+      const proj = projects.find(p => p['Project Code'] === editingProjectCode);
+      renderPlanFixedRows(proj);
+      renderPlanCategories(proj);
     }
 
     function removePlanInstallmentRow(i) {
       editingInstallments.splice(i, 1);
-      renderPlanInstallments(projects.find(p => p['Project Code'] === editingProjectCode));
+      const proj = projects.find(p => p['Project Code'] === editingProjectCode);
+      renderPlanCategories(proj);
+      renderPlanFixedRows(proj);
     }
 
     async function savePaymentPlan() {
       const code = editingProjectCode;
-      if (!editingInstallments.length) {
-        showToast('Add at least one installment, or use Clear Plan to remove it', 'error');
+
+      if (!editingCategories.length && !editingInstallments.some(r => r.amount_type === 'fixed')) {
+        showToast('Add at least one category, or use Clear Plan to remove this project\'s plan', 'error');
         return;
       }
-      const pctTotal = editingInstallments.filter(i => i.amount_type !== 'fixed').reduce((s, i) => s + (parseFloat(i.pct) || 0), 0);
-      if (Math.round(pctTotal) !== 100) {
-        showToast('The % terms must add up to 100% (change orders are extra, on top)', 'error');
+
+      const catPctTotal = editingCategories.reduce((s, c) => s + (parseFloat(c.pct) || 0), 0);
+      if (editingCategories.length && Math.round(catPctTotal) !== 100) {
+        showToast('Categories must add up to 100% of Project Value', 'error');
         return;
+      }
+
+      for (const cat of editingCategories) {
+        const catPctTotal2 = editingInstallments
+          .filter(r => r.category === cat.id && r.amount_type !== 'fixed')
+          .reduce((s, r) => s + (parseFloat(r.pct) || 0), 0);
+        if (Math.round(catPctTotal2) !== 100) {
+          showToast(`"${cat.name || '(unnamed category)'}" installments must add up to 100% (currently ${catPctTotal2}%)`, 'error');
+          return;
+        }
       }
 
       const proj = projects.find(p => p['Project Code'] === code);
       const currentValue = proj ? (proj['Project Value'] || 0) : null;
 
       const now = new Date().toISOString();
+      const installmentsPayload = { categories: editingCategories, rows: editingInstallments };
       try {
         const { error } = await supabaseClient.from('project_payment_terms').upsert({
           project_code: code,
-          installments: editingInstallments,
+          installments: installmentsPayload,
           project_value_at_save: currentValue,
           updated_at: now
         }, { onConflict: 'project_code' });
@@ -3912,7 +4128,7 @@ Thank you in advance.</textarea>
         return;
       }
 
-      projectPaymentPlans[code] = { installments: editingInstallments, valueAtSave: currentValue };
+      projectPaymentPlans[code] = { installments: installmentsPayload, valueAtSave: currentValue };
       const valueWarning = document.getElementById('planValueChangeWarning');
       if (valueWarning) valueWarning.style.display = 'none';
       renderDashboard();
@@ -3931,14 +4147,18 @@ Thank you in advance.</textarea>
         return;
       }
       delete projectPaymentPlans[code];
+      editingCategories = [{ id: genCategoryId(), name: '', pct: 100 }];
       editingInstallments = [];
       const valueWarning = document.getElementById('planValueChangeWarning');
       if (valueWarning) valueWarning.style.display = 'none';
-      renderPlanInstallments(projects.find(p => p['Project Code'] === code));
+      const proj = projects.find(p => p['Project Code'] === code);
+      renderPlanCategories(proj);
+      renderPlanFixedRows(proj);
       renderDashboard();
       renderAmountsTable();
       showToast('✓ Payment plan cleared');
     }
+
 
     function openTemplateManagerModal() {
       const warning = document.getElementById('templateSchemaWarning');
@@ -3953,7 +4173,8 @@ Thank you in advance.</textarea>
 
     function closeTemplateManagerModal() {
       document.getElementById('templateManagerModal').classList.remove('active');
-      renderPlanTemplateOptions();
+      const proj = projects.find(p => p['Project Code'] === editingProjectCode);
+      if (proj) renderPlanCategories(proj);
     }
 
     function renderTemplateList() {
