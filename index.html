@@ -286,8 +286,12 @@
       </div>
       <form id="loginForm" onsubmit="handleLoginSubmit(event)">
         <div class="login-field">
+          <label for="loginEmail">Email</label>
+          <input type="email" id="loginEmail" autocomplete="username" required placeholder="you@marineteknik.com" autofocus>
+        </div>
+        <div class="login-field">
           <label for="loginPassword">Password</label>
-          <input type="password" id="loginPassword" autocomplete="current-password" required placeholder="••••••••" autofocus>
+          <input type="password" id="loginPassword" autocomplete="current-password" required placeholder="••••••••">
         </div>
         <div id="loginError" class="login-error" style="display:none;"></div>
         <button type="submit" id="loginSubmitBtn" class="login-submit">Sign In</button>
@@ -919,7 +923,6 @@ Thank you in advance.</textarea>
   <script>
     const SUPABASE_URL = 'https://mpvsentuomxnyijhrwli.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wdnNlbnR1b214bnlpamhyd2xpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3Njg5MTUsImV4cCI6MjA4OTM0NDkxNX0.yL2YDH-fx12oR03-JFDxj651mWZRQoPywv8ilebzox0';
-    const SHARED_LOGIN_EMAIL = 'team-access@marineteknik.internal';
 
     let supabaseClient;
     let projects = [];
@@ -1028,6 +1031,7 @@ Thank you in advance.</textarea>
 
     async function handleLoginSubmit(event) {
       event.preventDefault();
+      const email = document.getElementById('loginEmail').value.trim();
       const password = document.getElementById('loginPassword').value;
       const errorEl = document.getElementById('loginError');
       const btn = document.getElementById('loginSubmitBtn');
@@ -1037,13 +1041,13 @@ Thank you in advance.</textarea>
       btn.disabled = true;
       btn.textContent = 'Signing in…';
       try {
-        const { error } = await supabaseClient.auth.signInWithPassword({ email: SHARED_LOGIN_EMAIL, password });
+        const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
         if (error) throw error;
         document.getElementById('loginPassword').value = '';
       } catch (e) {
         console.error('Login error:', e);
         errorEl.textContent = e.message === 'Invalid login credentials'
-          ? 'Incorrect password.'
+          ? 'Incorrect email or password.'
           : (e.message || 'Sign-in failed. Please try again.');
         errorEl.style.display = 'block';
       } finally {
