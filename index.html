@@ -868,6 +868,13 @@
             <div class="option-desc">Formatted management report, ready to email</div>
           </div>
         </div>
+        <div class="option">
+          <input type="radio" id="fmt-weekly" name="exportFormat" value="weekly">
+          <div class="option-text">
+            <div class="option-title">Weekly Management Summary (.pdf)</div>
+            <div class="option-desc">One report pulling key stats and priority items from Tracker, Invoice Scheduling, Payment Terms, and Project Status — ignores the Include filters above</div>
+          </div>
+        </div>
       </div>
       <div class="modal-footer">
         <button class="btn-cancel" onclick="closeExportModal()">Cancel</button>
@@ -3112,6 +3119,8 @@ Thank you in advance.</textarea>
       const format = document.querySelector('input[name="exportFormat"]:checked').value;
       if (format === 'pdf') {
         generatePDF();
+      } else if (format === 'weekly') {
+        generateWeeklySummaryPDF();
       } else {
         generateExcel();
       }
@@ -3288,6 +3297,235 @@ Thank you in advance.</textarea>
       doc.save(fileName);
       closeExportModal();
       showToast('✓ PDF report exported');
+    }
+
+    // ============================================================
+    // Weekly Management Summary — one PDF pulling key stats and
+    // priority items from every dashboard (Tracker, Invoice
+    // Scheduling, Payment Terms, Project Status), portfolio-wide.
+    // Ignores the Include checkboxes above — this is a standing
+    // snapshot of the whole portfolio, not a filtered slice.
+    // ============================================================
+    function generateWeeklySummaryPDF() {
+      if (!projects.length) {
+        showToast('No project data to summarize', 'error');
+        return;
+      }
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const marginX = 40;
+
+      const NAVY = [7, 42, 74];
+      const BLUE = [22, 104, 193];
+      const BRASS = [245, 158, 11];
+      const GREEN = [5, 150, 105];
+      const INDIGO = [37, 99, 235];
+      const INK = [33, 29, 78];
+      const MUTED = [110, 118, 130];
+      const LIGHT = [244, 246, 250];
+      const OVERDUE_C = [153, 27, 27];
+      const DUESOON_C = [180, 83, 9];
+
+      const generatedOn = new Date().toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+      const asOfLabel = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+
+      let cursorY;
+
+      doc.setFillColor(...NAVY);
+      doc.rect(0, 0, pageWidth, 70, 'F');
+      doc.setFillColor(...BRASS);
+      doc.rect(0, 70, pageWidth, 2.5, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(18);
+      doc.text('MarineTeknik', marginX, 32);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.setTextColor(200, 220, 240);
+      doc.text('Weekly Management Summary', marginX, 48);
+      doc.setFontSize(8);
+      doc.setTextColor(220, 230, 245);
+      doc.text(`Generated: ${generatedOn}`, pageWidth - marginX, 26, { align: 'right' });
+      doc.text(`As of: ${asOfLabel}`, pageWidth - marginX, 38, { align: 'right' });
+      cursorY = 92;
+
+      function sectionTitle(text, color) {
+        if (cursorY > pageHeight - 70) { doc.addPage(); cursorY = 34; }
+        doc.setFillColor(...color);
+        doc.rect(marginX, cursorY, 4, 15, 'F');
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.setTextColor(...INK);
+        doc.text(text, marginX + 11, cursorY + 11);
+        cursorY += 24;
+      }
+
+      function statBoxRow(stats) {
+        if (cursorY + 58 > pageHeight - 40) { doc.addPage(); cursorY = 34; }
+        const gap = 8;
+        const boxW = (pageWidth - marginX * 2 - gap * (stats.length - 1)) / stats.length;
+        stats.forEach((s, i) => {
+          const x = marginX + i * (boxW + gap);
+          doc.setFillColor(...LIGHT);
+          doc.roundedRect(x, cursorY, boxW, 42, 4, 4, 'F');
+          doc.setFillColor(...(s.accent || BLUE));
+          doc.rect(x, cursorY, 3, 42, 'F');
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(6.8);
+          doc.setTextColor(...MUTED);
+          doc.text(s.label, x + 9, cursorY + 14, { maxWidth: boxW - 14 });
+          doc.setFontSize(12.5);
+          doc.setTextColor(...INK);
+          doc.text(s.value, x + 9, cursorY + 31, { maxWidth: boxW - 14 });
+        });
+        cursorY += 42 + 16;
+      }
+
+      function itemTable(headColor, columns, rows, emptyMessage) {
+        if (!rows.length) {
+          doc.setFont('helvetica', 'italic');
+          doc.setFontSize(8.5);
+          doc.setTextColor(...MUTED);
+          doc.text(emptyMessage, marginX, cursorY + 4);
+          cursorY += 20;
+          return;
+        }
+        doc.autoTable({
+          startY: cursorY,
+          head: [columns.map(c => c.label)],
+          body: rows,
+          styles: { font: 'helvetica', fontSize: 8, cellPadding: 4, textColor: INK, overflow: 'linebreak' },
+          headStyles: { fillColor: headColor, textColor: [255, 255, 255], fontStyle: 'bold' },
+          alternateRowStyles: { fillColor: LIGHT },
+          margin: { left: marginX, right: marginX },
+          columnStyles: columns.reduce((acc, c, i) => { if (c.align) acc[i] = { halign: c.align }; if (c.width) acc[i] = { ...(acc[i]||{}), cellWidth: c.width }; return acc; }, {})
+        });
+        cursorY = doc.lastAutoTable.finalY + 20;
+      }
+
+      // ---- Section 1: Portfolio Overview ----
+      sectionTitle('Portfolio Overview', BLUE);
+      const totalValue = projects.reduce((s, p) => s + (p['Project Value'] || 0), 0);
+      const totalInvoiced = projects.reduce((s, p) => s + (p['Invoiced Value'] || 0), 0);
+      const totalRemaining = projects.reduce((s, p) => s + (p['Remaining Inv'] || 0), 0);
+      const overdueCount = projects.filter(p => p.invoiceStatus === 'OVERDUE').length;
+      const duesoonCount = projects.filter(p => p.invoiceStatus === 'DUE SOON').length;
+      const nodateCount = projects.filter(p => p.invoiceStatus === 'No Date').length;
+      const flagC = projects.filter(p => flags[p['Project Code']]?.contracts).length;
+      const flagE = projects.filter(p => flags[p['Project Code']]?.estimation).length;
+
+      statBoxRow([
+        { label: 'TOTAL PROJECTS', value: String(projects.length) },
+        { label: 'TOTAL VALUE', value: formatCurrency(totalValue) },
+        { label: 'INVOICED TO DATE', value: formatCurrency(totalInvoiced) },
+        { label: 'REMAINING', value: formatCurrency(totalRemaining) }
+      ]);
+      statBoxRow([
+        { label: 'OVERDUE PROJECTS', value: String(overdueCount), accent: OVERDUE_C },
+        { label: 'DUE SOON', value: String(duesoonCount), accent: DUESOON_C },
+        { label: 'CONTRACTS FLAGGED', value: String(flagC) },
+        { label: 'ESTIMATION FLAGGED', value: String(flagE) }
+      ]);
+
+      // ---- Section 2: Invoice Scheduling Priority ----
+      sectionTitle('Invoice Scheduling Priority', BRASS);
+      let schedOverdueAmt = 0, schedDueSoonAmt = 0, schedUpcomingAmt = 0;
+      const overdueItems = [];
+      projects.forEach(p => {
+        getProjectInvoiceEvents(p).forEach(ev => {
+          if (!ev.date || ev.invoiced) return;
+          const status = getStatusForDate(ev.date);
+          if (status === 'OVERDUE') { schedOverdueAmt += ev.amount; overdueItems.push({ p, ev }); }
+          else if (status === 'DUE SOON') schedDueSoonAmt += ev.amount;
+          else schedUpcomingAmt += ev.amount;
+        });
+      });
+      statBoxRow([
+        { label: 'OVERDUE TO INVOICE', value: formatCurrency(schedOverdueAmt), accent: OVERDUE_C },
+        { label: 'DUE SOON (\u226430 DAYS)', value: formatCurrency(schedDueSoonAmt), accent: DUESOON_C },
+        { label: 'UPCOMING', value: formatCurrency(schedUpcomingAmt), accent: GREEN }
+      ]);
+      overdueItems.sort((a, b) => a.ev.date - b.ev.date);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9);
+      doc.setTextColor(...INK);
+      doc.text('Oldest overdue invoices', marginX, cursorY);
+      cursorY += 10;
+      itemTable(OVERDUE_C,
+        [{ label: 'Code', width: 55 }, { label: 'Project' }, { label: 'PM', width: 80 }, { label: 'Due Date', width: 60 }, { label: 'Amount', width: 65, align: 'right' }],
+        overdueItems.slice(0, 8).map(({ p, ev }) => [p['Project Code'], p['Project Name'] || '', p['Person Responsible'] || '', formatDateObj(ev.date), formatCurrency(ev.amount)]),
+        'No overdue invoices this week.'
+      );
+
+      // ---- Section 3: Payment Terms Health ----
+      sectionTitle('Payment Terms Health', GREEN);
+      let setCount = 0, notSetCount = 0, revisionCount = 0;
+      const revisionList = [];
+      projects.forEach(p => {
+        const st = getPaymentPlanStatus(p);
+        if (st === 'set') setCount++;
+        else if (st === 'needs_revision') { revisionCount++; revisionList.push(p); }
+        else notSetCount++;
+      });
+      statBoxRow([
+        { label: 'TERMS SET', value: String(setCount), accent: GREEN },
+        { label: 'NOT SET', value: String(notSetCount) },
+        { label: 'NEEDS REVISION', value: String(revisionCount), accent: OVERDUE_C }
+      ]);
+      if (revisionList.length) {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(9);
+        doc.setTextColor(...INK);
+        doc.text('Projects needing payment-terms revision', marginX, cursorY);
+        cursorY += 10;
+      }
+      itemTable(OVERDUE_C,
+        [{ label: 'Code', width: 55 }, { label: 'Project' }, { label: 'PM', width: 80 }, { label: 'Project Value', width: 75, align: 'right' }],
+        revisionList.slice(0, 8).map(p => [p['Project Code'], p['Project Name'] || '', p['Person Responsible'] || '', formatCurrency(p['Project Value'])]),
+        'No projects currently need a payment-terms revision.'
+      );
+
+      // ---- Section 4: Project Status ----
+      sectionTitle('Project Status', INDIGO);
+      const completionPct = totalValue > 0 ? Math.round((totalInvoiced / totalValue) * 100) : 0;
+      statBoxRow([
+        { label: 'PORTFOLIO COMPLETION', value: completionPct + '%', accent: INDIGO },
+        { label: 'OVERDUE', value: String(overdueCount), accent: OVERDUE_C },
+        { label: 'DUE SOON', value: String(duesoonCount), accent: DUESOON_C },
+        { label: 'NO DATE SET', value: String(nodateCount) }
+      ]);
+      const topIssues = projects
+        .filter(p => p.invoiceStatus === 'OVERDUE')
+        .sort((a, b) => (b['Remaining Inv'] || 0) - (a['Remaining Inv'] || 0));
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9);
+      doc.setTextColor(...INK);
+      doc.text('Top issues — most overdue by remaining value', marginX, cursorY);
+      cursorY += 10;
+      itemTable(INDIGO,
+        [{ label: 'Code', width: 55 }, { label: 'Project' }, { label: 'PM', width: 80 }, { label: 'Remaining', width: 70, align: 'right' }],
+        topIssues.slice(0, 8).map(p => [p['Project Code'], p['Project Name'] || '', p['Person Responsible'] || '', formatCurrency(p['Remaining Inv'])]),
+        'No overdue projects — portfolio is on track.'
+      );
+
+      const totalPages = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= totalPages; i++) {
+        doc.setPage(i);
+        doc.setFont('helvetica', 'italic');
+        doc.setFontSize(7.5);
+        doc.setTextColor(...MUTED);
+        doc.text('Generated automatically from the MarineTeknik Project Invoice Tracker.', marginX, pageHeight - 20);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Page ${i} of ${totalPages}`, pageWidth - marginX, pageHeight - 20, { align: 'right' });
+      }
+
+      const fileName = `MarineTeknik_Weekly_Summary_${new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }).replace(/\//g, '-')}.pdf`;
+      doc.save(fileName);
+      closeExportModal();
+      showToast('✓ Weekly summary exported');
     }
 
     // ============================================================
