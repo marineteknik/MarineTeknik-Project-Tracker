@@ -547,6 +547,7 @@
             <button class="filter-btn" data-amtinvfilter="duesoon" onclick="setAmountsInvoiceFilter(event, 'duesoon')" style="border-color:var(--duesoon);color:var(--duesoon);">Due Soon</button>
             <button class="filter-btn" data-amtinvfilter="upcoming" onclick="setAmountsInvoiceFilter(event, 'upcoming')" style="border-color:var(--upcoming);color:var(--upcoming);">Upcoming</button>
           </div>
+          <button class="filter-btn" id="amtExcludeZeroBtn" onclick="toggleAmountsExcludeZeroRemaining()" style="margin-left:auto;">Exclude $0 Remaining</button>
         </div>
         <div class="controls-row" style="margin-top:10px;justify-content:flex-start;">
           <span style="font-size:12px;color:var(--ink-muted)">Set the estimated next-invoice amount for each project — either a single override or a full payment plan (e.g. 30/30/40 at Order / Start / End). Change orders sit on top as fixed amounts. If a project's Value changes after its plan was saved, it's flagged <strong style="color:var(--overdue)">Needs Revision</strong>.</span>
@@ -950,6 +951,7 @@ Thank you in advance.</textarea>
     let dashboardYear = null;
     let amountsFilter = 'all';
     let amountsInvoiceFilter = 'all';
+    let amountsExcludeZeroRemaining = false;
     let amountsPM = null;
     const calendarInstances = {
       forecast: { centerDate: null, data: [], containerId: 'invoiceCalendar', rangeLabelId: 'calendarRangeLabel', summaryContainerId: 'calendarMonthSummary', showInvoiced: false, showBadges: false }
@@ -1838,6 +1840,13 @@ Thank you in advance.</textarea>
       renderAmountsTable();
     }
 
+    function toggleAmountsExcludeZeroRemaining() {
+      amountsExcludeZeroRemaining = !amountsExcludeZeroRemaining;
+      const btn = document.getElementById('amtExcludeZeroBtn');
+      if (btn) btn.classList.toggle('active', amountsExcludeZeroRemaining);
+      renderAmountsTable();
+    }
+
     function buildAmountsPMDropdown() {
       const pms = {};
       projects.forEach(p => {
@@ -1879,6 +1888,7 @@ Thank you in advance.</textarea>
 
       let rows = projects.slice();
       if (amountsPM) rows = rows.filter(p => (p['Person Responsible'] || '(None)') === amountsPM);
+      if (amountsExcludeZeroRemaining) rows = rows.filter(p => (p['Remaining Inv'] || 0) > 0);
       rows = rows.filter(p => {
         const status = getPaymentPlanStatus(p);
         if (amountsFilter === 'set') return status === 'set';
